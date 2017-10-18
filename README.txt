@@ -84,7 +84,7 @@ automated).
 A NOTE ABOUT TESTS: My tests relied on publicly-hosted but non-open-source code.
 The relevant code has been omitted from this repo. As a result, some tests might
 fail (I've not run the tests without the relevant code). The code was a
-collection of ambitious student games, written in Jack. Without them, all I was
+collection of ambitious student games, written in Jack. Without them,  I was
 writing a compiler for an abstractly-defined language with very little
 accompanying practice. When and if I find a substitute, I'll throw it into this
 repo.
@@ -105,5 +105,5 @@ quality work, I did a bit of refactoring, clean-up, and re-writing. It's not
 
 
 ---
-Daniel J Rounds
-29 August, 2016
+Daniel J Rounds,
+2017
