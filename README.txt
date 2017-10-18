@@ -85,13 +85,12 @@ automated).
 A NOTE ABOUT INCLUDED CODE: In ./Compiler/tests/Extras ... is a class's Jack
 projects I found online--a bunch of very ambitious games. They were vital to me
 writing convincing tests for the compiler. Without them, all I had was an
-abstractly-defined language with very little accompanying practice. I do not
+abstractly-defined language with very little accompanying practice. I do /not/
 have permission to distribute the files, nor do they even seem to be online,
 anymore.
 
-They're included simply because they're vital to my tests and because I'm not
-publically distributing this code. Nor am I using their code as anything but
-neutral input.
+They're included simply because they're vital to my tests. If you see your
+project, here, and you want it removed: LET ME KNOW. I'll /gladly/ remove it.
 
 A NOTE ON STYLE: My code lines are almost invariably longer than 80 characters,
 because my variable/function/method/&c names are verbose. This is a conscious
