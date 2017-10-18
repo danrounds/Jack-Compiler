@@ -98,11 +98,13 @@ reading code on hardline terminals. Apologies to you, if you're one.
                                Project History:
 --------------------------------------------------------------------------------
 This is a project I completed in 2012--basically the first substantial
-programming project I ever worked on. In order to turn the code into portfolio-
-quality work, I did a bit of refactoring, clean-up, and re-writing. It's not
-"done," per se--merely "release quality."
+programming project I ever worked on. In make this worth hosting on GitHub, I
+did a bit of refactoring, clean-up, and re-writing. It needs some work, in terms
+of code style, and it really should be modularized, a bit more (as in: discrete
+components belong in their own modules).
 
-
+Other than that, it's done--insofar as something I could extend for the rest
+of my life can be considered "done".
 
 ---
 Daniel J Rounds,
