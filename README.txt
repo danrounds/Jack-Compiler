@@ -4,7 +4,6 @@ JackCC -- Jack Complete Compiler
 Jack is a C-esque, weakly-typed structured programming language. This is a spec-
 compliant compiler.
 
-
 Jack, along with the tECS VM intermediary language, Hack Architecture, and
 corresponding Hack Assembly language are defined in the book The Elements of
 Computing Systems, by Nisan and Schoken (2005).
@@ -82,15 +81,13 @@ test error-detection. The projects have been extensively tested using tools
 included with tECS, but they're not included, here (they're not easily
 automated).
 
-A NOTE ABOUT INCLUDED CODE: In ./Compiler/tests/Extras ... is a class's Jack
-projects I found online--a bunch of very ambitious games. They were vital to me
-writing convincing tests for the compiler. Without them, all I had was an
-abstractly-defined language with very little accompanying practice. I do /not/
-have permission to distribute the files, nor do they even seem to be online,
-anymore.
-
-They're included simply because they're vital to my tests. If you see your
-project, here, and you want it removed: LET ME KNOW. I'll /gladly/ remove it.
+A NOTE ABOUT TESTS: My tests relied on publicly-hosted but non-open-source code.
+The relevant code has been omitted from this repo. As a result, some tests might
+fail (I've not run the tests without the relevant code). The code was a
+collection of ambitious student games, written in Jack. Without them, all I was
+writing a compiler for an abstractly-defined language with very little
+accompanying practice. When and if I find a substitute, I'll throw it into this
+repo.
 
 A NOTE ON STYLE: My code lines are almost invariably longer than 80 characters,
 because my variable/function/method/&c names are verbose. This is a conscious
