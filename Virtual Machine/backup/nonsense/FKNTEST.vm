@@ -1,0 +1,17 @@
+// FUQAROUND TESTfile
+
+// Executes pop and push commands using the static segment.
+//push constant 9000
+//pop pointer 0
+//push constant 9001
+//pop pointer 1
+//push constant 666
+//pop this 0
+//push constant 13
+//pop that 0
+//push constant 989
+//pop this 1
+push constant 9001
+pop temp 7
+push constant 999
+pop argument 0

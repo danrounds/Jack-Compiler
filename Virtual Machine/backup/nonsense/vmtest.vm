@@ -1,0 +1,5 @@
+push constant 99      //does some ((((
+//pop constant 99       -- potential for error-handling; don't pop a constant
+//pop constant 9999     -- potential for error-handling; don't pop a constant
+push constant 19
+//eq 3

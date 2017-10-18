@@ -1,0 +1,25 @@
+// This file is part of the materials accompanying the book 
+// "The Elements of Computing Systems" by Nisan and Schocken, 
+// MIT Press. Book site: www.idc.ac.il/tecs
+// File name: projects/10/ArrayTest/Main.jack
+
+/** Computes the average of a sequence of integers. */
+class Otro {
+    // static Otro thingy;
+
+
+    constructor Otro new() {
+    var int i;
+    var Otro yodle;
+
+    // do Otro.try_it();
+
+    return this;
+    }
+
+    method void try_it(int three) {
+           return;
+    }
+
+
+}

@@ -1,0 +1,27 @@
+Requisite AND possible improvements for JackCC
+
+* STARTED Build CLI front-end for compiler
+*** MAYBE Options:
+***** MAYBE Keep intermediary files?
+***** TODO Enable muted warnings
+      
+* MAYBE Optimizations
+*** Implement INC and DEC VM commands
+*** ...combined with a specialty parse stage that converts increments and decrements into INC and DEC
+***** Possibility of converting smaller additions and subtractions into a series of INCs and DECs, too, but I'd need to think about that, in light of OoOperations
+*** In the VM, output `return' code only once (maybe @ the head of the code), and replace it with a jump, thereafter 
+*** Do the same as the above with `add', `sub', `neg', `eq', etc. These can all be optimized for space saving (esp. since our hypothetical architecture has a completely flat memory setup
+*** Write assembly code for multiplication and division
+*** 
+
+* Tests
+*** Automate the error tests in the compiler stage
+
+* Clean-ups
+*** TODO Fix error output in compiler, so that an entire stack trace doesn't happen
+
+
+* TODO SCAN
+*** Instruction set for Hack Assembly
+*** Instruction descriptions for the VM language
+*** p.163, which describes the function-oriented VM commands (`call f n', 'function f k', `return'

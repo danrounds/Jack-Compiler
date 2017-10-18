@@ -1,0 +1,64 @@
+++TO-DOs:
+
+Space optimization is the biggest upgrade the VM could use. That would mean:
+
+- Add `inc' and `dec' instructions, along with a stage between Compiler and VM
+  to convert things of the form `v = v + 1' / `v = v - 1' into incs/decs.
+  Conceivably, some smaller additions and subtractions of constancts could
+  fruitfully be converted, too.
+
+- for `return' code, output the code a single time and replace all VM-command
+  instances of it with a jump to that point. Refresh yourself on labeling
+  conventions, so that you can give the single instance of `return' a unique
+  label.
+
+- for `function NAME n',
+    @SP
+    A=M
+    M=0
+    @SP
+    M=M+1
+  is outputted `n' times. Instead of outputting it for each time, replace it
+  with a decrement and JMPs.
+
+- Optimize `call NAME n'. With some indirection, you could do away with tons of
+  redundant code generation, since the only difference between invocations of
+  `call NAME n' are different `n's issued, and different labels.
+
+      | call RAY 0     | call RAY 2     | call DAVE 2     |
+      |----------------+----------------+-----------------|
+      |    ...         |    ...         |     ...         |
+      | @5             | @7             | @7              |  ***** value = n + 5
+      | D=D-A          | D=D-A          | D=D-A           |
+      | @ARG           | @ARG           | @ARG            |
+      | M=D            | M=D            | M=D             |
+      | @SP            | @SP            | @SP             |
+      | D=M            | D=M            | D=M             |
+      | @LCL           | @LCL           | @LCL            |
+      | M=D            | M=D            | M=D             |
+      | @RAY           | @RAY           | @DAVE           |
+      | 0;JMP          | 0;JMP          | 0;JMP           |
+      | (RTN_ADR_RAY0) | (RTN_ADR_RAY0) | (RTN_ADR_DAVE0) |  *****
+
+- Clean up the `bootstrap code', so we that use JMP and a decrement to repeat:
+                   @SP
+                   A=M
+                   M=0
+                   @SP
+                   M=M+1
+ ,instead of repeating the instructions.
+
+- Rewrite `Math.multiply 2' and `Math.divide 2' as assembly programs
+
+- Possibly replace add, sub, neg, etc with single instances of "real" code
+  output, and jumps to the instructions for all other instances. This has
+  potential to /massively/ slow the Hack machine down, though.
+
+|||| The key to much of the above would seem to be claiming part of static
+     memory to use as a work space, so's to store things like the number of
+     repetitions for running variable initialization/allocation at the heads of
+     `function's AND storing (perhaps) the `n' variable for `call NAME n'
+
+
+DJR, 27 August, 2016
++============================================================================+

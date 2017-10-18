@@ -1,0 +1,15 @@
+def fileparser(path):
+    import os
+    import glob
+
+    if ".vm" in path:
+        files = [path]
+    else:
+        try:
+            files = []
+            for infile in glob.glob(os.path.join(path, '*.txt')):
+                files.append(infile)
+        except:
+            print("Badly formed file or path name.")
+            return 0
+    return files

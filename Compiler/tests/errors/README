@@ -1,0 +1,15 @@
+These Jack files are designed to evoke compiler errors and warnings.
+
+They're all named in a (hopefully) explanatory way.
+
+The subfolders are to be compiled AS folders, e.g.,
+    $ jackcc.py call_to_method_does_not_exist/
+    
+...while the individual files in the main folder are to be compiled, one at a
+time, i.e.:
+    $ jackcc.py file_name.jack
+
+
+
+DJR,
+27 August, 2016

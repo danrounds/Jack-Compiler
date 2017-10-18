@@ -1,0 +1,29 @@
+class Main {
+    function void main() {
+		var int j;
+        var int condition;
+		
+		do LinkedList.initiator(6000, 3);
+        do LinkedList.put_value(1);
+        do LinkedList.put_value(2);
+        do LinkedList.put_value(3);
+        do LinkedList.put_value(4);
+        do LinkedList.put_value(5);
+        do LinkedList.put_value(6);
+        do LinkedList.put_value(7);
+        do LinkedList.put_value(8);
+        do LinkedList.put_value(9);
+        do LinkedList.put_value(10);
+        do LinkedList.put_value(11);
+        do LinkedList.put_value(12);
+		
+		let condition = LinkedList.get_next();
+		while (~(~condition = 0)) {
+			do Output.printInt(condition);
+			do Output.printChar(33);
+			do Output.println();
+			let condition = LinkedList.get_next();
+		}
+        return;
+    }
+}

@@ -1,0 +1,38 @@
+TODO & Possible additions:
+--------------------------------------------------------------------------------
+  - Automate testing of error-messages/warnings
+  - Link the OS files referenced in the files being compiled to the relevant OS
+    files (./OS/*). This would be easily accomplished by using the
+    `varTable.list_of_extended_types' list and testing presence of ('Array',\
+    'Keyboard', 'Math', 'Memory', 'Output', 'Screen', 'String', 'Sys')
+  - Document Function Returns? Stack
+  - Document IfWhile identifiers
+  - Repair Jack's strange semantics for Whiles. Normal whiles take int values
+    not equal zero as True. Jack's whiles take all values not equal -1 as False.
+    This makes some of the more useful conditional idioms available through weak
+    typing impossible to use. Python's not exactly weakly typed and even IT has
+    non-zero ints (and non-empty objects) as a substitute for True.
+  - Add increment/decrement
+  - Add '<=', '>=', '!='
+  - Add short-circuit evaluation
+  - Change the file input from line to block input to decrease disk-access lag
+    (see: http://effbot.org/zone/readline-performance.htm )
+ OR Just input the entire file at once (using .lines, I believe. None are all that large. 
+  - Make arrays more efficient at compile time, if they're integer indexed.
+    -- BUT WHAT HAPPENS IF ONE DOES CONSECUTIVE ARRAY CALLS, WHILE POINTER 1
+       POINTS TO THE ARRAY IN QUESTION?
+  - Clean up/optimize conditionals (if / while) logic, see:
+http://tecs-questions-and-answers-forum.32033.n3.nabble.com/some-improvements-td1382039.html
+  - Remove null return and post return Pop in instances of void functions
+  - See if you can insert deallocation instructions after the use of strings,
+    to prevent memory leaks OR statically allocate strings, on program initialization
+  - Add exceptions
+  - Order of operations, see:
+http://tecs-questions-and-answers-forum.32033.n3.nabble.com/Question-about-expression-compilation-td719567.html
+  - Backend that generates "real" (e.g., x86/x64) assembly code
+  - Ability to assign function pointers to variable names (requires unification
+    of HACK's PROGRAM and DATA memories).
+ - Conditional compilation--either using something graph-y to track function
+   invocation OR, something more modest and limited to entire "modules" of the
+   standard library (you'd obviously need to track dependencies /within/ the
+   library, were that the approach)

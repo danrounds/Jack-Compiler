@@ -1,0 +1,56 @@
+/* This is actually an example of the compiler's warnings being over zealous, but that's okay */
+class LinkedList {
+    static boolean first_time_called;
+	static int list_base; 
+    static int current_write;
+	static int interval;
+	
+	static int current_read;
+	
+    function void initiator(int base, int incr) {
+        let first_time_called = true;
+		let list_base = base;
+		let current_write = base;
+		let current_read = base;
+		let interval = incr;
+		return;
+    }
+
+	function void get_new_node() {
+		let current_write = current_write + interval;
+		return;
+	}
+    
+    function void put_value(int n) {
+    // adds )))) with no regard for human life/for whether stuff's already in the lista
+        var int old;		
+		if (first_time_called) {
+			let current_write[0] = n;
+			let current_write[1] = ~0;
+			let first_time_called = false;
+		}
+		else { // all subsequent items
+			let old = current_write;
+			do LinkedList.get_new_node();
+			let old[1] = current_write;
+			let current_write[0] = n;
+			let current_write[1] = ~0;
+        }	
+		return;
+    }
+    
+	function int get_next() {
+		var int n;
+        if (first_time_called) {
+            return ~0;
+			// LinkedList returns ~0, when it's empty (because it's not an unsigned int value)
+        }
+		else {
+			let n = current_read[0];
+			let current_read = current_read[1];
+            if (current_read = ~0) { return current_read; }
+			return n;
+        }
+    }
+	
+}

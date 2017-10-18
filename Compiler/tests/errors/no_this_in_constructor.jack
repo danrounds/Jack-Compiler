@@ -1,0 +1,25 @@
+// This file is part of the materials accompanying the book 
+// "The Elements of Computing Systems" by Nisan and Schocken, 
+// MIT Press. Book site: www.idc.ac.il/tecs
+// File name: projects/10/ArrayTest/Main.jack
+
+/** Computes the average of a sequence of integers. */
+
+
+    class Main {
+
+    constructor Main new() {
+        return;
+
+    }
+
+    function void Main () {
+    var int a;
+
+        return this;
+    }
+
+    function int real_function(int b) {
+        return 3;
+    }
+}

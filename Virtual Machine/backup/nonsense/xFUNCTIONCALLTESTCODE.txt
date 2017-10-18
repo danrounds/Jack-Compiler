@@ -1,0 +1,201 @@
+bootstrap:
+	SP=256
+	call Sys.init
+	
+	label Sys.init
+	call Main
+
+////////////////////////////////////////////////////////////////////////
+// Return Redux
+//
+
+@LCL
+D=M           //FRAME = LCL
+@R5
+M=D
+
+@R5           //RET = *(FRAME-5)
+D=M       
+@5
+D=D-A
+@R6       
+M=D
+
+
+@SP
+DM=M-1        //*ARG = pop()
+@ARG
+A=M
+M=D
+
+
+@ARG
+D=M+1         //SP = ARG+1
+@SP
+M=D
+
+@R6
+DM=M-1
+@THAT
+M=D
+
+@R6
+DM=M-1
+@THIS
+M=D
+
+@R6
+DM=M-1
+@ARG
+M=D
+
+@R6
+DM=M-1
+@LCL
+M=D
+
+@R6
+0;JMP
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// `return`
+//
+//
+
+//FRAME = LCL
+@LCL
+D=M
+@5            //RET = *(FRAME-5)
+D=M-D
+@R13
+M=D
+
+@SP
+AM=M-1
+D=M           //*ARG = pop()
+@ARG
+A=M
+M=D
+
+@SP           //SP = ARG+1 -- @ARG still in D reg.
+M=D+1
+
+@LCL
+DM=M-1        //LCL = LCL-1 orrrrr *(FRAME-1)
+@THAT
+M=D
+
+@LCL
+DM=M-1        //LCL = LCL-2 orrrr *(FRAME-2)
+@THIS
+M=D
+
+@LCL
+DM=M-1        //LCL = LCL-3 orrrr *(FRAME-3)
+@ARG
+M=D
+
+@LCL          //LCL = LCL-4 orrrr *(FRAME-4)
+DM=M-1
+
+@R13          //goto RET
+0;JMP
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////
+// call f n
+
+returnaddy = filename+"$"+function
+
+[returnaddy, 'LCL', 'ARG', 'THIS', 'THAT']
+
+@return_address_name_goes_here
+D=A
+@SP		//push return-address
+A=M
+M=D
+@SP
+M=M+1
+
+
+@LCL
+D=A
+@SP		//push LCL onto the stack
+A=M
+M=D
+@SP
+M=M+1
+
+@ARG
+D=A
+@SP		//push ARG onto the stack
+A=M
+M=D
+@SP
+M=M+1
+
+@THIS
+D=A
+@SP		//push THIS onto the stack
+A=M
+M=D
+@SP
+M=M+1
+
+@THAT
+D=A
+@SP		//push THAT onto the stack
+A=M
+M=D
+@SP
+M=M+1
+
+
+@SP
+D=A
+@n_local_vars	//ARG = SP-n-5
+D=D-A		//still don't know WTF this even means
+@5		//if i misunderstood, then it's wrong
+D=D-A
+@ARG
+M=D
+
+write.write("@"+returnaddy+"\n0;JMP\n") 	//goto f
+
+write.write("("+returnaddy+")\n")		//(return-address)

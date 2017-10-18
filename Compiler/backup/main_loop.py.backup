@@ -1,0 +1,186 @@
+#!/usr/bin/env python3
+
+'''Jack to ``intermediate VM representation' portion of a full-compiler (to Hack machine code).
+
+Turns spec-compliant Jack code to spec-compliant tECS VM code.
+
+Jack is a context-free grammar, approaching LL(0)--C-esque, but /very/ weakly typed,
+ and without spec-defined order-of-operations. It comes equipped with a relatively full
+ standard library and uses objects and a bit of OO semantics to extend its type system.
+
+It effectively has no run-time system (at least not in the Object Oriented, scripting, or
+dynamic language sense), and so is not truly object oriented. Things like dynamic dispatch are
+/no-go/.
+
+It also has really...unique truth semantics (e.g. in if/while statements)
+
+'''
+
+
+# TO-DO & possible additions:
+#   - Document AND FIX Function Returns? Stack
+#       + CHECK D:\Programming\Computer From the Ground Up\anotherTest\returnStackBREAKER
+#         for them deetz
+#   - Document IfWhile identifiers
+#   - Repair the implementation of Whiles. Normal whiles take int values not
+#     equal zero as True. Jack's whiles take all values not equal -1 as False.
+#     This makes some of the more useful conditional idioms available through
+#     weak typing impossible to use. Python's not exactly weakly typed and even
+#     IT has non-zero ints (and non-empty objects) as a substitute for True.
+#     For ex. of where this could have meaningful application, see, e.g.
+#    `multiplication_alt()` from your implementation of the Jack Standard
+#     Library.
+#   - Add increment/decrement
+#   - Add '<=', '>=', '!='
+#   - Add short-circuit evaluation
+#   - Change the file input from line to block input to decrease disk-access
+#     lag ( see: http://effbot.org/zone/readline-performance.htm )
+#  OR Just input the entire file at once (using .lines, I believe. None are
+#     all that large. 
+#   - Add some exception handling so that crashes happen gracefully (unless
+#     Python scripts that crash at the command line automatically release bound
+#     resources
+#   - Make arrays more efficient at compile time, if they're integer indexed.
+#     -- BUT WHAT HAPPENS IF ONE DOES CONSECUTIVE ARRAY CALLS, WHILE POINTER 1
+#     POINTS TO THE ARRAY IN QUESTION?
+#   - Clean up/optimize conditionals (if / while) logic, see: http://tecs-questions-and-answers-forum.32033.n3.nabble.com/some-improvements-td1382039.html
+#   - Remove null return and post return Pop in instances of void functions
+#   - See if you can insert deallocation instructions after the use of strings,
+#     to prevent memory leaks OR statically allocate strings, on program initialization
+#   - Add linking that only generates code for functions that are actually
+#     called (i.e., via subroutine call, obviously)
+#   - Add exceptions
+#   - Order of operations, see:   http://tecs-questions-and-answers-forum.32033.n3.nabble.com/Question-about-expression-compilation-td719567.html
+#   - Backend that generates "real" (e.g., x86/x64) assembly code
+#   - Ability to assign function pointers to variable names (requires
+#     unification of HACK's PROGRAM and DATA memories).
+#  - Conditional compilation--either using something graph-y to track function invocation OR,
+#    something more modest and limited to entire "modules" of the standard library (you'd obviously need
+#    to track dependencies /within/ the library, were that the approach)
+
+###############################################################################
+
+import lex_and_parse as parse
+import back_end as output_stage
+
+# from . import lex_and_parse as parse
+# from . import back_end as output_stage
+
+def mainloop(in_pathorfile='./tests/test_code0/Square/Square.jack', outputmode='code', stronglinking='False',\
+             custom_out_dir=None, vmfinaloutput=True, warnings=True):
+    '''Parses a Jack file, generating either (1) code, (2) an XML parse tree, (3) XML tokenization.
+
+XML output was left intact, because tECS has an array of tests based on tokens and parse tree output, \
+and that helps us know this thing's working.
+
+This function is kind of ugly, because of the aforementioned backwards compatibility, because it ties together \
+two other modules and passes data between them, but--MOST ESPECIALLY--because I don't want to obscure the didactic \
+function of the compiler with loads of abstraction. It's intended that you can follow the function top to bottom \
+and have a very good idea of what is happening, at any given moment.
+
+`mainloop()`
+    1 Parses either a single file or all the .jack files pointed to by a given  path [files sussed out via \
+`fileorpathparser()`]
+    2 Calls the output stage  [`... . initialize_globals()`] to assign filenames to its output methods,
+    3 Outputs one of the following:
+    1.  code
+            -- outputmode == 'code'
+    2.  XML Parse Tree
+            -- outputmode == 'parse_tree'
+    3.  XML Tokens (result of tokenizer)
+            -- codeoutput ==  'tokens\''''
+
+    filelist = fileorpathparser(in_pathorfile)
+    
+    if outputmode == 'code': # `Code output' OR `code output into temp files'
+        import os
+        print('Doing initial parse of:')
+        output_stage.initialize_globals(stronglinking, parsenum=1) # initializes globals we'll need for code output
+
+        # Initial parse; fleshes out hash-tables, so that we have relevant
+        #  typing/function prototype (&c) information, for the output stage \/
+        for filename in filelist:
+            print(filename)
+
+            tokengenerator = parse.lexer(filename)
+            output_stage.define_global_input_name(filename)
+            parse.parseClass(tokengenerator)
+
+        # Second parse + code output \/
+        output_stage.defineParseNumber(2)
+        for filename in filelist:
+            if custom_out_dir:
+                # We've specified a custom path for output. Files are still INPUT_FILE_PREFIX.jack,
+                #  as per the standard and original spec for the compiler
+                base = os.path.basename(filename)[:-5] + '.vm'
+                outfilename = os.path.join(custom_out_dir, base)
+            else:
+                # outfilename = filename[:-5] + '.vm'
+                outfilename = filename[:-5] + '_COMPARE.vm'
+
+            output_stage.define_global_input_name(filename)
+
+            tokengenerator = parse.lexer(filename)
+            output_stage.output.defineOutputValues(outfilename)
+            parse.parseClass(tokengenerator)
+
+            if vmfinaloutput == True:
+            # We only output file names if we're keeping output files. IF this is false, VM files
+            #  are just a step toward full conversion (e.g. we're using JackCC as our front-end)
+                print('Output: '+ outfilename)
+            # output_stage.global_file_out.close()
+            output_stage.output.closeFile()
+
+    elif outputmode == 'parse_tree': # Outputs XML parse tree (for purposes of testing
+        output_stage.initialize_globals(stronglinking, parsenum=0) # initializes some globals we'll need for code output
+        for filename in filelist:
+            # outfilename = filename[:-5] + '_.xml'
+            outfilename = filename[:-5] + '_COMPARE_.xml'
+            output_stage.define_global_input_name(filename)
+            output_stage.output.defineOutputValues(outfilename)
+
+            # Outputs parse tree in XML
+            tokengenerator = parse.lexer(filename)
+            # output_stage.defineParseNumber(0)
+            parse.parseClass(tokengenerator)
+            print('Output: '+ outfilename+'\n')
+            # output_stage.global_file_out.close()
+            output_stage.output.closeFile()
+
+    elif outputmode == 'tokens': # Tokenizer -- outputs XML token "tree"
+        output_stage.initialize_globals(stronglinking, parsenum=0) # initializes some globals we'll need for code output
+        # output_stage.defineParseNumber(0)
+        for filename in filelist:
+            # outfilename = filename[:-5] + 'T_.xml'
+            outfilename = filename[:-5] + '_COMPARE_T_.xml'
+            output_stage.define_global_input_name(filename)
+            output_stage.output.defineOutputValues(outfilename)
+            print('Reading: '+ filename)
+
+            # Outputs tokens in XML
+            tokengenerator = parse.lexer(filename)
+            output_stage.output.startt('tokens') # opening tag `<tokens>`
+            for token in tokengenerator:
+                output_stage.output.outt(token) # tokenizing + output
+            output_stage.output.endt('tokens')  # closing tag `</tokens>`
+            print('Output: '+outfilename)
+            # output_stage.global_file_out.close()
+            output_stage.output.closeFile()
+
+    print()
+
+def fileorpathparser(path):
+    '''Returns a list containing either the single .jack file pointed to or the .jack files in the specified directory'''
+    import os; import glob
+    try:
+        if path.endswith('.jack'):
+            files = [path]
+        else:
+            files = []  # enter'd nonsense
+            for infile in glob.glob(os.path.join(path, '*.jack')):
+                files.append(infile)
+            if files == []:
+                raise
+    except:
+        raise  RuntimeError("Badly formed file or path name, %s doesn't exist, or it doesn't point to .jack files" % path)
+    return files

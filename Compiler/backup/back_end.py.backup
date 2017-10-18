@@ -1,0 +1,644 @@
+import collections
+import sys
+import JackStdLib
+
+def initialize_globals(linking, parsenum):
+    # global functionInfo, fnctScopeVarTable, classScopeVarTable, STRONGLINKING, kind
+    global functionInfo, STRONGLINKING
+    global uniqueIfIdentifier, uniqueWhileIdentifier
+    global output, varTable
+    functionInfo = classHash()
+    # fnctScopeVarTable = classScopeVarTable = {}
+    varTable = variableTable()
+    STRONGLINKING = linking
+    uniqueIfIdentifier = uniqueWhileIdentifier  = -1
+    defineParseNumber(parsenum)
+    output = Output()
+
+def define_global_input_name(infilename):
+    global global_infilename
+    global_infilename = infilename
+
+def defineParseNumber(n):
+    '''This defines a global variable which the various parse functions will use to
+     determine whether to output code (parsenum = 2) or to generate data, which
+     the parser will use (parsenum = 1). In summary:
+       -------------------------------------------------------------
+      //    parsenum = 1,   Generates hash table that the second stage parse uses to
+     ||                      generate informed code (or generate relevant error msgs)
+      \\\    parsenum = 2,   Output code
+       -------------------------------------------------------------
+            parsenum = 0,   Output and code generation is bypassed in the parser,
+                            so that the XML tree can be outputted in `main_loop.mainloop()`'''
+    global parsenum
+    parsenum = n
+
+global currentClass, currentFunction
+# These reflect the class and function we're currently in the middle of parsing.
+def setCurrentClass(classtoken):
+    global currentClass
+    currentClass = getattr(classtoken, 'value')
+def setCurrentFunction(functiontoken):
+    global currentFunction
+    currentFunction = getattr(functiontoken, 'value')
+
+
+class Output():
+    '''Outputs XML or code, depending on the parse number'''
+    def __init__(self):
+        if parsenum == 0:
+            self.code = Output.null
+        elif parsenum == 1:
+            self.outt = self.startt = self.endt = Output.null
+            self.code = Output.null
+
+    def defineOutputValues(self, output_file_name):
+        global uniqueIfIdentifier, uniqueWhileIdentifier
+        if parsenum == 1:
+            return
+        else:
+            self.global_file_out = open(output_file_name, 'w')
+
+        if parsenum == 2:
+            self.code = self.codeoutput
+            uniqueIfIdentifier = uniqueWhileIdentifier = -1
+
+    def closeFile(self):
+        if parsenum == 1:
+            pass
+        else:
+            self.global_file_out.close()
+
+    # XML output
+    def outt(self, token):
+        if parsenum == 0:
+            val, tag = getattr(token,'value'), getattr(token,'typ')
+            if   val == '<': val = '&lt;'
+            elif val == '>': val = '&gt;'
+            elif val == '&': val = '&amp;'
+            self.global_file_out.write("<%s> %s </%s>\n" % (tag, val, tag))
+    def startt(self, tag):
+        if parsenum == 0:
+            self.global_file_out.write("<%s>\n" % tag)
+    def endt(self, tag):
+        if parsenum == 0:
+            self.global_file_out.write("</%s>\n" % tag)
+
+    # Code output
+    def codeoutput(self, line_of_code):
+        self.global_file_out.write(line_of_code + '\n')
+
+    ###
+    def null(*args, **kwargs):
+        pass
+
+
+funct_info = collections.namedtuple('funct_info', ['k_params', 'n_vars', 'funct_type', 'returnsType'])
+# /\ the "value" part of the key:value in our classDOTfunctions table. Used for code output and error-checking.
+#
+# -`n_vars` is the number of local variables declared in a given function, i.e. `var int name1, ... n'
+# -`k_params` is the number of variables declared in a function prototype/declaration
+# -`funct_type`, used to ensure that:
+#     * `constructor`s return `this` (parseReturnStatement),
+#     * `this` is not used in `function`s,
+#     * `functions` don't call `methods` without passing an object (i.e OBJECT.method)
+#     * `methods` do a `push pointer 0` before the other arguments are pushed and before `call Class.Function k`
+#     * `call Class.Function k` has the right number of arguments (i.e. accounts for the `this` in method calls)
+# -`returnsType` is used to make sure `void` functions don't return a value, and that non-voids return one.
+#    In theory, it could be used to introduce strong typing into Jack.
+global functionInfo
+class classHash():
+    def __init__(self):
+        self.table = {'Math^max': funct_info(k_params='2', n_vars='x', funct_type='function', returnsType='int'), 'Array^new': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='Array'), 'Memory^deAlloc': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='void'), 'String^dispose': funct_info(k_params='1', n_vars='x', funct_type='method', returnsType='void'), 'String^backSpace': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='char'), 'Math^sqrt': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='int'), 'Math^init': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='void'), 'Keyboard^readChar': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='char'), 'Array^dispose': funct_info(k_params='1', n_vars='x', funct_type='method', returnsType='void'), 'Math^min': funct_info(k_params='2', n_vars='x', funct_type='function', returnsType='int'), 'String^setCharAt': funct_info(k_params='3', n_vars='x', funct_type='method', returnsType='void'), 'Memory^init': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='void'), 'Memory^peek': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='int'), 'Screen^drawRectangle': funct_info(k_params='4', n_vars='x', funct_type='function', returnsType='void'), 'Output^printChar': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='void'), 'Keyboard^readInt': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='int'), 'String^length': funct_info(k_params='1', n_vars='x', funct_type='method', returnsType='int'), 'Sys^init': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='void'), 'Math^multiply': funct_info(k_params='2', n_vars='x', funct_type='function', returnsType='int'), 'Sys^error': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='void'), 'Sys^wait': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='void'), 'Output^backSpace': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='void'), 'Memory^poke': funct_info(k_params='2', n_vars='x', funct_type='function', returnsType='void'), 'Sys^halt': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='void'), 'String^new': funct_info(k_params='1', n_vars='x', funct_type='constructor', returnsType='String'), 'Output^init': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='void'), 'Math^abs': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='int'), 'String^eraseLastChar': funct_info(k_params='1', n_vars='x', funct_type='method', returnsType='void'), 'Output^printInt': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='void'), 'Screen^init': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='void'), 'Output^println': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='void'), 'Screen^drawCircle': funct_info(k_params='3', n_vars='x', funct_type='function', returnsType='void'), 'Math^divide': funct_info(k_params='2', n_vars='x', funct_type='function', returnsType='int'), 'Screen^drawPixel': funct_info(k_params='2', n_vars='x', funct_type='function', returnsType='void'), 'Output^moveCursor': funct_info(k_params='2', n_vars='x', funct_type='function', returnsType='void'), 'Keyboard^keyPressed': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='char'), 'Screen^setColor': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='void'), 'Memory^alloc': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='Array'), 'Screen^drawLine': funct_info(k_params='4', n_vars='x', funct_type='function', returnsType='void'), 'String^newLine': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='char'), 'String^appendChar': funct_info(k_params='2', n_vars='x', funct_type='method', returnsType='String'), 'Output^printString': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='void'), 'Keyboard^init': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='void'), 'String^charAt': funct_info(k_params='2', n_vars='x', funct_type='method', returnsType='char'), 'Keyboard^readLine': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='String'), 'String^doubleQuote': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='char'), 'Screen^clearScreen': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='void'), 'String^setInt': funct_info(k_params='2', n_vars='x', funct_type='method', returnsType='void'), 'String^intValue': funct_info(k_params='1', n_vars='x', funct_type='method', returnsType='int')}
+        # \/ Function prototype information for the entirety of the Jack Standard Library
+        # import JackStdLib
+        # self.table = JackStdLib.JackStandardLibraryPrototypes
+        # self.k_params_declrd = None
+        # self.functTyp = None
+
+    def init_k_params(self):
+        # k_params_declrd  is the number of parameters (arguments) declared in a function header/prototype
+        if self.functTyp in ('constructor', 'function'):  #  Constructors and functions operate on k arguments
+            self.k_params_declrd = 0
+        else:
+            self.k_params_declrd = 1                      # ... Methods, on k+1.
+
+    def increment_k_params(self):
+        if parsenum == 1:
+            self.k_params_declrd += 1
+
+    def defFunctTyp(self, token):
+        self.functTyp = getattr(token, 'value')
+        return self.functTyp
+
+    def addFunction(self, returnsType, token):
+        if parsenum == 1:
+            key = currentClass+'^'+currentFunction
+            totalLocalVars = varTable.localVarN
+            params_vars_pair = funct_info(str(self.k_params_declrd), str(totalLocalVars), self.functTyp, returnsType)
+            if key in self.table:
+                raise RuntimeError("Subroutine `%s' has already been declared. Line %s, %s" % (currentFunction, getattr(token, 'line'), global_infilename))
+            # functionInfo.table[key] = params_vars_pair
+            self.table[key] = params_vars_pair
+
+    def lookupSubroutine(*args):
+        ...
+
+
+
+var_info = collections.namedtuple('var_info', ['TYPE', 'KIND', 'N'])
+# /\ Tuple that forms the basis of the varTable
+# Associated with a key, formatted 'currentClass^currentFunction^varName' or currentClass+'^'+varName
+#  (for function and class scopes, respectively)
+# global fnctScopeVarTable, classScopeVarTable, Type, varName
+class variableTable():
+    def __init__(self):
+        self.functScope = {}
+        self.classScope = {}
+
+        self.localVarN = self.fieldVarN = self.staticVarN = None
+        self.inDeclaration = None
+        self._kind = self.Type = self.varName = None
+
+    def resetFieldStaticCount(self):
+        if parsenum == 1:
+            self.fieldVarN = self.staticVarN = 0
+
+    def resetVarCounter(self):
+        if parsenum == 1:
+            if functionInfo.functTyp == 'method':
+                self.localVarN = 1
+            else:
+                self.localVarN = 0
+
+    def Declaration(self, boolean):
+        if parsenum == 1:
+            self.inDeclaration = boolean
+
+    def addVariable(self, token, _kind, scope):
+        '''Adds a variable to either our class-level variable table (classScope) or our function-level one (functScope). \
+Included is information for `Type\' (int, char, boolean, void, and arbitrary types); `_kind` (field, static, local, argument); \
+and the variable number, which is used for relative addressing'''
+        if parsenum == 1:
+
+            if _kind == 'fieldorstatic': _kind = self.kind
+            classkey = currentClass+'^'+self.varName
+            line = str(getattr(token, 'line'))
+
+            # Checks whether our local variable has already been declared as class-level variables
+            #  or function parameters. Issues appropriate warning, if they have, then adds the variable
+            #  and typing, scope, and position (variable number) to our function scope hash table.
+            if scope == 'function':
+                key = currentClass+'^'+currentFunction+'^'+self.varName
+                if classkey in self.classScope:
+                    kindstr1 = getattr(self.classScope[classkey], 'KIND').capitalize()
+                    kindstr2 = _kind
+                    if kindstr2 == 'var':
+                        kindstr2 = 'local'
+                    print("WARNING: Duplicate variable names. %s\'s scope is overridden by %s\'s. Line %s, %s. Variable name: `%s\'" % (kindstr1, kindstr2, line, global_infilename, self.varName), file=sys.stderr)
+
+                if key in self.functScope:
+                    print("WARNING: Body variable declaration overrides argument -- Line %s, %s; variable name, `%s\'" % (line, global_infilename, self.varName), file=sys.stderr)
+                self.functScope[key] = var_info(self.Type, _kind, str(self.localVarN))
+                self.localVarN += 1
+
+            #
+            else: # == 'class'
+                key = currentClass+'^'+self.varName
+                if key in self.classScope:
+                    raise RuntimeError("Duplicate class-level variable name: `%s\'. Line %s, %s" % (self.varName, line, global_infilename))
+                if _kind == 'field':
+                    N = self.fieldVarN
+                    self.classScope[key] = var_info(self.Type, _kind, str(self.fieldVarN))
+                    ################################################ /\ string????
+                    self.fieldVarN += 1
+                else: # _kind == 'static':
+                    N = self.staticVarN
+                    self.classScope[key] = var_info(self.Type, _kind, str(self.staticVarN))
+                    ################################################ /\ string????
+                    self.staticVarN += 1
+
+    def lookupVariable(self, variableName):
+        kind = n = None
+        if parsenum == 2:
+            key = currentClass+'^'+currentFunction+'^'+variableName
+            if key in self.functScope:
+                base = self.functScope[key]
+            else:
+                key = currentClass+'^'+variableName
+                base = self.classScope[key]
+            kind = getattr(base, 'KIND')
+            if kind == 'field': kind = 'this'
+            elif kind == 'var': kind = 'local'
+            n = getattr(base, 'N')
+        return kind, n
+
+    def triggerType(self, token):
+        if parsenum == 1:
+            self.Type = getattr(token, 'value')
+
+    def triggerVarName(self, token):
+        # Called by `parseVarName' (itself called by `parseVarDec'). Sets up a value that will get
+        #  added to the variable table
+        if parsenum == 1:
+            if self.inDeclaration == True:
+                self.varName = getattr(token, 'value')
+
+    def triggerKind(self, token):
+        if parsenum == 1:
+            self.kind = getattr(token, 'value')
+
+global uniqueIfIdentifier, uniqueWhileIdentifier # Integers. Indexed and used
+class IfWhileIdentifiers():# to provide a unique ID number for ifs and whiles
+    def updateIfID():
+        global uniqueIfIdentifier
+        uniqueIfIdentifier += 1
+        return str(uniqueIfIdentifier)
+    def updateWhileID():
+        global uniqueWhileIdentifier
+        uniqueWhileIdentifier += 1
+        return str(uniqueWhileIdentifier)
+
+global n_curlies, max_curlies   # << for insane if/else "stack", to determine 
+global functionRtnsStack, codeHasTerminated  # whether a function might return
+class DoesFunctionReturnStack():
+    unreachableTriggered = False
+    def stackvars_init():
+        if parsenum == 2:
+            global n_curlies, max_curlies
+            n_curlies = max_curlies = 0
+    def stackvars_incr():
+        if parsenum == 2:
+            global n_curlies, max_curlies
+            n_curlies += 1
+            if n_curlies > max_curlies:
+                max_curlies = n_curlies
+    def stackvars_decr():
+        if parsenum == 2:
+            global n_curlies
+            n_curlies -= 1
+    
+    def stack_init():
+        if parsenum == 2:
+            global functionRtnsStack
+            functionRtnsStack = ""
+    def stack_addIfStmnt():
+        if parsenum == 2:
+            global functionRtnsStack
+            functionRtnsStack = functionRtnsStack + 'if'+str(n_curlies)
+    def stack_addElseStmnt():
+        if parsenum == 2:
+            global functionRtnsStack
+            functionRtnsStack = functionRtnsStack + 'else'+str(n_curlies)
+    def stack_addReturnStmnt():
+        if parsenum == 2:
+            global functionRtnsStack
+            functionRtnsStack = functionRtnsStack + 'return'+str(n_curlies)
+            
+    ############### These three functions are used as each statement is parsed,
+    ############### to see whether there seems to be unreachable code
+    def warning_test_init():
+        global codeHasTerminated
+        codeHasTerminated = False
+    def warning_reduc():
+        if parsenum == 2:
+#            functionRtnsStack = reduction(functionRtnsStack, n_curlies)
+            DoesFunctionReturnStack.reduction()
+            if functionRtnsStack[-7:] == 'return2':
+                global codeHasTerminated
+                codeHasTerminated = True
+    def IFissue_warning(token):
+        ## \/ added the parsenum == 2 as a hail Mary
+        if parsenum == 2:
+            if codeHasTerminated == True and not DoesFunctionReturnStack.unreachableTriggered:
+                print("Warning: Unreachable code. Line %s, %s" % (str(getattr(token, 'line')), global_infilename), file=sys.stderr)
+                DoesFunctionReturnStack.unreachableTriggered = True
+    ###############
+    
+    def codecheck(token):
+        if parsenum == 2:
+            if functionRtnsStack[-7:] not in ('return2', ''):
+                old = None
+                while old != functionRtnsStack:
+                    old = functionRtnsStack
+                    DoesFunctionReturnStack.reduction()
+            if 'return2' not in functionRtnsStack:
+                raise RuntimeError("Function seems not to return. Line %s, %s" % (getattr(token, 'line'), global_infilename))
+    def reduction():
+        global functionRtnsStack
+        for i in range(1, max_curlies):
+            string = 'if'+str(i)+'return'+str(i+1)
+            if string+string in functionRtnsStack:
+                functionRtnsStack = functionRtnsStack.replace(string+string, string)
+
+        for i in range(1, max_curlies):
+            string = 'if'+str(i)+'return'+str(i+1)+'else'+str(i)+'return'+str(i+1)
+            if string in functionRtnsStack:
+                functionRtnsStack = functionRtnsStack.replace(string, 'return'+str(i))
+
+        for i in range(1, max_curlies):
+            string = 'if'+str(i)+'return'+str(i)
+            if string in functionRtnsStack:
+                functionRtnsStack = functionRtnsStack.replace(string, 'return'+str(i))
+
+    def reduction2(test, max):
+        for i in range(1, max):
+            string = 'if'+str(i)+'return'+str(i+1)
+            if string+string in test:
+                test = test.replace(string+string, string)
+        for i in range(1, max):
+            string = 'if'+str(i)+'return'+str(i+1)+'else'+str(i)+'return'+str(i+1)
+            if string in test:
+                test = test.replace(string, 'return'+str(i))
+        for i in range(1, max):
+            string = 'if'+str(i)+'return'+str(i)
+            if string in test:
+                test = test.replace(string, 'return'+str(i))
+        return(test)
+
+class Semantics():
+    def checkReturn(token):
+        if parsenum == 2:
+            key = currentClass+'^'+currentFunction
+            value = getattr(token, 'value')
+            if getattr(functionInfo.table[key], 'funct_type') == 'constructor':
+                if value != 'this':
+                    error_middle = ' -- NOT `%s\'' % value 
+                    if value == ';':
+                        error_middle = ''
+                    raise RuntimeError('`%s\' is a constructor and should return `this\'%s. Line %s, %s' % (currentFunction, error_middle, getattr(token, 'line'), global_infilename))
+            elif getattr(functionInfo.table[key], 'returnsType') == 'void':
+                if value != ';':
+                    raise RuntimeError('`%s\' is a void function, and so mustn\'t return a value. It does. Line %s, %s' % (currentFunction, getattr(token, 'line'), global_infilename))
+
+
+class CodeProcess():
+    def SubroutineDec(token):
+        if parsenum == 2:
+            base = functionInfo.table[currentClass+'^'+currentFunction]
+            shouldReturnType = getattr(base, 'returnsType')
+                
+            num = getattr(base, 'n_vars')
+            output.code("function "+currentClass+'.'+currentFunction+' '+num)
+
+            # Emits code to allocate memory for objects and arrays.
+            #
+            # \/ ridiculiously convoluted logic. could probably be made simpler
+            memtoalloc = 0         # , but I really didn't know what other data
+            if functionInfo.functTyp == 'constructor':# structure to use.
+                if currentClass != shouldReturnType:
+                    raise RuntimeError("A constructor's return type must be the class type, Line %s, %s" % (getattr(token, 'line'), global_infilename))
+                
+                # finds the number of field variables in a class and allocates
+                for t in varTable.classScope:             # memory, accordingly.
+                    title = t.split('^')
+                    if title[0] == currentClass:
+                        if getattr(varTable.classScope[t], 'KIND') == 'field':
+                            memtoalloc += 1
+
+                output.code('push constant '+str(memtoalloc))
+                output.code('call Memory.alloc 1')
+                output.code('pop pointer 0')     # pops the memory reference so that the constructor function can operate on the field variables
+            elif functionInfo.functTyp == 'method':
+                output.code('push argument 0')   # argument 0 is the object called by the method. This pops it into pointer 0, so that
+                output.code('pop pointer 0')     # `this n` VM commands work.
+
+
+    def LetStatement_ARRAY_BASE(variableName):
+        if parsenum == 2:
+            kind, n = varTable.lookupVariable(variableName)
+            output.code('push %s %s' % (kind, n))
+            output.code('add')  # adds variable *(kind n) to the prior stack value (an expression)
+    def LetStatement(array, variableName):
+        # I THINK This is where you could optimize code for array indexing knowable at compile time
+        if parsenum == 2:
+            kind, n = varTable.lookupVariable(variableName)
+            if array == True:
+                output.code('pop temp 0')
+                output.code('pop pointer 1')
+                output.code('push temp 0')
+                output.code('pop that 0')
+            else:
+                output.code('pop %s %s' % (kind, n))
+
+
+    def IfStatement_IF(n):
+        output.code('if-goto IF_TRUE'+n) # pops the result of conditional in
+        output.code('goto IF_FALSE'+n)   # the If statement. If True, jumps
+        output.code('label IF_TRUE'+n)   # to IF_TRUE+n.
+    ## \/ These two functions run/output if the parser finds an `else`##
+    def IfStatement_ELSE_A(n):                                             #
+        output.code('goto IF_END'+n)                                #
+        output.code('label IF_FALSE'+n)                             #
+    def IfStatement_ELSE_B(n):                                              #
+        output.code('label IF_END'+n)                               #
+    ## /\ These two functions run/output if the parser finds an `else`##
+    ## \/ This gets output only if we don't have an `else`
+    def IfStatement_NOELSE(n):
+        output.code('label IF_FALSE'+n)
+
+    def WhileStatement_1(n):
+        output.code('label WHILE_EXP'+n)
+    def WhileStatement_2(n):
+        output.code('not') # The expression is NOT-ed, and if it then equals
+        output.code('if-goto WHILE_END'+n) # zero, the jump is made to END
+    def WhileStatement_3(n):
+        output.code('goto WHILE_EXP'+n)
+        output.code('label WHILE_END'+n)
+
+    def DoStatementNULLPOP():
+        # this can be removed, so long as you remove the corresponding code in `ReturnStatementVoid'
+        output.code('pop temp 0')
+
+
+    def ReturnStatementVoid(token):
+        if parsenum == 2:
+            key = currentClass+'^'+currentFunction
+            if getattr(functionInfo.table[key], 'returnsType') == 'void':
+                output.code('push constant 0')
+            # /\ If you deleted the code that automatically pops the result of a `do`, then this code would be
+            #  unnecessary, since the compiler restricts `do` calls for non-void functions.
+    def ReturnStatementOutput():
+        output.code("return")
+
+    def ExpressionOP(op):
+        if parsenum == 2:
+            if op == "+":
+                output.code('add')
+            elif op == "-":
+                output.code('sub')
+            elif op == "&":
+                output.code('and')
+            elif op == "|":
+                output.code('or')
+            elif op == "<":
+                output.code('lt')
+            elif op == ">":
+                output.code('gt')
+            elif op == "=":
+                output.code('eq')
+            elif op == "*":
+                output.code("call Math.multiply 2")
+            elif op == "/":
+                output.code("call Math.divide 2")
+
+    def TermINTEGER(token):
+        output.code("push constant " + getattr(token, 'value'))
+
+    def TermSTRING(token):
+        string = getattr(token, 'value')
+        output.code("push constant %s" % len(string))
+        output.code("call String.new 1")
+        for c in string:
+            output.code("push constant %s" % ord(c))
+            output.code("call String.appendChar 2")
+
+    def TermKEYWORD(token):
+        value = getattr(token, 'value')
+        if value == 'true':
+            output.code("push constant 1")
+            output.code('neg')
+        elif value == 'false':
+            output.code("push constant 0")
+        elif value == 'null':
+            output.code("push constant 0")
+        elif value == 'this':
+            if parsenum == 2:
+                thing = functionInfo.table[currentClass+'^'+currentFunction]
+                if getattr(thing, 'funct_type') == 'function':
+                    raise RuntimeError('`this\' cannot be used in a function. Line %s, %s' % (getattr(token, 'line', global_infilename)))
+                else:
+                    output.code("push pointer 0")
+
+    def TermARRAY(variableName):
+        if parsenum == 2:
+            kind, n = varTable.lookupVariable(variableName)
+            output.code('push %s %s' % (kind, n))
+            output.code('add')
+            output.code('pop pointer 1')
+            output.code('push that 0')
+
+    def TermUNARYOP(op):
+        if parsenum == 2:
+            if getattr(op, 'value') == '~':
+                output.code('not')
+            else:
+                output.code('neg')
+
+    def TermVARNAME(variableName):
+        if parsenum == 2:
+            kind, n = varTable.lookupVariable(variableName)
+            output.code('push %s %s' % (kind, n))
+
+
+    def SubroutineCall_1(subroutinetoken, returns):
+        functname = calledfuntype = k = None
+        if parsenum == 2:
+            # Parses a subroutine call without an argument or preceding class name, i.e. `subroutineName(arguments)`
+            functname = currentClass+'^'+getattr(subroutinetoken, 'value')
+            try:
+                nugget = functionInfo.table[functname]
+            except:
+                functname = functname.replace('^','.')
+                raise RuntimeError("Call to %s: Function does not exist. Line %s, %s" % (functname, getattr(subroutinetoken,'line'), global_infilename))
+
+            k = getattr(nugget, 'k_params')
+            returntype = getattr(nugget, 'returnsType')
+            calledfuntype = getattr(nugget, 'funct_type')
+            if (returns == True and returntype != 'void') or (returns == False and returntype == 'void'):
+                callingfunct = currentClass+'^'+currentFunction
+                callingfunct = getattr(functionInfo.table[callingfunct], 'funct_type')
+                if callingfunct == 'function' and calledfuntype == 'method':
+                    raise RuntimeError('Argumentless method calls cannot be made from within functions. Method calls must be of the form `OBJECT.method()`. Line %s, %s' % (getattr(subroutinetoken, 'line'), global_infilename))
+            else:
+                # RuntimeError
+                if returns == True: msg = "should have", "doesn't"
+                else: msg = "should not have", "does"
+                functname = functname.replace('^','.')
+                raise RuntimeError("Called function `%s\' %s a return value. It %s. Line %s, %s" % (functname, msg[0], msg[1], getattr(subroutinetoken, 'line'), global_infilename))
+
+            if calledfuntype == 'method': output.code('push pointer 0')
+        return functname, calledfuntype, k
+    def SubroutineCall_2(functname, calledfuntype, numberofparams, k):
+        if parsenum == 2:
+            if calledfuntype == 'method': numberofparams += 1
+            if str(numberofparams) != k:
+                functname = functname.replace('^','.')
+                raise RuntimeError('Function `%s\' takes %s parameters. Number given: %s. Line %s, %s' % (functname, k, numberofparams, getattr(subroutinetoken, 'line'), global_infilename))
+            else:
+                output.code('call '+functname.replace('^','.')+' '+str(numberofparams))
+
+    def SubroutineCall_3(subroutinetoken, classORvarname):
+        methodcall = function = found = 0
+        if parsenum == 2:
+            # `object.method()` or `class.subroutine()`
+            subroutinecalled = getattr(subroutinetoken, 'value')
+            # classORvarname already defined
+            localkey = currentClass+'^'+currentFunction+'^'+classORvarname
+            classwidekey = currentClass+'^'+classORvarname
+
+            ## \/ this checks to see whether what we have is `var.method()`,
+            ## as opposed to a `class.function()` call
+            if localkey in varTable.functScope:
+                seedtoken = varTable.functScope[localkey]
+                methodcall = True                        
+            elif classwidekey in varTable.classScope:
+                seedtoken = varTable.classScope[classwidekey]
+                methodcall = True
+            else:
+                methodcall = False  # A method call requires a variable as the implicit
+                                    #  argument. this clearly isn't one.
+
+            if methodcall == True:
+                classORvarname = getattr(seedtoken, 'TYPE')
+                kind = getattr(seedtoken, 'KIND')
+                if kind == 'field': kind = 'this'
+                elif kind == 'var': kind = 'local'
+                output.code('push %s %s' % (kind, getattr(seedtoken, 'N')))
+
+            notInIt = True      #error check; makes sure that a compiled class actually contains the function being called
+            applicable = False
+            for key in functionInfo.table:
+                chekkah = key.split('^')
+                if classORvarname == chekkah[0]:
+                    applicable = True
+                    if subroutinecalled == chekkah[1]:
+                        notInIt = False
+            if notInIt == True and applicable == True:
+                raise RuntimeError("Call to `%s.%s\': Function does not exist. Line %s, %s" % (classORvarname, subroutinecalled, getattr(subroutinetoken, 'line'), global_infilename))
+                # the compiler will raise an error if a class being compiled doesn't contain the method being called.
+
+            function = classORvarname+'.'+subroutinecalled
+            found = False
+            lookup = classORvarname+'^'+subroutinecalled
+            if lookup in functionInfo.table:
+                # this error is raised if any function not in the namespace defined by the Jack standard library OR the files being
+                # compiled is called. With strong linking off, code is generated with the assumption that the linking can be done
+                # later / at run time.
+                found = True
+            else:
+                found = False
+        return methodcall, function, found
+
+    def SubroutineCallOUT(subroutinetoken, methodcall, function, found, numberofexpressions):
+        #### some of this value passing might be a little unnecessary,
+        #### e.g. `function` (see previous function for deetz)
+        if parsenum == 2:
+            if found == True:
+                expectedparams = getattr(functionInfo.table[function.replace('.','^')], 'k_params')
+            elif STRONGLINKING == False:
+                expectedparams = numberofexpressions
+            else:
+                raise RuntimeError("Call to %s: Object does not exist. Line %s, %s" % (function, getattr(subroutinetoken, 'line'), global_infilename))
+                # raise RuntimeError("Call to %s.%s: Function does not exist. Line %s, %s" % (classORvarname, subroutinecalled, getattr(subroutinetoken, 'line'), global_infilename))
+
+            if methodcall == True:
+                numberofexpressions += 1
+
+            if str(numberofexpressions) == str(expectedparams):
+            # /\ didn't feel like figuring out what's a string and when
+                output.code('call %s %s' % (function, numberofexpressions))
+            else:
+                raise RuntimeError('Function `%s\' takes %s argument(s). Number given: %s. Line %s, %s' % (function, expectedparams, numberofexpressions, getattr(subroutinetoken, 'line'), global_infilename))
+
+

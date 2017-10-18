@@ -1,0 +1,55 @@
+this
+	@some____ingdata
+	D=A
+	@THIS
+	M=D
+	//put data into the location pointed to by THIS (pointer 0)
+that
+	@some____ingdata
+	D=A
+	@THAT
+	M=D
+	//put data into the location pointed to by THAT (pointer 1)
+
+pop argument
+// @ARG is assigned a value at run time
+
+
+
+//general pop, for `pop name_of_register n;   n != 0
+@offset_n		//replace with string operation in python
+D=A	/// <<< /\ THESE FIRST TWO LINES ARE OPT. WHEN offset is 0
+@NAMEOFBASEREGISTER
+D=M+D
+@R13
+M=D			//NAMEOFREGISTER =
+@SP			//
+AM=M-1			//
+D=M			//
+@R13			//
+A=M			//temp := R5 - R12
+M=D			//pointer (special cases, below)
+
+
+//general pop for `pop name_of_register 0
+@SP
+AM=M-1
+D=M
+@NAMEOFREGISTER
+A=M
+M=D			
+
+
+//pop to pointer 0
+@SP
+AM=M-1
+D=M
+@THIS
+M=D
+//pop to pointer 1
+@SP
+AM=M-1
+D=M
+@THAT
+M=D
+
