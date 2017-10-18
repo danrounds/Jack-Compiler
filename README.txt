@@ -87,7 +87,7 @@ fail (I've not run the tests without the relevant code). The code was a
 collection of ambitious student games, written in Jack. Without them,  I was
 writing a compiler for an abstractly-defined language with very little
 accompanying practice. When and if I find a substitute, I'll throw it into this
-repo.
+repo. Code is hosted: https://github.com/ybakos/n2t-games-2011
 
 A NOTE ON STYLE: My code lines are almost invariably longer than 80 characters,
 because my variable/function/method/&c names are verbose. This is a conscious
