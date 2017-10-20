@@ -37,7 +37,7 @@ def parseClass(generator):
 
             # Here, we're parsing field & static vars + keeping a count
             back_end.varTable.resetFieldStaticCount()
-            back_end.varTable.Declaration(True)
+            back_end.varTable.setInDeclaration(True)
             moreClassVarDecd = parseClassVarDec(token, generator)
             while moreClassVarDecd == True:
                 moreClassVarDecd = parseClassVarDec(next(generator), generator)
@@ -221,7 +221,7 @@ def parseStatements(token, generator):
     back_end.output.startt('statements')
     
     back_end.DoesFunctionReturnStack.warning_test_init()
-    back_end.varTable.Declaration(False)
+    back_end.varTable.setInDeclaration(False)
     
     while token.value != '}':
         back_end.DoesFunctionReturnStack.IFissue_warning(token) # warns if there's unreachable code
@@ -230,7 +230,7 @@ def parseStatements(token, generator):
             token = next(generator)
             back_end.DoesFunctionReturnStack.warning_reduc()
 
-    back_end.varTable.Declaration(True)
+    back_end.varTable.setInDeclaration(True)
     back_end.output.endt('statements'); return token
 
 def parseStatement(token, generator):

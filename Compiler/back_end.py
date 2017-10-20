@@ -216,7 +216,7 @@ class variableTable():
             else:
                 self.localVarN = 0
 
-    def Declaration(self, boolean):
+    def setInDeclaration(self, boolean):
         if parsenum == 1:
             self.inDeclaration = boolean
 
