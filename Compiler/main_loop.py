@@ -22,7 +22,7 @@ It also has really...unique truth semantics (e.g. in if/while statements)
 '''
 
 from lexer.lexer import lexer
-import parser
+from parser import parser
 import back_end as output_stage
 from back_end import CompilerError as CompilerError
 
