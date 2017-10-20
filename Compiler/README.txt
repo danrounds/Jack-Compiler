@@ -6,7 +6,9 @@ MODULES in this folder:
 main_loop.py      ::  Drives the whole compliation process. Can also output an
                       XML parse tree or XML tokens (for testing purposes)
 
-lex_and_parse.py  ::  Lexer and parser--the heart of the compiler
+lexer.py          ::  Our tokenizer
+
+parser.py         ::  As the name suggests, it's our Jack-language parser
 
 back_end.py       ::  Code output and semantic checks. Probably the most
                       complicated part of the compiler; also the part that makes
