@@ -285,8 +285,7 @@ and the variable number, which is used for relative addressing'''
         return type_, kind,  n
 
     def addToAvailableTypes(self):
-        '''We're keeping a list of the types (i.e. defined classes) available in our compiled files, so that type declarations are at least meaningful, \
-instead of noise'''
+        '''We're keeping a list of the types (i.e. defined classes) available in our compiled files, so that type declarations are meaningful'''
         if parsenum == 1:
             try:
                 if currentClass not in self.list_of_extended_types:

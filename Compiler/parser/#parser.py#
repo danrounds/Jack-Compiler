@@ -13,7 +13,7 @@
 # -DR, August 2016
 
 import back_end
-from back_end import CompilerError as CompilerError
+from back_end import  CompilerError as CompilerError
 from . import parser_errors as PErrorMsg
 
 #### PARSER ####    #### PARSER ####    #### PARSER ####    #### PARSER ####
