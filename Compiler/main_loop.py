@@ -21,12 +21,10 @@ It also has really...unique truth semantics (e.g. in if/while statements)
 
 '''
 
-import lex_and_parse as parse
+from lexer import lexer
+import parser
 import back_end as output_stage
 from back_end import CompilerError as CompilerError
-
-# from . import lex_and_parse as parse
-# from . import back_end as output_stage
 
 def mainloop(in_pathorfile='./tests/test_code0/Square/Square.jack', outputmode='code', stronglinking='False',\
              custom_out_dir=None, vmfinaloutput=True, warnings=True):
@@ -80,9 +78,9 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
     for filename in filelist:
         print(filename)
 
-        tokengenerator = parse.lexer(filename)
+        tokengenerator = lexer(filename)
         output_stage.define_global_input_name(filename)
-        parse.parseClass(tokengenerator)
+        parser.parseClass(tokengenerator)
 
     # Second parse + code output \/
     output_stage.defineParseNumber(2)
@@ -98,9 +96,9 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
 
         output_stage.define_global_input_name(filename)
 
-        tokengenerator = parse.lexer(filename)
+        tokengenerator = lexer(filename)
         output_stage.output.defineOutputValues(outfilename)
-        parse.parseClass(tokengenerator)
+        parser.parseClass(tokengenerator)
 
         if vmfinaloutput == True:
         # We only output file names if we're keeping output files. IF this is false, VM files
@@ -118,8 +116,8 @@ def outputParseTree(filelist):
         output_stage.output.defineOutputValues(outfilename)
 
         # Outputs parse tree in XML
-        tokengenerator = parse.lexer(filename)
-        parse.parseClass(tokengenerator)
+        tokengenerator = lexer(filename)
+        parser.parseClass(tokengenerator)
         print('Output: '+ outfilename+'\n')
         output_stage.output.closeFile()
 
@@ -133,7 +131,7 @@ def outputTokens(filelist):
         print('Reading: '+ filename)
 
         # Outputs tokens in XML
-        tokengenerator = parse.lexer(filename)
+        tokengenerator = lexer(filename)
         output_stage.output.startt('tokens') # opening tag `<tokens>`
         for token in tokengenerator:
             output_stage.output.outt(token) # tokenizing + output

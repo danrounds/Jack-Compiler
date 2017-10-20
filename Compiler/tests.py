@@ -13,14 +13,7 @@
 # - Make runnable from Bash, i.e. interface that by runs a default test and lets you choose other tests.
 # - Remove (soon-to-be) redundant log feature from `extendedTestParse'. Leave in as commented out code.
 
-
 import main_loop as main
-import lex_and_parse as parse
-
-# from . import main_loop as main
-# from . import lex_and_parse as parse
-
-
 
 ###############################################################################
 #### T  ###### E ###### S ###### T ###### S ###################################
