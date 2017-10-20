@@ -1,13 +1,6 @@
 import back_end
 
-# file = 'THIS IS NOT RIGHT'
-
 '''Parse error messages'''
-# def __init__(self, token):
-#     self.value = getattr(token, 'value')
-#     self.line = getattr(token, 'line')
-#     file = back_end.global_infilename
-
 def no_class_declr(self):
     return "Syntax Error: Jack language files begin with a `class` declaration. %s"\
         % back_end.global_infilename
