@@ -6,7 +6,7 @@ import globalVars
 # import JackStdLib
 
 
-def initializeHashTablesAndIdentifiers():
+def initializeHashTables():
     global functionsInfo, varTable, output, STRONGLINKING
     global uniqueIfIdentifier, uniqueWhileIdentifier
     functionsInfo = classAndFunctionsHash()

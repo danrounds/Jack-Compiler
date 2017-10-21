@@ -72,7 +72,7 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
     import os
     print('Doing initial parse of:')
     output_stage.setParseNumber(1)
-    output_stage.initializeHashTablesAndIdentifiers()
+    output_stage.initializeHashTables()
 
     # Initial parse; fleshes out hash-tables, so that we have relevant
     #  typing/function prototype (&c) information, for the output stage \/
@@ -109,7 +109,7 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
 
 def outputParseTree(filelist):
     output_stage.setParseNumber(0)
-    output_stage.initializeHashTablesAndIdentifiers()
+    output_stage.initializeHashTables()
     for filename in filelist:
         outfilename = filename[:-5] + '_.xml'
         globalVars.defineGlobalInputFile(filename)
@@ -123,7 +123,7 @@ def outputParseTree(filelist):
 
 def outputTokens(filelist):
     output_stage.setParseNumber(0)
-    output_stage.initializeHashTablesAndIdentifiers()
+    output_stage.initializeHashTables()
     for filename in filelist:
         outfilename = filename[:-5] + 'T_.xml'
         # outfilename = filename[:-5] + '_COMPARE_T_.xml'
