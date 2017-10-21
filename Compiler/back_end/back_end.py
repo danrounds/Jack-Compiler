@@ -2,6 +2,7 @@ import collections
 import sys
 
 from compiler_error import CompilerError
+import globalVars
 # import JackStdLib
 
 
@@ -18,12 +19,8 @@ def initialize_globals(linking, parsenum):
     defineParseNumber(parsenum)
     output = Output()
 
-global currentClass, currentFunction, global_infilename
+global currentClass, currentFunction
 # These are state variables. They reflect the file, class, and function we're currently in the middle
-#  of parsing:
-def define_global_input_name(infilename):
-    global global_infilename
-    global_infilename = infilename
 def setCurrentClass(classtoken):
     global currentClass
     currentClass = classtoken.value
@@ -157,7 +154,7 @@ memory to allocate for our objects'''
             totalLocalVars = varTable.localVarN
             params_vars_pair = funct_info(self.k_params_declrd, totalLocalVars, self.functTyp, returnsType)
             if key in self.table:
-                raise CompilerError("Subroutine `%s' has already been declared. Line %s, %s" % (currentFunction, token.line, global_infilename))
+                raise CompilerError("Subroutine `%s' has already been declared. Line %s, %s" % (currentFunction, token.line, globalVars.inputFileName))
             self.table[key] = params_vars_pair
 
     def lookupSubroutineInfo(self, class_, subroutinetoken):
@@ -181,7 +178,7 @@ Returns a 'funct_info' (named) tuple :: (k_params, n_vars, funct_type, returnsTy
                 classdotfunction = function.replace('.', '^')
                 return self.table[classdotfunction]
         except:
-            raise CompilerError("`%s': Function does not exist. Line %s, %s" % (function, subroutinetoken.line, global_infilename))
+            raise CompilerError("`%s': Function does not exist. Line %s, %s" % (function, subroutinetoken.line, globalVars.inputFileName))
 
 
 
@@ -233,11 +230,11 @@ and the variable number, which is used for relative addressing'''
                     kind2 = _kind
                     line = token.line
                     if kind2 == 'var': kind2 = 'local'
-                    print("WARNING: Duplicate variable names. %s\'s scope is overridden by %s\'s. Line %s, %s. Variable name: `%s\'" % (kind1, kind2, line, global_infilename, variableName), file=sys.stderr)
+                    print("WARNING: Duplicate variable names. %s\'s scope is overridden by %s\'s. Line %s, %s. Variable name: `%s\'" % (kind1, kind2, line, globalVars.inputFileName, variableName), file=sys.stderr)
 
                 if key in self.functScope:
                     line = token.line
-                    print("WARNING: Local variable declaration overrides argument -- Line %s, %s; variable name, `%s\'" % (line, global_infilename, variableName), file=sys.stderr)
+                    print("WARNING: Local variable declaration overrides argument -- Line %s, %s; variable name, `%s\'" % (line, globalVars.inputFileName, variableName), file=sys.stderr)
                 self.functScope[key] = var_info(_type, _kind, self.localVarN)
                 self.localVarN += 1
 
@@ -245,7 +242,7 @@ and the variable number, which is used for relative addressing'''
             else: # == 'class'
                 key = currentClass+'^'+variableName
                 if key in self.classScope:
-                    raise CompilerError("Duplicate class-level variable name: `%s\'. Line %s, %s" % (variableName, line, global_infilename))
+                    raise CompilerError("Duplicate class-level variable name: `%s\'. Line %s, %s" % (variableName, line, globalVars.inputFileName))
                 if _kind == 'field':
                     self.classScope[key] = var_info(_type, _kind, self.fieldVarN)
                     self.fieldVarN += 1
@@ -274,8 +271,8 @@ and the variable number, which is used for relative addressing'''
                 type_ = base.TYPE
 
             except:
-                # raise ValueError("Variable `%s' not found. Line %s, %s" % (variableName, variableToken.line, global_infilename))
-                raise CompilerError("Variable `%s' not found. Line %s, %s" % (variableName, variableToken.line, global_infilename))
+                # raise ValueError("Variable `%s' not found. Line %s, %s" % (variableName, variableToken.line, globalVars.inputFileName))
+                raise CompilerError("Variable `%s' not found. Line %s, %s" % (variableName, variableToken.line, globalVars.inputFileName))
         return type_, kind,  n
 
     def addToAvailableTypes(self):
@@ -293,10 +290,10 @@ and the variable number, which is used for relative addressing'''
             type_ = token.value
             if type_ == 'void':
                 if not subroutineDeclaration:
-                    raise CompilerError('`void\' only makes sense as a subroutine return value. Line %s, %s' % (token.line, global_infilename))
+                    raise CompilerError('`void\' only makes sense as a subroutine return value. Line %s, %s' % (token.line, globalVars.inputFileName))
             elif type_ not in ('int', 'char', 'boolean', 'Array', 'String'):
                 if type_ not in self.list_of_extended_types:
-                    raise CompilerError('Unknown type `%s\', line %s, %s' % (token.value, token.line, global_infilename))
+                    raise CompilerError('Unknown type `%s\', line %s, %s' % (token.value, token.line, globalVars.inputFileName))
 
     def checkClassExistence(self, token):
         '''This checks whether a called class name exists, so that Class.subroutine() actually calls code that exists'''
@@ -304,7 +301,7 @@ and the variable number, which is used for relative addressing'''
             Class = token.value
             if Class not in ('Array', 'Keyboard', 'Math', 'Memory', 'Output', 'Screen', 'String', 'Sys'):
                 if Class not in self.list_of_extended_types:
-                    raise CompilerError('Class `%s\' doesn\'t seem to exist. Line %s, %s' % (token.value, token.line, global_infilename))
+                    raise CompilerError('Class `%s\' doesn\'t seem to exist. Line %s, %s' % (token.value, token.line, globalVars.inputFileName))
 
 
 
@@ -370,7 +367,7 @@ I also find it kind of charming. It could be removed without penalty (but it won
         ## \/ added the parsenum == 2 as a hail Mary
         if parsenum == 2:
             if codeHasTerminated == True and not DoesFunctionReturnStack.unreachableTriggered:
-                print("Warning: Unreachable code. Line %s, %s" % (token.line, global_infilename), file=sys.stderr)
+                print("Warning: Unreachable code. Line %s, %s" % (token.line, globalVars.inputFileName), file=sys.stderr)
                 DoesFunctionReturnStack.unreachableTriggered = True
     ###############
     
@@ -382,7 +379,7 @@ I also find it kind of charming. It could be removed without penalty (but it won
                     old = functionRtnsStack
                     DoesFunctionReturnStack.reduction()
             if 'return2' not in functionRtnsStack:
-                print("Warning: Function might not return. Make sure your if/elses are are mutually exclusive.  Line %s, %s" % (token.line, global_infilename), file=sys.stderr)
+                print("Warning: Function might not return. Make sure your if/elses are are mutually exclusive.  Line %s, %s" % (token.line, globalVars.inputFileName), file=sys.stderr)
     def reduction():
         global functionRtnsStack
         for i in range(1, max_curlies):
@@ -435,15 +432,15 @@ Jack's very, very lax typing is kept intact. Type checking could be added, but w
                     error_middle = ' -- NOT `%s\'' % value 
                     if value == ';':
                         error_middle = ''
-                    raise CompilerError('`%s\' is a constructor and should return `this\'%s. Line %s, %s' % (currentFunction, error_middle, token.line, global_infilename))
+                    raise CompilerError('`%s\' is a constructor and should return `this\'%s. Line %s, %s' % (currentFunction, error_middle, token.line, globalVars.inputFileName))
 
             elif returnsType == 'void':
                 if value != ';':
-                    raise CompilerError('`%s\' is a void function, and so mustn\'t return a value. It does. Line %s, %s' % (currentFunction, token.line, global_infilename))
+                    raise CompilerError('`%s\' is a void function, and so mustn\'t return a value. It does. Line %s, %s' % (currentFunction, token.line, globalVars.inputFileName))
 
             else:
                 if value == ';':
-                    raise CompilerError('`%s\' isn\'t a void function, and so it must return a value. Line %s, %s' % (currentFunction, token.line, global_infilename))
+                    raise CompilerError('`%s\' isn\'t a void function, and so it must return a value. Line %s, %s' % (currentFunction, token.line, globalVars.inputFileName))
 
 
     def checkDotlessFunctionCall(subroutinetoken, callerexpectsreturnval):
@@ -454,15 +451,15 @@ Jack's very, very lax typing is kept intact. Type checking could be added, but w
         *NULL, callingfunct, NULL = functionsInfo.lookupSubroutineInfo(currentClass, currentFunction)
        
         if calledfunct == 'method' and callingfunct == 'function':
-            raise CompilerError('Argument less method calls cannot be made from within functions. Method calls must be of the form `OBJECT.method(), or else we have no object to work on`. Line %s, %s' % (subroutinetoken.line, global_infilename))
+            raise CompilerError('Argument less method calls cannot be made from within functions. Method calls must be of the form `OBJECT.method(), or else we have no object to work on`. Line %s, %s' % (subroutinetoken.line, globalVars.inputFileName))
 
         if callerexpectsreturnval == True:
             if calledreturns == 'void':
-                print("WARNING: Call to `%s\' expects a return value, but subroutine is of type void. Line %s, %s" % (subroutinetoken.value, subroutinetoken.line, global_infilename), file=sys.stderr)
+                print("WARNING: Call to `%s\' expects a return value, but subroutine is of type void. Line %s, %s" % (subroutinetoken.value, subroutinetoken.line, globalVars.inputFileName), file=sys.stderr)
         else:
             if calledreturns != 'void':
-                print("WARNING: Function `%s\' is value returning, but that value is ignored. Line %s, %s" % (subroutinetoken.value, subroutinetoken.line, global_infilename), file=sys.stderr)
-                # raise RuntimeError("Called function `%s\' %s a return value. It %s. Line %s, %s" % (functname, msg[0], msg[1], getattr(subroutinetoken, 'line'), global_infilename))
+                print("WARNING: Function `%s\' is value returning, but that value is ignored. Line %s, %s" % (subroutinetoken.value, subroutinetoken.line, globalVars.inputFileName), file=sys.stderr)
+                # raise RuntimeError("Called function `%s\' %s a return value. It %s. Line %s, %s" % (functname, msg[0], msg[1], getattr(subroutinetoken, 'line'), globalVars.inputFileName))
         return calledfunct
 
 
@@ -489,7 +486,7 @@ relevant parse stage.'''
                     output.code('call Memory.alloc 1')  # Leaves the address of our allocated object @ the top of the stack
                     output.code('pop pointer 0')        # Puts &NEW_OBJECT in pointer 0 (`@THIS', in Hack Assembly)
                 else:
-                    raise CompilerError("A constructor's return type must be the class type, Line %s, %s" % (token.line, global_infilename))
+                    raise CompilerError("A constructor's return type must be the class type, Line %s, %s" % (token.line, globalVars.inputFileName))
 
             # If we're dealing with a method, we have to pop pointer to the object upon which our method operates
             elif functionsInfo.functTyp == 'method':
@@ -605,7 +602,7 @@ relevant parse stage.'''
                 if currentContext.funct_type != 'function':
                     output.code("push pointer 0")
                 else:
-                    raise CompilerError('`this\' cannot be used in a function. Line %s, %s' % (token.line, global_infilename))
+                    raise CompilerError('`this\' cannot be used in a function. Line %s, %s' % (token.line, globalVars.inputFileName))
 
     # def TermARRAY(variableName):
     def TermARRAY(variableToken):
@@ -646,7 +643,7 @@ relevant parse stage.'''
             if proceduretype == 'method': numberofparams += 1
 
             if numberofparams != k:
-                raise CompilerError('Function `%s\' takes %s arguments. Number given: %s. Line %s, %s' % (subroutinetoken.value, k, numberofparams, subroutinetoken.line, global_infilename))
+                raise CompilerError('Function `%s\' takes %s arguments. Number given: %s. Line %s, %s' % (subroutinetoken.value, k, numberofparams, subroutinetoken.line, globalVars.inputFileName))
             else:
                 output.code('call %s.%s %s' % (currentClass, subroutinetoken.value, numberofparams))
 
@@ -678,10 +675,10 @@ relevant parse stage.'''
             try:
                 expectedparams, *NULL = functionsInfo.lookupSubroutineInfo('', function)
                 if int(n_exprs_in_call) != int(expectedparams):
-                    raise CompilerError('Function `%s\' takes %s argument(s). Number given: %s. Line %s, %s' % (function, expectedparams, n_exprs_in_call, subroutinetoken.line, global_infilename))
+                    raise CompilerError('Function `%s\' takes %s argument(s). Number given: %s. Line %s, %s' % (function, expectedparams, n_exprs_in_call, subroutinetoken.line, globalVars.inputFileName))
 
             except AttributeError:
-                raise CompilerError("Call to `%s\': Class/object does not exist or subroutine doesn't (or both). Line %s, %s" % (function, subroutinetoken.line, global_infilename))
+                raise CompilerError("Call to `%s\': Class/object does not exist or subroutine doesn't (or both). Line %s, %s" % (function, subroutinetoken.line, globalVars.inputFileName))
                 # if STRONGLINKING == True:
                 #     ...
 

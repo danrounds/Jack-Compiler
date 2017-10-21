@@ -24,6 +24,7 @@ from compiler_error import CompilerError
 from lexer.lexer import lexer
 from parser import parser
 import back_end.back_end as output_stage
+import globalVars
 
 def mainloop(in_pathorfile='./tests/test_code0/Square/Square.jack', outputmode='code', stronglinking='False',\
              custom_out_dir=None, vmfinaloutput=True, warnings=True):
@@ -78,7 +79,7 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
         print(filename)
 
         tokengenerator = lexer(filename)
-        output_stage.define_global_input_name(filename)
+        globalVars.defineGlobalInputFile(filename)
         parser.parseClass(tokengenerator)
 
     # Second parse + code output \/
@@ -91,9 +92,8 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
             outfilename = os.path.join(custom_out_dir, base)
         else:
             outfilename = filename[:-5] + '.vm'
-            # outfilename = filename[:-5] + '_COMPARE.vm'
 
-        output_stage.define_global_input_name(filename)
+        globalVars.defineGlobalInputFile(filename)
 
         tokengenerator = lexer(filename)
         output_stage.output.defineOutputValues(outfilename)
@@ -110,8 +110,7 @@ def outputParseTree(filelist):
     output_stage.initialize_globals(linking=None, parsenum=0) # initializes relevant  globals
     for filename in filelist:
         outfilename = filename[:-5] + '_.xml'
-        # outfilename = filename[:-5] + '_COMPARE_.xml'
-        output_stage.define_global_input_name(filename)
+        globalVars.defineGlobalInputFile(filename)
         output_stage.output.defineOutputValues(outfilename)
 
         # Outputs parse tree in XML
@@ -125,7 +124,7 @@ def outputTokens(filelist):
     for filename in filelist:
         outfilename = filename[:-5] + 'T_.xml'
         # outfilename = filename[:-5] + '_COMPARE_T_.xml'
-        output_stage.define_global_input_name(filename)
+        globalVars.defineGlobalInputFile(filename)
         output_stage.output.defineOutputValues(outfilename)
         print('Reading: '+ filename)
 
