@@ -8,7 +8,6 @@ import globalVars
 
 def initializeHashTables():
     global functionsInfo, varTable, output, STRONGLINKING
-    global uniqueIfIdentifier, uniqueWhileIdentifier
     functionsInfo = classAndFunctionsHash()
     varTable = variableTable()
     output = Output()
@@ -20,22 +19,6 @@ OR to output code (parse # 2) OR to output XML tokens or parse tree (parse # 0)'
     global parsenum
     parsenum = n
 
-global uniqueIfIdentifier, uniqueWhileIdentifier # Integers
-class IfWhileIdentifiers():
-    '''Used to provide unique IDs for ifs/whiles in code output'''
-    def getIfID():
-        global parsenum, uniqueIfIdentifier
-        if parsenum == 2:
-            uniqueIfIdentifier += 1
-            return str(uniqueIfIdentifier)
-        return str()
-
-    def getWhileID():
-        global parsenum, uniqueWhileIdentifier
-        if parsenum == 2:
-            uniqueWhileIdentifier += 1
-            return str(uniqueWhileIdentifier)
-        return str()
 
 global currentClass, currentFunction
 # These are state variables. They reflect the file, class, and function we're currently in the middle
@@ -57,7 +40,6 @@ class Output():
             self.code = Output.null
 
     def defineOutputValues(self, output_file_name):
-        global uniqueIfIdentifier, uniqueWhileIdentifier
         if parsenum == 1:
             return
         else:
@@ -65,7 +47,6 @@ class Output():
 
         if parsenum == 2:
             self.code = self.codeoutput
-            uniqueIfIdentifier = uniqueWhileIdentifier = -1
 
     def closeFile(self):
         if parsenum == 1:

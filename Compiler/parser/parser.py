@@ -14,13 +14,16 @@
 
 from compiler_error import CompilerError
 from . import parser_errors as PErrorMsg
+from . import uniqueIfAndWhileIds
 import back_end.back_end as back_end
+
 
 #### PARSER ####    #### PARSER ####    #### PARSER ####    #### PARSER ####
 ## Everything below is our parser.
 
 def parseClass(generator):
     '''Initial parse function. Each file holds a class, thus the `class` is the main unit of compilation'''
+    uniqueIfAndWhileIds.init()
     back_end.DoesFunctionReturnStack.stackvars_init()
     token = next(generator)
     if token.value == 'class':
@@ -276,7 +279,7 @@ def parseLetStatement(token, generator):
 
 def parseIfStatement(token, generator):
     if token.value == 'if':
-        n = back_end.IfWhileIdentifiers.getIfID()
+        n = uniqueIfAndWhileIds.getIfID()
 
         back_end.DoesFunctionReturnStack.stack_addIfStmnt()
 
@@ -314,7 +317,7 @@ def parseIfStatement(token, generator):
 def parseWhileStatement(token, generator):
     if token.value == 'while':
 
-        n = back_end.IfWhileIdentifiers.getWhileID()
+        n = uniqueIfAndWhileIds.getWhileID()
 
         back_end.CodeProcess.WhileStatement_1(n)
 
