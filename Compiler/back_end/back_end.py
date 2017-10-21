@@ -19,7 +19,7 @@ def initialize_globals(linking, parsenum):
     output = Output()
 
 global currentClass, currentFunction, global_infilename
-# These are state varaibles. They reflect the file, class, and function we're currently in the middle
+# These are state variables. They reflect the file, class, and function we're currently in the middle
 #  of parsing:
 def define_global_input_name(infilename):
     global global_infilename
