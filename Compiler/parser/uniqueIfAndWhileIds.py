@@ -26,6 +26,3 @@ def getWhileID():
 def init():
     global uniqueIfIdentifier, uniqueWhileIdentifier
     uniqueIfIdentifier = uniqueWhileIdentifier = -1
-
-
-
