@@ -61,13 +61,13 @@ code output to resolve variable/function references.'''
 
     filelist = fileorpathparser(in_pathorfile)
     
-    if outputmode == 'code': # `Code output' OR `code output into temp files'
+    if outputmode == 'code':  # `Code output' OR `code output into temp files'
         outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput)
 
-    elif outputmode == 'parse_tree': # Outputs XML parse tree (for purposes of testing
+    elif outputmode == 'parse_tree':  # Outputs XML parse tree (for testing)
         outputParseTree(filelist)
 
-    elif outputmode == 'tokens': # Tokenizer -- outputs XML token "tree"
+    elif outputmode == 'tokens':  # Tokenizer -- outputs XML token "tree"
         outputTokens(filelist)
 
     print()
