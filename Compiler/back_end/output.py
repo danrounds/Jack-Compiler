@@ -7,8 +7,9 @@ class Output():
         elif stage == 'initial':
             self.outt = self.startt = self.endt = self.code = Output.null
 
-    def defineOutputValues(self, output_file_name):
-        if self.stage == 'initial':
+    def defineOutputValues(self, stage, output_file_name):
+        self.stage = stage
+        if stage == 'initial':
             return
         else:
             self.global_file_out = open(output_file_name, 'w')

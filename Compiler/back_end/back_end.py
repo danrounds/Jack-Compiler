@@ -6,10 +6,14 @@ import globalVars
 # import JackStdLib
 
 
-def initializeHashTables(_output):
-    global functionsInfo, varTable, output, STRONGLINKING
+def initializeHashTables():
+    global functionsInfo, varTable
     functionsInfo = classAndFunctionsHash()
     varTable = variableTable()
+
+
+def defineOutput(_output):
+    global output
     output = _output
 
 

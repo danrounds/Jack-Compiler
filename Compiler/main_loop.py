@@ -75,11 +75,12 @@ code output to resolve variable/function references.'''
 
 def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
     import os
-    print('Doing initial parse of:')
     output_stage.setParseNumber(1)
-    output = Output.Output('initial')
-    output_stage.initializeHashTables(output)
+    output_stage.initializeHashTables()
 
+    output = Output.Output('initial')
+    output_stage.defineOutput(output)
+    print('Doing initial parse of:')
 
     # Initial parse; fleshes out hash-tables, so that we have relevant
     #  typing/function prototype (&c) information, for the output stage \/
@@ -104,7 +105,7 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
         globalVars.defineGlobalInputFile(filename)
 
         tokengenerator = lexer(filename)
-        output.defineOutputValues(outfilename)
+        output.defineOutputValues('codeOutput', outfilename)
         parser.parseClass(tokengenerator)
 
         if vmfinaloutput == True:
@@ -116,12 +117,15 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
 
 def outputParseTree(filelist):
     output_stage.setParseNumber(0)
+    output_stage.initializeHashTables()
+
     output = Output.Output('parseTest')
-    output_stage.initializeHashTables(output)
+    output_stage.defineOutput(output)
+
     for filename in filelist:
         outfilename = filename[:-5] + '_.xml'
         globalVars.defineGlobalInputFile(filename)
-        output.defineOutputValues(outfilename)
+        output.defineOutputValues('parseTest', outfilename)
 
         # Outputs parse tree in XML
         tokengenerator = lexer(filename)
@@ -132,20 +136,23 @@ def outputParseTree(filelist):
 
 def outputTokens(filelist):
     output_stage.setParseNumber(0)
+    output_stage.initializeHashTables()
+
     output = Output.Output('parseTest')
-    output_stage.initializeHashTables(output)
+    output_stage.defineOutput(output)
+
     for filename in filelist:
         outfilename = filename[:-5] + 'T_.xml'
         # outfilename = filename[:-5] + '_COMPARE_T_.xml'
         globalVars.defineGlobalInputFile(filename)
-        output.defineOutputValues(outfilename)
+        output.defineOutputValues('parseTest', outfilename)
         print('Reading: %s' % filename)
 
         # Outputs tokens in XML
         tokengenerator = lexer(filename)
-        output_stage.output.startt('tokens') # opening tag `<tokens>`
+        output_stage.output.startt('tokens')  # opening tag `<tokens>`
         for token in tokengenerator:
-            output_stage.output.outt(token) # tokenizing + output
+            output_stage.output.outt(token)  # tokenizing + output
         output_stage.output.endt('tokens')  # closing tag `</tokens>`
         print('Output: %s' % outfilename)
         output.closeFile()
