@@ -24,7 +24,7 @@ compilerPath = os.path.dirname(sys.argv[0]) + '/Compiler'
 sys.path.insert(0, compilerPath)
 
 import main_loop as compiler
-from back_end import CompilerError as CompilerError
+from compiler_error import CompilerError
 
 virtualMachine = __import__('Virtual Machine')
 assembler = __import__('Assembler')
