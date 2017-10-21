@@ -36,7 +36,10 @@ and that helps us know this thing's working.
 `mainloop()`
     1. Parses either a single file or all the .jack files pointed to by a given directory path [files sussed out via \
 `fileorpathparser()`]
-    2. Calls the output stage  [`... . initialize_globals()`] to set up our hash tables and globals needed for output
+        output_stage.setParseNumber(1)
+    output_stage.initializeHashTables()
+    2a. Calls the output stage  [`.initialize_globals()`] to set the parse number
+    2b. Calls the output stage  [`.initialize_globals()`] to set up our hash tables
     3. Outputs one of the following:
         I.  Code:
                a. PARSE ONE: Populates `varTable' and `functionsInfo', which gives us the information we need for
