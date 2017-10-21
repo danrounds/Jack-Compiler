@@ -213,5 +213,3 @@ def extendedTestParse():
 
 if __name__ == '__main__':
     currentTest()
-    print("Hit ENTER to exit.")
-    input()
