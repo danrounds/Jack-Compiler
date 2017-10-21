@@ -658,5 +658,3 @@ relevant parse stage.'''
                 #     ...
 
             output.code('call %s %s' % (function, n_exprs_in_call))
-
-
