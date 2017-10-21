@@ -20,11 +20,10 @@ dynamic-language senses), and so is not truly object-oriented. Things like dynam
 It also has really...unique truth semantics (e.g. in if/while statements)
 
 '''
-
+from compiler_error import CompilerError
 from lexer.lexer import lexer
 from parser import parser
-import back_end as output_stage
-from back_end import CompilerError as CompilerError
+import back_end.back_end as output_stage
 
 def mainloop(in_pathorfile='./tests/test_code0/Square/Square.jack', outputmode='code', stronglinking='False',\
              custom_out_dir=None, vmfinaloutput=True, warnings=True):

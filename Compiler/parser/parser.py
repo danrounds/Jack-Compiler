@@ -12,9 +12,9 @@
 # On the second parse, we call `back_end', and use this information to check semantics and output code.
 # -DR, August 2016
 
-import back_end
-from back_end import CompilerError as CompilerError
+from compiler_error import CompilerError
 from . import parser_errors as PErrorMsg
+import back_end.back_end as back_end
 
 #### PARSER ####    #### PARSER ####    #### PARSER ####    #### PARSER ####
 ## Everything below is our parser.

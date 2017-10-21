@@ -1,6 +1,9 @@
 import collections
 import sys
+
+from compiler_error import CompilerError
 # import JackStdLib
+
 
 def initialize_globals(linking, parsenum):
     global functionsInfo, varTable, output, STRONGLINKING
@@ -50,15 +53,6 @@ class IfWhileIdentifiers():
         global uniqueWhileIdentifier
         uniqueWhileIdentifier += 1
         return str(uniqueWhileIdentifier)
-
-
-
-class CompilerError(Exception):
-    '''Our Exception type for all our compiler's errors.'''
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)
 
 
 

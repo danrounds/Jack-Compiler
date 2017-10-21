@@ -1,4 +1,4 @@
-import back_end
+import back_end.back_end as back_end
 
 '''Parse error messages'''
 def no_class_declr(self):

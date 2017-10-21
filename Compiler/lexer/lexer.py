@@ -3,7 +3,7 @@
 ##########################################################################################
 ##########################################################################################
 
-from back_end import CompilerError as CompilerError
+from compiler_error import CompilerError
 from . import lexer_errors as TErrorMsg
 
 import collections
