@@ -6,11 +6,12 @@ import globalVars
 # import JackStdLib
 
 
-def initializeHashTables():
+def initializeHashTables(_output):
     global functionsInfo, varTable, output, STRONGLINKING
     functionsInfo = classAndFunctionsHash()
     varTable = variableTable()
-    output = Output()
+    output = _output
+
 
 global parsenum
 def setParseNumber(n):
@@ -28,56 +29,6 @@ def setCurrentClass(classtoken):
 def setCurrentFunction(functiontoken):
     global currentFunction
     currentFunction = functiontoken.value
-
-
-class Output():
-    '''Outputs XML or code, depending on the parse number'''
-    def __init__(self):
-        if parsenum == 0:
-            self.code = Output.null
-        elif parsenum == 1:
-            self.outt = self.startt = self.endt = Output.null
-            self.code = Output.null
-
-    def defineOutputValues(self, output_file_name):
-        if parsenum == 1:
-            return
-        else:
-            self.global_file_out = open(output_file_name, 'w')
-
-        if parsenum == 2:
-            self.code = self.codeoutput
-
-    def closeFile(self):
-        if parsenum == 1:
-            pass
-        else:
-            self.global_file_out.close()
-
-
-    # XML output
-    def outt(self, token):
-        if parsenum == 0:
-            val, tag = token.value, token.typ
-            if   val == '<': val = '&lt;'
-            elif val == '>': val = '&gt;'
-            elif val == '&': val = '&amp;'
-            self.global_file_out.write("<%s> %s </%s>\n" % (tag, val, tag))
-    def startt(self, tag):
-        if parsenum == 0:
-            self.global_file_out.write("<%s>\n" % tag)
-    def endt(self, tag):
-        if parsenum == 0:
-            self.global_file_out.write("</%s>\n" % tag)
-
-    # Code output
-    def codeoutput(self, line_of_code):
-        self.global_file_out.write(line_of_code + '\n')
-
-    ###
-    def null(*args, **kwargs):
-        pass
-
 
 funct_info = collections.namedtuple('funct_info', ['k_params', 'n_vars', 'funct_type', 'returnsType'])
 # /\ the "value" part of the key:value in our classDOTfunctions table. Used for code output and error-checking.

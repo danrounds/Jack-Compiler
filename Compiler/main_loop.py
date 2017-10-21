@@ -24,6 +24,7 @@ from compiler_error import CompilerError
 from lexer.lexer import lexer
 from parser import parser
 import back_end.back_end as output_stage
+import back_end.output as Output
 import globalVars
 
 def mainloop(in_pathorfile='./tests/test_code0/Square/Square.jack', outputmode='code', stronglinking='False',\
@@ -38,6 +39,7 @@ and that helps us know this thing's working.
 `fileorpathparser()`]
         output_stage.setParseNumber(1)
     output_stage.initializeHashTables()
+    Output('initial')
     2a. Calls the output stage  [`.initialize_globals()`] to set the parse number
     2b. Calls the output stage  [`.initialize_globals()`] to set up our hash tables
     3. Outputs one of the following:
@@ -75,7 +77,9 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
     import os
     print('Doing initial parse of:')
     output_stage.setParseNumber(1)
-    output_stage.initializeHashTables()
+    output = Output.Output('initial')
+    output_stage.initializeHashTables(output)
+
 
     # Initial parse; fleshes out hash-tables, so that we have relevant
     #  typing/function prototype (&c) information, for the output stage \/
@@ -100,39 +104,42 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
         globalVars.defineGlobalInputFile(filename)
 
         tokengenerator = lexer(filename)
-        output_stage.output.defineOutputValues(outfilename)
+        output.defineOutputValues(outfilename)
         parser.parseClass(tokengenerator)
 
         if vmfinaloutput == True:
         # We only output file names if we're keeping output files. IF this is false, VM files
         #  are just a step toward full conversion (e.g. we're using JackCC as our front-end)
-            print('Output: '+ outfilename)
-        output_stage.output.closeFile()
+            print('Output: %s' % outfilename)
+        output.closeFile()
 
 
 def outputParseTree(filelist):
     output_stage.setParseNumber(0)
-    output_stage.initializeHashTables()
+    output = Output.Output('parseTest')
+    output_stage.initializeHashTables(output)
     for filename in filelist:
         outfilename = filename[:-5] + '_.xml'
         globalVars.defineGlobalInputFile(filename)
-        output_stage.output.defineOutputValues(outfilename)
+        output.defineOutputValues(outfilename)
 
         # Outputs parse tree in XML
         tokengenerator = lexer(filename)
         parser.parseClass(tokengenerator)
-        print('Output: '+ outfilename+'\n')
-        output_stage.output.closeFile()
+        print('Output: %s\n' % outfilename)
+        output.closeFile()
+
 
 def outputTokens(filelist):
     output_stage.setParseNumber(0)
-    output_stage.initializeHashTables()
+    output = Output.Output('parseTest')
+    output_stage.initializeHashTables(output)
     for filename in filelist:
         outfilename = filename[:-5] + 'T_.xml'
         # outfilename = filename[:-5] + '_COMPARE_T_.xml'
         globalVars.defineGlobalInputFile(filename)
-        output_stage.output.defineOutputValues(outfilename)
-        print('Reading: '+ filename)
+        output.defineOutputValues(outfilename)
+        print('Reading: %s' % filename)
 
         # Outputs tokens in XML
         tokengenerator = lexer(filename)
@@ -140,8 +147,8 @@ def outputTokens(filelist):
         for token in tokengenerator:
             output_stage.output.outt(token) # tokenizing + output
         output_stage.output.endt('tokens')  # closing tag `</tokens>`
-        print('Output: '+outfilename)
-        output_stage.output.closeFile()
+        print('Output: %s' % outfilename)
+        output.closeFile()
 
 
 def fileorpathparser(path):
