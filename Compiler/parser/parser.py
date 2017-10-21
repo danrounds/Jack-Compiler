@@ -276,7 +276,7 @@ def parseLetStatement(token, generator):
 
 def parseIfStatement(token, generator):
     if token.value == 'if':
-        n = back_end.IfWhileIdentifiers.updateIfID()
+        n = back_end.IfWhileIdentifiers.getIfID()
 
         back_end.DoesFunctionReturnStack.stack_addIfStmnt()
 
@@ -314,7 +314,7 @@ def parseIfStatement(token, generator):
 def parseWhileStatement(token, generator):
     if token.value == 'while':
 
-        n = back_end.IfWhileIdentifiers.updateWhileID()
+        n = back_end.IfWhileIdentifiers.getWhileID()
 
         back_end.CodeProcess.WhileStatement_1(n)
 

@@ -12,7 +12,6 @@ def initializeHashTablesAndIdentifiers():
     functionsInfo = classAndFunctionsHash()
     varTable = variableTable()
     output = Output()
-    uniqueIfIdentifier = uniqueWhileIdentifier = -1
 
 global parsenum
 def setParseNumber(n):
@@ -24,16 +23,19 @@ OR to output code (parse # 2) OR to output XML tokens or parse tree (parse # 0)'
 global uniqueIfIdentifier, uniqueWhileIdentifier # Integers
 class IfWhileIdentifiers():
     '''Used to provide unique IDs for ifs/whiles in code output'''
-    def updateIfID():
-        global uniqueIfIdentifier
-        uniqueIfIdentifier += 1
-        return str(uniqueIfIdentifier)
+    def getIfID():
+        global parsenum, uniqueIfIdentifier
+        if parsenum == 2:
+            uniqueIfIdentifier += 1
+            return str(uniqueIfIdentifier)
+        return str()
 
-    def updateWhileID():
-        global uniqueWhileIdentifier
-        uniqueWhileIdentifier += 1
-        return str(uniqueWhileIdentifier)
-
+    def getWhileID():
+        global parsenum, uniqueWhileIdentifier
+        if parsenum == 2:
+            uniqueWhileIdentifier += 1
+            return str(uniqueWhileIdentifier)
+        return str()
 
 global currentClass, currentFunction
 # These are state variables. They reflect the file, class, and function we're currently in the middle
@@ -510,15 +512,15 @@ relevant parse stage.'''
         output.code('goto IF_FALSE'+n)   # the If statement. If True, jumps
         output.code('label IF_TRUE'+n)   # to IF_TRUE+n.
     ## \/ These two functions run (output) if the parser finds an `else`##
-    def IfStatement_ELSE_A(n):                                             #
-        output.code('goto IF_END'+n)                                #
-        output.code('label IF_FALSE'+n)                             #
-    def IfStatement_ELSE_B(n):                                              #
-        output.code('label IF_END'+n)                               #
+    def IfStatement_ELSE_A(n):
+        output.code('goto IF_END'+n)
+        output.code('label IF_FALSE'+n)
+    def IfStatement_ELSE_B(n):
+        output.code('label IF_END'+n)
     ## /\ These two functions run (output) if the parser finds an `else`##
 
     ## \/ This gets output only if we don't have an `else`
-    def IfStatement_NOELSE(n):
+    def IfStatement_NOELSE(n=''):
         output.code('label IF_FALSE'+n)
 
 
