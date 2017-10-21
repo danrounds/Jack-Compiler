@@ -6,18 +6,34 @@ import globalVars
 # import JackStdLib
 
 
-def initialize_globals(linking, parsenum):
+def initializeHashTablesAndIdentifiers():
     global functionsInfo, varTable, output, STRONGLINKING
     global uniqueIfIdentifier, uniqueWhileIdentifier
     functionsInfo = classAndFunctionsHash()
     varTable = variableTable()
-
-    STRONGLINKING = linking # this is vestigial and represents an attempt to allow for
-    # compiling .jack files separately with later "linking""
-
-    uniqueIfIdentifier = uniqueWhileIdentifier  = -1
-    defineParseNumber(parsenum)
     output = Output()
+    uniqueIfIdentifier = uniqueWhileIdentifier = -1
+
+global parsenum
+def setParseNumber(n):
+    '''This defines a global variable which the compiler uses to generate our hash tables (parse # 1)\
+OR to output code (parse # 2) OR to output XML tokens or parse tree (parse # 0)'''
+    global parsenum
+    parsenum = n
+
+global uniqueIfIdentifier, uniqueWhileIdentifier # Integers
+class IfWhileIdentifiers():
+    '''Used to provide unique IDs for ifs/whiles in code output'''
+    def updateIfID():
+        global uniqueIfIdentifier
+        uniqueIfIdentifier += 1
+        return str(uniqueIfIdentifier)
+
+    def updateWhileID():
+        global uniqueWhileIdentifier
+        uniqueWhileIdentifier += 1
+        return str(uniqueWhileIdentifier)
+
 
 global currentClass, currentFunction
 # These are state variables. They reflect the file, class, and function we're currently in the middle
@@ -27,30 +43,6 @@ def setCurrentClass(classtoken):
 def setCurrentFunction(functiontoken):
     global currentFunction
     currentFunction = functiontoken.value
-
-
-
-global parsenum
-def defineParseNumber(n):
-    '''This defines a global variable which the compiler uses to generate our hash tables (parse # 1)\
-OR to output code (parse # 2) OR to output XML tokens or parse tree (parse # 0)'''
-    global parsenum
-    parsenum = n
-
-
-
-global uniqueIfIdentifier, uniqueWhileIdentifier # Integers
-class IfWhileIdentifiers():
-    '''Used to provide unique IDs for ifs/whiles in code output'''
-    def updateIfID():
-        global uniqueIfIdentifier
-        uniqueIfIdentifier += 1
-        return str(uniqueIfIdentifier)
-    def updateWhileID():
-        global uniqueWhileIdentifier
-        uniqueWhileIdentifier += 1
-        return str(uniqueWhileIdentifier)
-
 
 
 class Output():
