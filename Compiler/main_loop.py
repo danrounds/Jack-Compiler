@@ -24,6 +24,7 @@ from compiler_error import CompilerError
 from lexer.lexer import lexer
 from parser import parser
 import back_end.back_end as output_stage
+import back_end.vars as output_stage_vars
 import back_end.output as Output
 import globalVars
 
@@ -75,7 +76,7 @@ code output to resolve variable/function references.'''
 
 def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
     import os
-    output_stage.setParseNumber(1)
+    output_stage_vars.setParseNumber(1)
     output_stage.initializeHashTables()
 
     output = Output.Output('initial')
@@ -92,7 +93,7 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
         parser.parseClass(tokengenerator)
 
     # Second parse + code output \/
-    output_stage.setParseNumber(2)
+    output_stage_vars.setParseNumber(2)
     for filename in filelist:
         if custom_out_dir:
             # We've specified a custom directory path for output. Files are still INPUT_FILE_PREFIX.jack,
@@ -116,7 +117,7 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
 
 
 def outputParseTree(filelist):
-    output_stage.setParseNumber(0)
+    output_stage_vars.setParseNumber(0)
     output_stage.initializeHashTables()
 
     output = Output.Output('parseTest')
@@ -135,7 +136,7 @@ def outputParseTree(filelist):
 
 
 def outputTokens(filelist):
-    output_stage.setParseNumber(0)
+    output_stage_vars.setParseNumber(0)
     output_stage.initializeHashTables()
 
     output = Output.Output('parseTest')

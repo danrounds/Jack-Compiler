@@ -3,6 +3,7 @@ import sys
 
 from compiler_error import CompilerError
 import globalVars
+from . import vars
 # import JackStdLib
 
 
@@ -17,12 +18,12 @@ def defineOutput(_output):
     output = _output
 
 
-global parsenum
-def setParseNumber(n):
-    '''This defines a global variable which the compiler uses to generate our hash tables (parse # 1)\
-OR to output code (parse # 2) OR to output XML tokens or parse tree (parse # 0)'''
-    global parsenum
-    parsenum = n
+# global parsenum
+# def setParseNumber(n):
+#     '''This defines a global variable which the compiler uses to generate our hash tables (parse # 1)\
+# OR to output code (parse # 2) OR to output XML tokens or parse tree (parse # 0)'''
+#     global parsenum
+#     parsenum = n
 
 
 global currentClass, currentFunction
@@ -61,7 +62,7 @@ class classAndFunctionsHash():
             self.k_params_declrd = 1                      # ... Methods, on k+1.
 
     def increment_k_params(self):
-        if parsenum == 1:
+        if vars.parsenum == 1:
             self.k_params_declrd += 1
 
     def defFunctTyp(self, token):
@@ -71,7 +72,7 @@ class classAndFunctionsHash():
     def codifyField_N(self):
         '''This creates a key in our class/function lookup table which will us how many fields our Class defines/object has. It will tell us how much\
 memory to allocate for our objects'''
-        if parsenum == 1:
+        if vars.parsenum == 1:
             self.table[currentClass+'$$N_FIELDS'] = varTable.fieldVarN
 
     def getField_N(self):
@@ -79,7 +80,7 @@ memory to allocate for our objects'''
         return self.table[currentClass+'$$N_FIELDS']
 
     def addFunction(self, returnsType, token):
-        if parsenum == 1:
+        if vars.parsenum == 1:
             key = currentClass+'^'+currentFunction
             totalLocalVars = varTable.localVarN
             params_vars_pair = funct_info(self.k_params_declrd, totalLocalVars, self.functTyp, returnsType)
@@ -127,25 +128,25 @@ class variableTable():
         self.inDeclaration = None
 
     def resetFieldStaticCount(self):
-        if parsenum == 1:
+        if vars.parsenum == 1:
             self.fieldVarN = self.staticVarN = 0
 
     def resetVarCounter(self):
-        if parsenum == 1:
+        if vars.parsenum == 1:
             if functionsInfo.functTyp == 'method':
                 self.localVarN = 1
             else:
                 self.localVarN = 0
 
     def setInDeclaration(self, boolean):
-        if parsenum == 1:
+        if vars.parsenum == 1:
             self.inDeclaration = boolean
 
     def addVariable(self, token, _type, _kind, scope):
         '''Adds a variable to either our class-level variable table (classScope) or our function-level one (functScope). \
 Included is information for `Type\' (int, char, boolean, void, and arbitrary types); `_kind` (field, static, local, argument); \
 and the variable number, which is used for relative addressing'''
-        if parsenum == 1:
+        if vars.parsenum == 1:
 
             variableName = token.value
             classkey = currentClass+'^'+variableName
@@ -183,7 +184,7 @@ and the variable number, which is used for relative addressing'''
 
     def lookupVariable(self, variableToken):
         kind = n = None
-        if parsenum == 2:
+        if vars.parsenum == 2:
             variableName = variableToken.value
             try:
                 key = currentClass+'^'+currentFunction+'^'+variableName
@@ -207,7 +208,7 @@ and the variable number, which is used for relative addressing'''
 
     def addToAvailableTypes(self):
         '''We're keeping a list of the types (i.e. defined classes) available in our compiled files, so that type declarations are meaningful'''
-        if parsenum == 1:
+        if vars.parsenum == 1:
             try:
                 if currentClass not in self.list_of_extended_types:
                     self.list_of_extended_types.append(currentClass)
@@ -216,7 +217,7 @@ and the variable number, which is used for relative addressing'''
 
     def checkTypeExistence(self, token, subroutineDeclaration=False):
         '''This checks whether a declared type actually exists in the files we're compiling OR the Jack Standard Library'''
-        if parsenum == 2:
+        if vars.parsenum == 2:
             type_ = token.value
             if type_ == 'void':
                 if not subroutineDeclaration:
@@ -227,7 +228,7 @@ and the variable number, which is used for relative addressing'''
 
     def checkClassExistence(self, token):
         '''This checks whether a called class name exists, so that Class.subroutine() actually calls code that exists'''
-        if parsenum == 2:
+        if vars.parsenum == 2:
             Class = token.value
             if Class not in ('Array', 'Keyboard', 'Math', 'Memory', 'Output', 'Screen', 'String', 'Sys'):
                 if Class not in self.list_of_extended_types:
@@ -250,34 +251,34 @@ I also find it kind of charming. It could be removed without penalty (but it won
 
     unreachableTriggered = False
     def stackvars_init():
-        if parsenum == 2:
+        if vars.parsenum == 2:
             global n_curlies, max_curlies
             n_curlies = max_curlies = 0
     def stackvars_incr():
-        if parsenum == 2:
+        if vars.parsenum == 2:
             global n_curlies, max_curlies
             n_curlies += 1
             if n_curlies > max_curlies:
                 max_curlies = n_curlies
     def stackvars_decr():
-        if parsenum == 2:
+        if vars.parsenum == 2:
             global n_curlies
             n_curlies -= 1
     
     def stack_init():
-        if parsenum == 2:
+        if vars.parsenum == 2:
             global functionRtnsStack
             functionRtnsStack = ""
     def stack_addIfStmnt():
-        if parsenum == 2:
+        if vars.parsenum == 2:
             global functionRtnsStack
             functionRtnsStack = functionRtnsStack + 'if'+str(n_curlies)
     def stack_addElseStmnt():
-        if parsenum == 2:
+        if vars.parsenum == 2:
             global functionRtnsStack
             functionRtnsStack = functionRtnsStack + 'else'+str(n_curlies)
     def stack_addReturnStmnt():
-        if parsenum == 2:
+        if vars.parsenum == 2:
             global functionRtnsStack
             functionRtnsStack = functionRtnsStack + 'return'+str(n_curlies)
             
@@ -287,22 +288,22 @@ I also find it kind of charming. It could be removed without penalty (but it won
         global codeHasTerminated
         codeHasTerminated = False
     def warning_reduc():
-        if parsenum == 2:
+        if vars.parsenum == 2:
 #            functionRtnsStack = reduction(functionRtnsStack, n_curlies)
             DoesFunctionReturnStack.reduction()
             if functionRtnsStack[-7:] == 'return2':
                 global codeHasTerminated
                 codeHasTerminated = True
     def IFissue_warning(token):
-        ## \/ added the parsenum == 2 as a hail Mary
-        if parsenum == 2:
+        ## \/ added the vars.parsenum == 2 as a hail Mary
+        if vars.parsenum == 2:
             if codeHasTerminated == True and not DoesFunctionReturnStack.unreachableTriggered:
                 print("Warning: Unreachable code. Line %s, %s" % (token.line, globalVars.inputFileName), file=sys.stderr)
                 DoesFunctionReturnStack.unreachableTriggered = True
     ###############
     
     def codecheck(token):
-        if parsenum == 2:
+        if vars.parsenum == 2:
             if functionRtnsStack[-7:] not in ('return2', ''):
                 old = None
                 while old != functionRtnsStack:
@@ -352,7 +353,7 @@ class Semantics():
         '''Provides some limited error checking for return statements. Doesn't do much type checking--simply makes sure that constructors, void functions, and value-returning functions all do what they should.
 
 Jack's very, very lax typing is kept intact. Type checking could be added, but would require more effort when expressions are involved. Since the only platform we're compiling to treats everything as a 16-bit word, there's at least no impedance mismatch'''
-        if parsenum == 2:
+        if vars.parsenum == 2:
             value = token.value
 
             *NULL, funct_role, returnsType  = functionsInfo.lookupSubroutineInfo(currentClass, currentFunction)
@@ -400,7 +401,7 @@ class CodeProcess():
 relevant parse stage.'''
 
     def SubroutineDeclaration(token):
-        if parsenum == 2:
+        if vars.parsenum == 2:
             currentFunctionContext = functionsInfo.table[currentClass+'^'+currentFunction]
             shouldReturnType = currentFunctionContext.returnsType
             num = currentFunctionContext.n_vars
@@ -425,14 +426,14 @@ relevant parse stage.'''
 
 
     def LetStatement_ARRAY_BASE(variableToken):
-        if parsenum == 2:
+        if vars.parsenum == 2:
             NULL, kind, n = varTable.lookupVariable(variableToken)
             output.code('push %s %s' % (kind, n))
             output.code('add')  # adds variable *(kind n) to the prior stack value (an expression)
 
     def LetStatement(array, variableToken):
         # I THINK This is where you could optimize code for array indexing knowable at compile time
-        if parsenum == 2:
+        if vars.parsenum == 2:
             NULL, kind, n = varTable.lookupVariable(variableToken)
             if array == True:
                 output.code('pop temp 0')
@@ -477,7 +478,7 @@ relevant parse stage.'''
 
 
     def ReturnStatementVoidPrep(token):
-        if parsenum == 2:
+        if vars.parsenum == 2:
             key = currentClass+'^'+currentFunction
             if functionsInfo.table[key].returnsType == 'void':
                 output.code('push constant 0')
@@ -492,7 +493,7 @@ relevant parse stage.'''
     def ExpressionOP(op):
         ## Tried this as a "jump" into the dictionary above, instead of loads of sequential logic,
         #   but it offered no performance improvements
-        if parsenum == 2:
+        if vars.parsenum == 2:
             if op == "+":    output.code('add')
             elif op == "-":  output.code('sub')
             elif op == "&":  output.code('and')
@@ -509,7 +510,7 @@ relevant parse stage.'''
         output.code("push constant " + token.value)
 
     def TermSTRING(token):
-        if parsenum == 2:
+        if vars.parsenum == 2:
             string = token.value
             output.code("push constant %s" % len(string))
             output.code("call String.new 1")
@@ -518,7 +519,7 @@ relevant parse stage.'''
                 output.code("call String.appendChar 2")
 
     def TermKEYWORD(token):
-        if parsenum == 2:
+        if vars.parsenum == 2:
             keyword = token.value
             if keyword == 'true':
                 output.code("push constant 1")
@@ -536,7 +537,7 @@ relevant parse stage.'''
 
     # def TermARRAY(variableName):
     def TermARRAY(variableToken):
-        if parsenum == 2:
+        if vars.parsenum == 2:
             NULL, kind,  n = varTable.lookupVariable(variableToken)
             output.code('push %s %s' % (kind, n))
             output.code('add')
@@ -544,14 +545,14 @@ relevant parse stage.'''
             output.code('push that 0')
 
     def TermUNARYOP(op):
-        if parsenum == 2:
+        if vars.parsenum == 2:
             if op.value == '~':
                 output.code('not')
             else:
                 output.code('neg')
 
     def TermVARNAME(variableToken):
-        if parsenum == 2:
+        if vars.parsenum == 2:
             NULL, kind, n = varTable.lookupVariable(variableToken)
             output.code('push %s %s' % (kind, n))
 
@@ -559,7 +560,7 @@ relevant parse stage.'''
     def SubroutineCall_NoDot_A(subroutinetoken, callerexpectsreturnval):
         '''Parses a subroutine call without an argument or preceding class name, i.e. `subroutineName(arguments)`
             i.e. a `function' call (if it's not, in fact, a syntax error)'''
-        if parsenum == 2:
+        if vars.parsenum == 2:
             calledfunrole = Semantics.checkDotlessFunctionCall(subroutinetoken, callerexpectsreturnval)
 
             if calledfunrole == 'method':
@@ -567,7 +568,7 @@ relevant parse stage.'''
 
     def SubroutineCall_NoDot_B(subroutinetoken, numberofparams):
         '''Second part of our logic/error-checking for method-less/Class-less subroutine calls\ni.e., in the language of Jack, "function" call'''
-        if parsenum == 2:
+        if vars.parsenum == 2:
 
             k, NULL, proceduretype, NULL = functionsInfo.lookupSubroutineInfo(currentClass, subroutinetoken)
             if proceduretype == 'method': numberofparams += 1
@@ -582,7 +583,7 @@ relevant parse stage.'''
         '''`object.method()` or `class.subroutine()`'''
 
         methodcall = function = None
-        if parsenum == 2:
+        if vars.parsenum == 2:
 
             ## \/ this checks to see whether what we have is `var.method()`, as opposed to a `class.function()` call
             try:
@@ -601,7 +602,7 @@ relevant parse stage.'''
     def SubroutineCall_WithDot_B(subroutinetoken, function, n_exprs_in_call):
         '''2nd part of output logic for `object.method()\' or `class.subroutine()\`'''
 
-        if parsenum == 2:
+        if vars.parsenum == 2:
             try:
                 expectedparams, *NULL = functionsInfo.lookupSubroutineInfo('', function)
                 if int(n_exprs_in_call) != int(expectedparams):
