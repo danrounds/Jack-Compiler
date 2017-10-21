@@ -29,29 +29,29 @@ def parseClass(generator):
     if token.value == 'class':
         back_end.output.startt('class'); back_end.output.outt(token)
         token = next(generator)
-        if parseClassName(token) == False:
+        if parseClassName(token) is False:
             raise CompilerError(PErrorMsg.no_class_name(token))
         back_end.setCurrentClass(token)
         parseLeftCurly(next(generator))
         token = next(generator)
         isCurly = parseRightCurly(token)
-        if isCurly == False:
+        if isCurly is False:
 
             # Here, we're parsing field & static vars + keeping a count
             back_end.varTable.resetFieldStaticCount()
             back_end.varTable.setInDeclaration(True)
             moreClassVarDecd = parseClassVarDec(token, generator)
-            while moreClassVarDecd == True:
+            while moreClassVarDecd is True:
                 moreClassVarDecd = parseClassVarDec(next(generator), generator)
             # Now we know the n fields that Class defines for its object type:
             back_end.functionsInfo.codifyField_N()
 
             # Time to parse subroutines:
             moreSubroutineDeclared = parseSubroutineDec(moreClassVarDecd, generator)
-            while moreSubroutineDeclared == True:
+            while moreSubroutineDeclared is True:
                 moreSubroutineDeclared = parseSubroutineDec(None, generator)
             rightcurly = parseRightCurly(moreSubroutineDeclared)
-            if rightcurly == False:
+            if rightcurly is False:
                 raise CompilerError(PErrorMsg.rightcurly(token))
 
             back_end.varTable.addToAvailableTypes()
@@ -90,27 +90,27 @@ def parseClassVarDec(token, generator):
         
         token = next(generator)
         comma = parseComma(token)
-        while comma == True:
+        while comma is True:
 
             token = next(generator)
             parseVarName(token)
             back_end.varTable.addVariable(token, type_, kind, scope='class')
 
             semi = parseSemicolon(token)
-            if semi == False:
+            if semi is False:
                 token = next(generator)
                 comma = parseComma(token)
             else:
                 raise CompilerError(PErrorMsg.no_varname(token))
 
-        if parseSemicolon(token) == True:
+        if parseSemicolon(token) is True:
             back_end.output.endt('classVarDec'); return True
         else:
             raise CompilerError(PErrorMsg.no_semivar(token))
     else: return token
 
 def parseSubroutineDec(token, generator):
-    if token == None: token = next(generator)
+    if token is None: token = next(generator)
     functTyp = back_end.functionsInfo.defFunctTyp(token)
     if functTyp in ('constructor', 'function', 'method'):
         
@@ -176,7 +176,7 @@ def parseParameterList(generator):
         comma = parseComma(token)
 
         # we're tallying the number of argument variables in our function declarations:
-        while comma == True:
+        while comma is True:
             back_end.functionsInfo.increment_k_params()
 
             token = next(generator)
@@ -207,7 +207,7 @@ def parseSubroutineBody(generator):
     token = parseStatements(token, generator)
 
     end = parseRightCurly(token)
-    if end == False:
+    if end is False:
         raise CompilerError(PErrorMsg.rightcurly(token))
     back_end.output.endt('subroutineBody')
 
@@ -220,7 +220,7 @@ def parseStatements(token, generator):
     while token.value != '}':
         back_end.DoesFunctionReturnStack.IFissue_warning(token) # warns if there's unreachable code
         token = parseStatement(token, generator)
-        if token == None:
+        if token is None:
             token = next(generator)
             back_end.DoesFunctionReturnStack.warning_reduc()
 
@@ -228,16 +228,16 @@ def parseStatements(token, generator):
     back_end.output.endt('statements'); return token
 
 def parseStatement(token, generator):
-    if parseLetStatement(token, generator) == False:
+    if parseLetStatement(token, generator) is False:
         boolORtoken = parseIfStatement(token, generator)
         #   == token, if it was an if statement.
         #   == False, if the parsed statement wasn't an if statement,
         if boolORtoken: 
             return boolORtoken
         else:
-            if parseWhileStatement(token, generator) == False:
-                if parseDoStatement(token, generator) == False:
-                    if parseReturnStatement(token, generator) == False:
+            if parseWhileStatement(token, generator) is False:
+                if parseDoStatement(token, generator) is False:
+                    if parseReturnStatement(token, generator) is False:
                         raise CompilerError(PErrorMsg.badstatement(token))
     return None
         
@@ -269,7 +269,7 @@ def parseLetStatement(token, generator):
         back_end.CodeProcess.LetStatement(array, variableToken)
 
         end = parseSemicolon(token)
-        if end == False:
+        if end is False:
             raise CompilerError(PErrorMsg.semicolon(token))
         back_end.output.endt('letStatement')
 
@@ -293,7 +293,7 @@ def parseIfStatement(token, generator):
 
         token = parseStatements(next(generator), generator)
         endbracket = parseRightCurly(token)
-        if endbracket == False:
+        if endbracket is False:
             raise CompilerError(PErrorMsg.rightcurly(token))
         token = next(generator)
         if token.value == 'else':
@@ -306,7 +306,7 @@ def parseIfStatement(token, generator):
             token = parseStatements(next(generator), generator)
             back_end.CodeProcess.IfStatement_ELSE_B(n)
             endbracket = parseRightCurly(token)
-            if endbracket == False:
+            if endbracket is False:
                 raise CompilerError(PErrorMsg.rightcurly(token))
             token = next(generator)
         else:
@@ -334,7 +334,7 @@ def parseWhileStatement(token, generator):
         endcurly = parseRightCurly(token)
         back_end.CodeProcess.WhileStatement_3(n)
 
-        if endcurly == False:
+        if endcurly is False:
             raise CompilerError(PErrorMsg.endofstatement(token))
         back_end.output.endt('whileStatement'); return True
     else: return False
@@ -375,7 +375,7 @@ def parseExpression(token, generator):
     back_end.output.startt('expression')
     token = parseTerm(token, generator)
     moreterms = parseOp(token)
-    while moreterms == True:
+    while moreterms is True:
         op = token.value
         token = parseTerm(next(generator), generator)
         back_end.CodeProcess.ExpressionOP(op)
@@ -387,7 +387,7 @@ def parseTerm(token, generator):
     back_end.output.startt('term')
     typ = token.typ
 
-    if typ in ['integerConstant', 'stringConstant'] or parseKeywordConstant(token) == True:
+    if typ in ['integerConstant', 'stringConstant'] or parseKeywordConstant(token) is True:
     # integerConstant | stringConstant | keywordConstant
         if typ == 'integerConstant':
             back_end.CodeProcess.TermINTEGER(token)
@@ -456,7 +456,7 @@ def parseSubroutineCall(token, lookahead, generator, callerexpectsreturnval):
         worked = parseClassName(token) #parseVarName(token)
         classORvariable = token
 
-        if worked == False:
+        if worked is False:
             return token
         else:
             token = lookahead
@@ -487,7 +487,7 @@ def parseExpressionList(generator, methodcall):
         token = parseExpression(token, generator)
         comma = parseComma(token)
         numofexpressions += 1
-        while comma == True:
+        while comma is True:
             numofexpressions += 1
             token = parseExpression(next(generator), generator)
             comma = parseComma(token)
@@ -521,7 +521,7 @@ def parseVarDec(token, generator):
     comma = parseComma(token)
 
     # _kind=`var' means local variable. We're tallying the number of locals
-    while comma == True:
+    while comma is True:
         token = next(generator)
         parseVarName(token)
         back_end.varTable.addVariable(token, type_, _kind='var', scope='function')
@@ -530,7 +530,7 @@ def parseVarDec(token, generator):
         comma = parseComma(token)
 
     end = parseSemicolon(token)
-    if end == False:
+    if end is False:
         raise CompilerError(PErrorMsg.semicolon(token))
     else: token = next(generator)
     back_end.output.endt('varDec')
