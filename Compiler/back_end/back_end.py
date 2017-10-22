@@ -3,7 +3,6 @@
 from compiler_error import CompilerError
 import globalVars
 from . import vars
-from . import Semantics
 # import JackStdLib
 
 
@@ -179,14 +178,11 @@ relevant parse stage.'''
             output.code('push %s %s' % (kind, n))
 
 
-    def SubroutineCall_NoDot_A(subroutinetoken, callerexpectsreturnval):
+    def SubroutineCall_NoDot_A(calledFnRole):
         '''Parses a subroutine call without an argument or preceding class name, i.e. `subroutineName(arguments)`
             i.e. a `function' call (if it's not, in fact, a syntax error)'''
-        if vars.parsenum == 2:
-            calledfunrole = Semantics.checkDotlessFunctionCall(subroutinetoken, callerexpectsreturnval)
-
-            if calledfunrole == 'method':
-                output.code('push pointer 0')
+        if calledFnRole == 'method':
+            output.code('push pointer 0')
 
     def SubroutineCall_NoDot_B(subroutinetoken, numberofparams):
         '''Second part of our logic/error-checking for method-less/Class-less subroutine calls\ni.e., in the language of Jack, "function" call'''

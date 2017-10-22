@@ -18,7 +18,7 @@ from . import uniqueIfAndWhileIds
 import back_end.back_end as back_end
 import back_end.vars as vars
 import back_end.doesFunctionReturn as doesFunctionReturn
-import back_end.Semantics as Semantics
+import back_end.ReturnSemantics as ReturnSemantics
 
 #### PARSER ####    #### PARSER ####    #### PARSER ####    #### PARSER ####
 ## Everything below is our parser.
@@ -363,7 +363,7 @@ def parseReturnStatement(token, generator):
         back_end.output.startt('returnStatement'); back_end.output.outt(token)
         token = next(generator)
 
-        Semantics.checkReturn(token)
+        ReturnSemantics.checkReturn(token)
 
         if token.value != ';':
             token = parseExpression(token, generator)
@@ -447,7 +447,8 @@ def parseSubroutineCall(token, lookahead, generator, callerexpectsreturnval):
         subroutinetoken = token
         parseSubroutineName(token)
 
-        back_end.CodeProcess.SubroutineCall_NoDot_A(subroutinetoken, callerexpectsreturnval)
+        calledFunctRole = ReturnSemantics.checkDotlessFunctionCall(subroutinetoken, callerexpectsreturnval)
+        back_end.CodeProcess.SubroutineCall_NoDot_A(calledFunctRole)
 
         parseLeftParen(lookahead)
         token, numberofparams = parseExpressionList(generator, methodcall=False)

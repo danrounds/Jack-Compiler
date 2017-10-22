@@ -31,7 +31,7 @@ from parser import parser
 import back_end.back_end as output_stage
 import back_end.vars as output_stage_vars
 import back_end.Output as Output
-import back_end.Semantics as output_semantics_check
+import back_end.ReturnSemantics as output_semantics_check
 import back_end.SymbolTable as SymbolTable
 import globalVars
 
