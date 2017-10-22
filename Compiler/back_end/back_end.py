@@ -23,8 +23,9 @@ relevant parse stage.'''
 
     def SubroutineDeclaration(token):
         if vars.parsenum == 2:
-            currentFunctionContext = functionsInfo.table[vars.currentClass+'^'+vars.currentFunction]
+            currentFunctionContext = functionsInfo.getCurrentFnContext()
             shouldReturnType = currentFunctionContext.returnsType
+            currentFnType = currentFunctionContext.funct_type
             num = currentFunctionContext.n_vars
 
             # The function declaration, itself:
@@ -100,8 +101,7 @@ relevant parse stage.'''
 
     def ReturnStatementVoidPrep(token):
         if vars.parsenum == 2:
-            key = vars.currentClass+'^'+vars.currentFunction
-            if functionsInfo.table[key].returnsType == 'void':
+            if functionsInfo.getCurrentFnContext().returnsType == 'void':
                 output.code('push constant 0')
             # /\ If you deleted the code that automatically pops the result of a `do`, then this code would be
             #  unnecessary, since the compiler /could/ restrict `do` calls for non-void functions.
@@ -150,13 +150,11 @@ relevant parse stage.'''
             elif keyword == 'null':
                 output.code("push constant 0")
             elif keyword == 'this':
-                currentContext = functionsInfo.table[vars.currentClass+'^'+vars.currentFunction]
-                if currentContext.funct_type != 'function':
+                if functionsInfo.getCurrentFnContext().funct_type != 'function':
                     output.code("push pointer 0")
                 else:
                     raise CompilerError('`this\' cannot be used in a function. Line %s, %s' % (token.line, globalVars.inputFileName))
 
-    # def TermARRAY(variableName):
     def TermARRAY(variableToken):
         if vars.parsenum == 2:
             NULL, kind,  n = varTable.lookupVariable(variableToken)

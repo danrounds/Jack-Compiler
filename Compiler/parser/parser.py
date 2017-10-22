@@ -47,7 +47,7 @@ def parseClass(generator):
             while moreClassVarDecd is True:
                 moreClassVarDecd = parseClassVarDec(next(generator), generator)
             # Now we know the n fields that Class defines for its object type:
-            back_end.functionsInfo.codifyField_N()
+            back_end.functionsInfo.setField_N()
 
             # Time to parse subroutines:
             moreSubroutineDeclared = parseSubroutineDec(moreClassVarDecd, generator)
@@ -118,7 +118,7 @@ def parseSubroutineDec(token, generator):
     if functTyp in ('constructor', 'function', 'method'):
 
         doesFunctionReturn.stack_init()
-        
+
         back_end.functionsInfo.init_k_params()  # Sets an initial value for `k' parameters
         back_end.output.startt('subroutineDec'); back_end.output.outt(token)
 
