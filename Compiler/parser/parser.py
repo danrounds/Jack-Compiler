@@ -16,7 +16,8 @@ from compiler_error import CompilerError
 from . import parser_errors as PErrorMsg
 from . import uniqueIfAndWhileIds
 import back_end.back_end as back_end
-
+import back_end.vars as vars
+import back_end.doesFunctionReturn as doesFunctionReturn
 
 #### PARSER ####    #### PARSER ####    #### PARSER ####    #### PARSER ####
 ## Everything below is our parser.
@@ -24,14 +25,15 @@ import back_end.back_end as back_end
 def parseClass(generator):
     '''Initial parse function. Each file holds a class, thus the `class` is the main unit of compilation'''
     uniqueIfAndWhileIds.init()
-    back_end.DoesFunctionReturnStack.stackvars_init()
+    doesFunctionReturn.stackvars_init()
     token = next(generator)
     if token.value == 'class':
         back_end.output.startt('class'); back_end.output.outt(token)
         token = next(generator)
         if parseClassName(token) is False:
             raise CompilerError(PErrorMsg.no_class_name(token))
-        back_end.setCurrentClass(token)
+        # back_end.setCurrentClass(token)
+        vars.setCurrentClass(token)
         parseLeftCurly(next(generator))
         token = next(generator)
         isCurly = parseRightCurly(token)
@@ -114,7 +116,7 @@ def parseSubroutineDec(token, generator):
     functTyp = back_end.functionsInfo.defFunctTyp(token)
     if functTyp in ('constructor', 'function', 'method'):
         
-        back_end.DoesFunctionReturnStack.stack_init()
+        doesFunctionReturn.stack_init()
         
         back_end.functionsInfo.init_k_params()  # Sets an initial value for `k' parameters
         back_end.output.startt('subroutineDec'); back_end.output.outt(token)
@@ -135,7 +137,8 @@ def parseSubroutineDec(token, generator):
 
         subroutinetoken = next(generator)
         parseSubroutineName(subroutinetoken)
-        back_end.setCurrentFunction(subroutinetoken)
+        # back_end.setCurrentFunction(subroutinetoken)
+        vars.setCurrentFunction(subroutinetoken)
 
         back_end.CodeProcess.SubroutineDeclaration(token)
 
@@ -146,7 +149,7 @@ def parseSubroutineDec(token, generator):
 
         parseSubroutineBody(generator)
 
-        back_end.DoesFunctionReturnStack.codecheck(subroutinetoken)
+        doesFunctionReturn.codecheck(subroutinetoken)
         # checks whether the code in the this subroutine (i.e. function) will actually return
         
         back_end.functionsInfo.addFunction(returnTyp, subroutinetoken)
@@ -214,15 +217,15 @@ def parseSubroutineBody(generator):
 def parseStatements(token, generator):
     back_end.output.startt('statements')
     
-    back_end.DoesFunctionReturnStack.warning_test_init()
+    doesFunctionReturn.warning_test_init()
     back_end.varTable.setInDeclaration(False)
     
     while token.value != '}':
-        back_end.DoesFunctionReturnStack.IFissue_warning(token) # warns if there's unreachable code
+        doesFunctionReturn.IFissue_warning(token) # warns if there's unreachable code
         token = parseStatement(token, generator)
         if token is None:
             token = next(generator)
-            back_end.DoesFunctionReturnStack.warning_reduc()
+            doesFunctionReturn.warning_reduc()
 
     back_end.varTable.setInDeclaration(True)
     back_end.output.endt('statements'); return token
@@ -281,7 +284,7 @@ def parseIfStatement(token, generator):
     if token.value == 'if':
         n = uniqueIfAndWhileIds.getIfID()
 
-        back_end.DoesFunctionReturnStack.stack_addIfStmnt()
+        doesFunctionReturn.stack_addIfStmnt()
 
         back_end.output.startt('ifStatement'); back_end.output.outt(token)
         parseLeftParen(next(generator))
@@ -299,7 +302,7 @@ def parseIfStatement(token, generator):
         if token.value == 'else':
             back_end.output.outt(token)
 
-            back_end.DoesFunctionReturnStack.stack_addElseStmnt()
+            doesFunctionReturn.stack_addElseStmnt()
 
             parseLeftCurly(next(generator))
             back_end.CodeProcess.IfStatement_ELSE_A(n)
@@ -354,7 +357,7 @@ def parseDoStatement(token, generator):
 def parseReturnStatement(token, generator):
     if token.value == 'return':        
 
-        back_end.DoesFunctionReturnStack.stack_addReturnStmnt()
+        doesFunctionReturn.stack_addReturnStmnt()
 
         back_end.output.startt('returnStatement'); back_end.output.outt(token)
         token = next(generator)
@@ -565,7 +568,7 @@ def parseLeftCurly(token):
     if token.value == '{':
         ### \/ Updates how far embedded in curly braces we are, for purposes of the FunctionReturnStack
         ###    (which determines whether functions are likely to return
-        back_end.DoesFunctionReturnStack.stackvars_incr()
+        doesFunctionReturn.stackvars_incr()
 
         back_end.output.outt(token)
     else: raise CompilerError(PErrorMsg.leftcurly(token))
@@ -573,7 +576,7 @@ def parseLeftCurly(token):
 def parseRightCurly(token):
     if token.value == '}':
         ### Updates how deeply embedded in curly braces we are
-        back_end.DoesFunctionReturnStack.stackvars_decr()
+        doesFunctionReturn.stackvars_decr()
         ### /\
         back_end.output.outt(token); return True
     else: return False

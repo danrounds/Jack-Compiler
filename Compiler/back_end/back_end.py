@@ -18,15 +18,6 @@ def defineOutput(_output):
     output = _output
 
 
-global currentClass, currentFunction
-# These are state variables. They reflect the file, class, and function we're currently in the middle
-def setCurrentClass(classtoken):
-    global currentClass
-    currentClass = classtoken.value
-def setCurrentFunction(functiontoken):
-    global currentFunction
-    currentFunction = functiontoken.value
-
 funct_info = collections.namedtuple('funct_info', ['k_params', 'n_vars', 'funct_type', 'returnsType'])
 # /\ the "value" part of the key:value in our classDOTfunctions table. Used for code output and error-checking.
 #
@@ -65,19 +56,19 @@ class classAndFunctionsHash():
         '''This creates a key in our class/function lookup table which will us how many fields our Class defines/object has. It will tell us how much\
 memory to allocate for our objects'''
         if vars.parsenum == 1:
-            self.table[currentClass+'$$N_FIELDS'] = varTable.fieldVarN
+            self.table[vars.currentClass+'$$N_FIELDS'] = varTable.fieldVarN
 
     def getField_N(self):
         '''Returns the number of field variables the requested object type (i.e. class) has, so that we allocate enough memory for them'''
-        return self.table[currentClass+'$$N_FIELDS']
+        return self.table[vars.currentClass+'$$N_FIELDS']
 
     def addFunction(self, returnsType, token):
         if vars.parsenum == 1:
-            key = currentClass+'^'+currentFunction
+            key = vars.currentClass+'^'+vars.currentFunction
             totalLocalVars = varTable.localVarN
             params_vars_pair = funct_info(self.k_params_declrd, totalLocalVars, self.functTyp, returnsType)
             if key in self.table:
-                raise CompilerError("Subroutine `%s' has already been declared. Line %s, %s" % (currentFunction, token.line, globalVars.inputFileName))
+                raise CompilerError("Subroutine `%s' has already been declared. Line %s, %s" % (vars.currentFunction, token.line, globalVars.inputFileName))
             self.table[key] = params_vars_pair
 
     def lookupSubroutineInfo(self, class_, subroutinetoken):
@@ -107,7 +98,7 @@ Returns a 'funct_info' (named) tuple :: (k_params, n_vars, funct_type, returnsTy
 
 var_info = collections.namedtuple('var_info', ['TYPE', 'KIND', 'N'])
 # /\ Tuple that forms the basis of the varTable
-# Associated with a key, formatted 'currentClass^currentFunction^varName' or currentClass+'^'+varName
+# Associated with a key, formatted 'vars.currentClass^vars.currentFunction^varName' or vars.currentClass+'^'+varName
 #                                  (for function and class scopes, respectively)
 global varTable
 class variableTable():
@@ -141,13 +132,13 @@ and the variable number, which is used for relative addressing'''
         if vars.parsenum == 1:
 
             variableName = token.value
-            classkey = currentClass+'^'+variableName
+            classkey = vars.currentClass+'^'+variableName
 
             # Checks whether our local variable has already been declared as class-level variables
             #  or function parameters. Issues appropriate warning, if they have, then adds the variable
             #  and typing, scope, and position (variable number) to our function scope hash table.
             if scope == 'function':
-                key = currentClass+'^'+currentFunction+'^'+variableName
+                key = vars.currentClass+'^'+vars.currentFunction+'^'+variableName
                 if classkey in self.classScope:
                     kind1 = self.classScope[classkey].KIND
                     kind2 = _kind
@@ -163,7 +154,7 @@ and the variable number, which is used for relative addressing'''
 
             #
             else: # == 'class'
-                key = currentClass+'^'+variableName
+                key = vars.currentClass+'^'+variableName
                 if key in self.classScope:
                     raise CompilerError("Duplicate class-level variable name: `%s\'. Line %s, %s" % (variableName, line, globalVars.inputFileName))
                 if _kind == 'field':
@@ -179,11 +170,11 @@ and the variable number, which is used for relative addressing'''
         if vars.parsenum == 2:
             variableName = variableToken.value
             try:
-                key = currentClass+'^'+currentFunction+'^'+variableName
+                key = vars.currentClass+'^'+vars.currentFunction+'^'+variableName
                 if key in self.functScope:
                     base = self.functScope[key]
                 else:
-                    key = currentClass+'^'+variableName
+                    key = vars.currentClass+'^'+variableName
                     base = self.classScope[key]
 
                 kind = base.KIND
@@ -202,8 +193,8 @@ and the variable number, which is used for relative addressing'''
         '''We're keeping a list of the types (i.e. defined classes) available in our compiled files, so that type declarations are meaningful'''
         if vars.parsenum == 1:
             try:
-                if currentClass not in self.list_of_extended_types:
-                    self.list_of_extended_types.append(currentClass)
+                if vars.currentClass not in self.list_of_extended_types:
+                    self.list_of_extended_types.append(vars.currentClass)
             except:
                 pass
 
@@ -228,118 +219,6 @@ and the variable number, which is used for relative addressing'''
 
 
 
-
-global n_curlies, max_curlies   # << for insane if/else "stack", to determine 
-global functionRtnsStack, codeHasTerminated  # whether a function might return
-class DoesFunctionReturnStack():
-    '''This uses a heuristic that I dreamt up on my own (at the height of compiler-writing insanity, no less), to \
-determine whether functions seem likely to return, OR whether we end up with sections of dead code. I'm sure I could \
-reconstruct the heuristic I had in mind, but the code is unobtrusive, more or less does what it should (very few false \
-positives), and won't halt compilation.
-
-If anything, it yields /potentially/ useful warnings.
-
-I also find it kind of charming. It could be removed without penalty (but it won't be).'''
-
-    unreachableTriggered = False
-    def stackvars_init():
-        if vars.parsenum == 2:
-            global n_curlies, max_curlies
-            n_curlies = max_curlies = 0
-    def stackvars_incr():
-        if vars.parsenum == 2:
-            global n_curlies, max_curlies
-            n_curlies += 1
-            if n_curlies > max_curlies:
-                max_curlies = n_curlies
-    def stackvars_decr():
-        if vars.parsenum == 2:
-            global n_curlies
-            n_curlies -= 1
-    
-    def stack_init():
-        if vars.parsenum == 2:
-            global functionRtnsStack
-            functionRtnsStack = ""
-    def stack_addIfStmnt():
-        if vars.parsenum == 2:
-            global functionRtnsStack
-            functionRtnsStack = functionRtnsStack + 'if'+str(n_curlies)
-    def stack_addElseStmnt():
-        if vars.parsenum == 2:
-            global functionRtnsStack
-            functionRtnsStack = functionRtnsStack + 'else'+str(n_curlies)
-    def stack_addReturnStmnt():
-        if vars.parsenum == 2:
-            global functionRtnsStack
-            functionRtnsStack = functionRtnsStack + 'return'+str(n_curlies)
-            
-    ############### These three functions are used as each statement is parsed,
-    ############### to see whether there seems to be unreachable code
-    def warning_test_init():
-        global codeHasTerminated
-        codeHasTerminated = False
-    def warning_reduc():
-        if vars.parsenum == 2:
-#            functionRtnsStack = reduction(functionRtnsStack, n_curlies)
-            DoesFunctionReturnStack.reduction()
-            if functionRtnsStack[-7:] == 'return2':
-                global codeHasTerminated
-                codeHasTerminated = True
-    def IFissue_warning(token):
-        ## \/ added the vars.parsenum == 2 as a hail Mary
-        if vars.parsenum == 2:
-            if codeHasTerminated == True and not DoesFunctionReturnStack.unreachableTriggered:
-                print("Warning: Unreachable code. Line %s, %s" % (token.line, globalVars.inputFileName), file=sys.stderr)
-                DoesFunctionReturnStack.unreachableTriggered = True
-    ###############
-    
-    def codecheck(token):
-        if vars.parsenum == 2:
-            if functionRtnsStack[-7:] not in ('return2', ''):
-                old = None
-                while old != functionRtnsStack:
-                    old = functionRtnsStack
-                    DoesFunctionReturnStack.reduction()
-            if 'return2' not in functionRtnsStack:
-                print("Warning: Function might not return. Make sure your if/elses are are mutually exclusive.  Line %s, %s" % (token.line, globalVars.inputFileName), file=sys.stderr)
-    def reduction():
-        global functionRtnsStack
-        for i in range(1, max_curlies):
-            string = 'if'+str(i)+'return'+str(i+1)
-            if string+string in functionRtnsStack:
-                functionRtnsStack = functionRtnsStack.replace(string+string, string)
-
-        for i in range(1, max_curlies):
-            string = 'if'+str(i)+'return'+str(i+1)+'else'+str(i)+'return'+str(i+1)
-            if string in functionRtnsStack:
-                functionRtnsStack = functionRtnsStack.replace(string, 'return'+str(i))
-
-        for i in range(1, max_curlies):
-            string = 'if'+str(i)+'return'+str(i)
-            if string in functionRtnsStack:
-                functionRtnsStack = functionRtnsStack.replace(string, 'return'+str(i))
-
-    def reduction2(test, max):
-        for i in range(1, max):
-            string = 'if'+str(i)+'return'+str(i+1)
-            if string+string in test:
-                test = test.replace(string+string, string)
-        for i in range(1, max):
-            string = 'if'+str(i)+'return'+str(i+1)+'else'+str(i)+'return'+str(i+1)
-            if string in test:
-                test = test.replace(string, 'return'+str(i))
-        for i in range(1, max):
-            string = 'if'+str(i)+'return'+str(i)
-            if string in test:
-                test = test.replace(string, 'return'+str(i))
-        return(test)
-
-
-
-
-
-
 class Semantics():
     def checkReturn(token):
         '''Provides some limited error checking for return statements. Doesn't do much type checking--simply makes sure that constructors, void functions, and value-returning functions all do what they should.
@@ -348,30 +227,30 @@ Jack's very, very lax typing is kept intact. Type checking could be added, but w
         if vars.parsenum == 2:
             value = token.value
 
-            *NULL, funct_role, returnsType  = functionsInfo.lookupSubroutineInfo(currentClass, currentFunction)
+            *NULL, funct_role, returnsType  = functionsInfo.lookupSubroutineInfo(vars.currentClass, vars.currentFunction)
 
             if funct_role == 'constructor':
                 if value != 'this':
                     error_middle = ' -- NOT `%s\'' % value 
                     if value == ';':
                         error_middle = ''
-                    raise CompilerError('`%s\' is a constructor and should return `this\'%s. Line %s, %s' % (currentFunction, error_middle, token.line, globalVars.inputFileName))
+                    raise CompilerError('`%s\' is a constructor and should return `this\'%s. Line %s, %s' % (vars.currentFunction, error_middle, token.line, globalVars.inputFileName))
 
             elif returnsType == 'void':
                 if value != ';':
-                    raise CompilerError('`%s\' is a void function, and so mustn\'t return a value. It does. Line %s, %s' % (currentFunction, token.line, globalVars.inputFileName))
+                    raise CompilerError('`%s\' is a void function, and so mustn\'t return a value. It does. Line %s, %s' % (vars.currentFunction, token.line, globalVars.inputFileName))
 
             else:
                 if value == ';':
-                    raise CompilerError('`%s\' isn\'t a void function, and so it must return a value. Line %s, %s' % (currentFunction, token.line, globalVars.inputFileName))
+                    raise CompilerError('`%s\' isn\'t a void function, and so it must return a value. Line %s, %s' % (vars.currentFunction, token.line, globalVars.inputFileName))
 
 
     def checkDotlessFunctionCall(subroutinetoken, callerexpectsreturnval):
         '''This checks whether dotless function calls (i.e. ones of the form `do function()\' or `let thing = function()\' return value when they should (and don't when they should not) AND makes sure we don't issue meaningless method calls.'''
 
         *NULL, calledfunct, calledreturns = functionsInfo.\
-                                            lookupSubroutineInfo(currentClass, subroutinetoken)
-        *NULL, callingfunct, NULL = functionsInfo.lookupSubroutineInfo(currentClass, currentFunction)
+                                            lookupSubroutineInfo(vars.currentClass, subroutinetoken)
+        *NULL, callingfunct, NULL = functionsInfo.lookupSubroutineInfo(vars.currentClass, vars.currentFunction)
        
         if calledfunct == 'method' and callingfunct == 'function':
             raise CompilerError('Argument less method calls cannot be made from within functions. Method calls must be of the form `OBJECT.method(), or else we have no object to work on`. Line %s, %s' % (subroutinetoken.line, globalVars.inputFileName))
@@ -394,16 +273,16 @@ relevant parse stage.'''
 
     def SubroutineDeclaration(token):
         if vars.parsenum == 2:
-            currentFunctionContext = functionsInfo.table[currentClass+'^'+currentFunction]
+            currentFunctionContext = functionsInfo.table[vars.currentClass+'^'+vars.currentFunction]
             shouldReturnType = currentFunctionContext.returnsType
             num = currentFunctionContext.n_vars
 
             # The function declaration, itself:
-            output.code('function %s.%s %s' % (currentClass, currentFunction, num))
+            output.code('function %s.%s %s' % (vars.currentClass, vars.currentFunction, num))
 
             # If we're dealing with a constructor, we've got to allocate memory and 
             if functionsInfo.functTyp == 'constructor':
-                if currentClass == shouldReturnType:
+                if vars.currentClass == shouldReturnType:
                     memtoalloc = functionsInfo.getField_N()
                     output.code('push constant '+str(memtoalloc))
                     output.code('call Memory.alloc 1')  # Leaves the address of our allocated object @ the top of the stack
@@ -471,7 +350,7 @@ relevant parse stage.'''
 
     def ReturnStatementVoidPrep(token):
         if vars.parsenum == 2:
-            key = currentClass+'^'+currentFunction
+            key = vars.currentClass+'^'+vars.currentFunction
             if functionsInfo.table[key].returnsType == 'void':
                 output.code('push constant 0')
             # /\ If you deleted the code that automatically pops the result of a `do`, then this code would be
@@ -521,7 +400,7 @@ relevant parse stage.'''
             elif keyword == 'null':
                 output.code("push constant 0")
             elif keyword == 'this':
-                currentContext = functionsInfo.table[currentClass+'^'+currentFunction]
+                currentContext = functionsInfo.table[vars.currentClass+'^'+vars.currentFunction]
                 if currentContext.funct_type != 'function':
                     output.code("push pointer 0")
                 else:
@@ -562,13 +441,13 @@ relevant parse stage.'''
         '''Second part of our logic/error-checking for method-less/Class-less subroutine calls\ni.e., in the language of Jack, "function" call'''
         if vars.parsenum == 2:
 
-            k, NULL, proceduretype, NULL = functionsInfo.lookupSubroutineInfo(currentClass, subroutinetoken)
+            k, NULL, proceduretype, NULL = functionsInfo.lookupSubroutineInfo(vars.currentClass, subroutinetoken)
             if proceduretype == 'method': numberofparams += 1
 
             if numberofparams != k:
                 raise CompilerError('Function `%s\' takes %s arguments. Number given: %s. Line %s, %s' % (subroutinetoken.value, k, numberofparams, subroutinetoken.line, globalVars.inputFileName))
             else:
-                output.code('call %s.%s %s' % (currentClass, subroutinetoken.value, numberofparams))
+                output.code('call %s.%s %s' % (vars.currentClass, subroutinetoken.value, numberofparams))
 
 
     def SubroutineCall_WithDot_A(subroutinetoken, classORobject):
