@@ -1,25 +1,30 @@
-'''Jack to ``intermediate VM representation' portion of a full-compiler (to Hack machine code).
+"""
+Jack to `intermediate VM representation' portion of a full-compiler (to Hack
+machine code).
 
 Turns spec-compliant Jack code to spec-compliant tECS VM code.
 
-Jack is a structured programming language with a context-free grammar, approaching LL(0).
+Jack is a structured programming language with a context-free grammar,
+approaching LL(0).
 
-It's C-esque, but /very/ weakly typed, and without spec-defined order-of-operations. Ultimately
-everything in Jack is a 16 bit word. The language is flexible enough that that could be easily
-changed, but standard spec Jack is all 16-bit words, with code idioms reflecting that fact
-(i.e. weak typing is central).
+It's C-esque, but /very/ weakly typed, and without spec-defined
+order-of-operations. Ultimately everything in Jack is a 16 bit word. The
+language is flexible enough that that could be easily changed, but standard
+spec Jack is all 16-bit words, with code idioms reflecting that fact (i.e. weak
+typing is central).
 
-Jack comes equipped with a relatively full standard library (featuring I/O abstrations, math
-subroutines, heap memory allocation, a string library, etc) and uses objects and a bit of
-OO semantics to extend its type system, similarly to how C uses structs.
+Jack comes equipped with a relatively full standard library (featuring I/O
+abstrations, math subroutines, heap memory allocation, a string library, etc)
+and uses objects and a bit of OO semantics to extend its type system, similarly
+to how C uses structs.
 
-Jack effectively has no run-time system (at least not in the Object Oriented, scripting, or
-dynamic-language senses), and so is not truly object-oriented. Things like dynamic dispatch are
-/no-go/.
+Jack effectively has no run-time system (at least not in the Object Oriented,
+scripting, or dynamic-language senses), and so is not truly object-oriented.
+Things like dynamic dispatch are /no-go/.
 
 It also has really...unique truth semantics (e.g. in if/while statements)
+"""
 
-'''
 from compiler_error import CompilerError
 from lexer.lexer import lexer
 from parser import parser
@@ -30,34 +35,43 @@ import back_end.Semantics as output_semantics_check
 import back_end.SymbolTable as SymbolTable
 import globalVars
 
-def mainloop(in_pathorfile='./tests/test_code0/Square/Square.jack', outputmode='code', stronglinking='False',\
-             custom_out_dir=None, vmfinaloutput=True, warnings=True):
-    '''Parses a Jack file, generating either (1) code, (2) an XML parse tree, (3) XML tokenization.
 
-XML output was left intact, because tECS has an array of tests based on tokens and parse tree output, \
-and that helps us know this thing's working.
+def mainloop(in_pathorfile='./tests/test_code0/Square/Square.jack',
+             outputmode='code', stronglinking='False', custom_out_dir=None,
+             vmfinaloutput=True, warnings=True):
 
-`mainloop()`
-    1. Parses either a single file or all the .jack files pointed to by a given directory path [files sussed out via \
-`fileorpathparser()`]
-    2a. Calls the output stage  [`.initialize_globals()`] to set the parse number
-    2b. Calls the output stage  [`.initialize_globals()`] to set up our hash tables
+    """
+    Parses a Jack file, generating either (1) code, (2) an XML parse tree,
+    (3) XML tokenization.
+
+    XML output was left intact, because tECS has an array of tests based on
+    tokens and parse tree output, and that helps us know this thing's working.
+
+    `mainloop()`:
+
+    1. Parses either a single file or all the .jack files pointed to by a given
+    directory path [files sussed out via `fileorpathparser()`]
+    2a. Calls the output stage  [`.initialize_globals()`] to set parse number
+    2b. Calls the output stage  [`.initialize_globals()`] to set up hash tables
     3. Outputs one of the following:
         I.  Code:
-               a. PARSE ONE: Populates `varTable' and `functionsInfo', which gives us the information we need for
-                   error checks and code output in...
+               a. PARSE ONE: Populates `varTable' and `functionsInfo', which
+                  gives us the information we need for error checks and code
+                  output in...
                b. PARSE TWO: Does semantic checks and outputs code
             Output is of the form *.vm
 
-        II. XML Parse Tree: Single parse, outputs an XML representation of a parse tree
-            Output is of the form * + _.xml
+        II. XML Parse Tree: Single parse, outputs an XML representation of a
+            parse tree. Output is of the form * + _.xml
 
-        III.XML Tokens: Cycles through Jack tokens, one at a time. Proves to us our tokenizer works.
-            Output is of the form * + T_.xml
+        III.XML Tokens: Cycles through Jack tokens, one at a time. Proves to us
+            our tokenizer works. Output is of the form * + T_.xml
 
-The parse can be thought of as going through text files, one at a time, moving left-to-right, top-to-bottom.
-State variables (denoting the current input file, currentClass, currentFunction) are maintained and are referenced in \
-code output to resolve variable/function references.'''
+    The parse can be thought of as going through text files, one at a time,
+    moving left-to-right, top-to-bottom. State variables (denoting the current
+    input file, currentClass, currentFunction) are maintained and are
+    referenced in code output to resolve variable/function references.
+    """
 
     filelist = fileorpathparser(in_pathorfile)
 
@@ -114,9 +128,10 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
         output.defineOutputValues('codeOutput', outfilename)
         parser.parseClass(tokengenerator)
 
-        if vmfinaloutput == True:
-        # We only output file names if we're keeping output files. IF this is false, VM files
-        #  are just a step toward full conversion (e.g. we're using JackCC as our front-end)
+        if vmfinaloutput is True:
+            # \/ We only output file names if we're keeping output files. If
+            # this is false, VM files are just a step toward full conversion
+            # (i.e. we're using JackCC as a 1st stage for further processing)
             print('Output: %s' % outfilename)
         output.closeFile()
 
@@ -192,6 +207,8 @@ def fileorpathparser(path):
                 files.append(infile)
             if files == []:
                 raise
-    except:
-        raise CompilerError("Badly formed file or path name, %s doesn't exist, or it doesn't point to .jack files" % path)
+    except RuntimeError:
+        raise CompilerError("Badly formed file or path name, %s doesn't exist "
+                            "or it doesn't point to .jack files" % path) \
+                            from None
     return files
