@@ -26,6 +26,7 @@ from parser import parser
 import back_end.back_end as output_stage
 import back_end.vars as output_stage_vars
 import back_end.output as Output
+import back_end.Semantics as output_semantics_check
 import back_end.SymbolTable as SymbolTable
 import globalVars
 
@@ -39,9 +40,6 @@ and that helps us know this thing's working.
 `mainloop()`
     1. Parses either a single file or all the .jack files pointed to by a given directory path [files sussed out via \
 `fileorpathparser()`]
-        output_stage.setParseNumber(1)
-    output_stage.initializeHashTables()
-    Output('initial')
     2a. Calls the output stage  [`.initialize_globals()`] to set the parse number
     2b. Calls the output stage  [`.initialize_globals()`] to set up our hash tables
     3. Outputs one of the following:
@@ -62,7 +60,7 @@ State variables (denoting the current input file, currentClass, currentFunction)
 code output to resolve variable/function references.'''
 
     filelist = fileorpathparser(in_pathorfile)
-    
+
     if outputmode == 'code':  # `Code output' OR `code output into temp files'
         outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput)
 
@@ -77,15 +75,20 @@ code output to resolve variable/function references.'''
 
 def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
     import os
-    output_stage_vars.setParseNumber(1)
-    output_stage.initializeHashTables(*SymbolTable.initialize())
 
+    # Set parse n and set up SymbolTable/modules that depend on it
+    output_stage_vars.setParseNumber(1)
+    vars_, classAndFns = SymbolTable.initialize()
+    output_stage.initializeHashTables(vars_, classAndFns)
+    output_semantics_check.initialize(classAndFns)
+
+    # Stub out our output (as in I/O) to do nothing on initial parse
     output = Output.Output('initial')
     output_stage.defineOutput(output)
     print('Doing initial parse of:')
 
     # Initial parse; fleshes out hash-tables, so that we have relevant
-    #  typing/function prototype (&c) information, for the output stage \/
+    # typing/function prototype (&c) information, for the output stage \/
     for filename in filelist:
         print(filename)
 
@@ -97,8 +100,8 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
     output_stage_vars.setParseNumber(2)
     for filename in filelist:
         if custom_out_dir:
-            # We've specified a custom directory path for output. Files are still INPUT_FILE_PREFIX.jack,
-            #  though, as per the standard/ original compiler spec
+            # We've specified a custom directory path for output.
+            # Files are still INPUT_FILE_PREFIX.jack,
             base = os.path.basename(filename)[:-5] + '.vm'
             outfilename = os.path.join(custom_out_dir, base)
         else:
@@ -107,6 +110,7 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
         globalVars.defineGlobalInputFile(filename)
 
         tokengenerator = lexer(filename)
+        # \/ Make output (I/O) object actually write out for 2nd parse
         output.defineOutputValues('codeOutput', outfilename)
         parser.parseClass(tokengenerator)
 
@@ -118,12 +122,18 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
 
 
 def outputParseTree(filelist):
-    output_stage_vars.setParseNumber(0)
-    output_stage.initializeHashTables(*SymbolTable.initialize())
 
+    # Set parse n and set up SymbolTable/modules that depend on it
+    output_stage_vars.setParseNumber(0)
+    vars_, classAndFns = SymbolTable.initialize()
+    output_stage.initializeHashTables(vars_, classAndFns)
+    output_semantics_check.initialize(classAndFns)
+
+    # Set up the `o` part of I/O
     output = Output.Output('parseTest')
     output_stage.defineOutput(output)
 
+    # ...now for the `i`
     for filename in filelist:
         outfilename = filename[:-5] + '_.xml'
         globalVars.defineGlobalInputFile(filename)
@@ -137,12 +147,18 @@ def outputParseTree(filelist):
 
 
 def outputTokens(filelist):
-    output_stage_vars.setParseNumber(0)
-    output_stage.initializeHashTables(*SymbolTable.initialize())
 
+    # Set parse n and set up SymbolTable/modules that depend on it
+    output_stage_vars.setParseNumber(0)
+    vars_, classAndFns = SymbolTable.initialize()
+    output_stage.initializeHashTables(vars_, classAndFns)
+    output_semantics_check.initialize(classAndFns)
+
+    # Set up the `o` part of I/O
     output = Output.Output('parseTest')
     output_stage.defineOutput(output)
 
+    # ...now for the `i`
     for filename in filelist:
         outfilename = filename[:-5] + 'T_.xml'
         # outfilename = filename[:-5] + '_COMPARE_T_.xml'
@@ -161,7 +177,11 @@ def outputTokens(filelist):
 
 
 def fileorpathparser(path):
-    '''Returns a list containing either the single .jack file pointed to or the .jack files in the specified directory'''
+    '''
+    Returns a list containing either the single .jack file pointed to or the
+    .jack files in the specified directory
+    '''
+
     import os; import glob
     try:
         if path.endswith('.jack'):

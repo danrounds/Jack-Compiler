@@ -3,7 +3,7 @@ import sys
 from compiler_error import CompilerError
 import globalVars
 from . import vars
-from . import back_end as BE
+
 
 def checkReturn(token):
     '''Provides some limited error checking for return statements. Doesn't do much type checking--simply makes sure that constructors, void functions, and value-returning functions all do what they should.
@@ -12,7 +12,7 @@ def checkReturn(token):
     if vars.parsenum == 2:
         value = token.value
 
-        *NULL, funct_role, returnsType  = BE.functionsInfo.lookupSubroutineInfo(vars.currentClass, vars.currentFunction)
+        *NULL, funct_role, returnsType  = functionsInfo.lookupSubroutineInfo(vars.currentClass, vars.currentFunction)
 
         if funct_role == 'constructor':
             if value != 'this':
@@ -33,9 +33,9 @@ def checkReturn(token):
 def checkDotlessFunctionCall(subroutinetoken, callerexpectsreturnval):
     '''This checks whether dotless function calls (i.e. ones of the form `do function()\' or `let thing = function()\' return value when they should (and don't when they should not) AND makes sure we don't issue meaningless method calls.'''
 
-    *NULL, calledfunct, calledreturns = BE.functionsInfo.\
+    *NULL, calledfunct, calledreturns = functionsInfo.\
                                         lookupSubroutineInfo(vars.currentClass, subroutinetoken)
-    *NULL, callingfunct, NULL = BE.functionsInfo.lookupSubroutineInfo(vars.currentClass, vars.currentFunction)
+    *NULL, callingfunct, NULL = functionsInfo.lookupSubroutineInfo(vars.currentClass, vars.currentFunction)
 
     if calledfunct == 'method' and callingfunct == 'function':
         raise CompilerError('Argument less method calls cannot be made from within functions. Method calls must be of the form `OBJECT.method(), or else we have no object to work on`. Line %s, %s' % (subroutinetoken.line, globalVars.inputFileName))
@@ -48,3 +48,8 @@ def checkDotlessFunctionCall(subroutinetoken, callerexpectsreturnval):
             print("WARNING: Function `%s\' is value returning, but that value is ignored. Line %s, %s" % (subroutinetoken.value, subroutinetoken.line, globalVars.inputFileName), file=sys.stderr)
             # raise RuntimeError("Called function `%s\' %s a return value. It %s. Line %s, %s" % (functname, msg[0], msg[1], getattr(subroutinetoken, 'line'), globalVars.inputFileName))
     return calledfunct
+
+
+def initialize(_functionsInfo):
+    global functionsInfo
+    functionsInfo = _functionsInfo
