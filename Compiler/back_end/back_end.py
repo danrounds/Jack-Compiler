@@ -18,14 +18,6 @@ def defineOutput(_output):
     output = _output
 
 
-# global parsenum
-# def setParseNumber(n):
-#     '''This defines a global variable which the compiler uses to generate our hash tables (parse # 1)\
-# OR to output code (parse # 2) OR to output XML tokens or parse tree (parse # 0)'''
-#     global parsenum
-#     parsenum = n
-
-
 global currentClass, currentFunction
 # These are state variables. They reflect the file, class, and function we're currently in the middle
 def setCurrentClass(classtoken):
