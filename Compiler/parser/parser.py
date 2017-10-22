@@ -114,9 +114,9 @@ def parseClassVarDec(token, generator):
 
 def parseSubroutineDec(token, generator):
     if token is None: token = next(generator)
-    functTyp = back_end.functionsInfo.defFunctTyp(token)
+    functTyp = vars.setAndGetCurrentTnType(token)
     if functTyp in ('constructor', 'function', 'method'):
-        
+
         doesFunctionReturn.stack_init()
         
         back_end.functionsInfo.init_k_params()  # Sets an initial value for `k' parameters

@@ -5,6 +5,7 @@ from compiler_error import CompilerError
 import globalVars
 from . import vars
 from . import Semantics
+# from . import SymbolTable
 # import JackStdLib
 
 
@@ -40,7 +41,7 @@ class classAndFunctionsHash():
 
     def init_k_params(self):
         # k_params_declrd  is the number of parameters (arguments) declared in a function header/prototype
-        if self.functTyp in ('constructor', 'function'):  #  Constructors and functions operate on k arguments
+        if vars.currentFnType in ('constructor', 'function'):  #  Constructors and functions operate on k arguments
             self.k_params_declrd = 0
         else:
             self.k_params_declrd = 1                      # ... Methods, on k+1.
@@ -48,10 +49,6 @@ class classAndFunctionsHash():
     def increment_k_params(self):
         if vars.parsenum == 1:
             self.k_params_declrd += 1
-
-    def defFunctTyp(self, token):
-        self.functTyp = token.value
-        return self.functTyp
 
     def codifyField_N(self):
         '''This creates a key in our class/function lookup table which will us how many fields our Class defines/object has. It will tell us how much\
@@ -67,7 +64,7 @@ memory to allocate for our objects'''
         if vars.parsenum == 1:
             key = vars.currentClass+'^'+vars.currentFunction
             totalLocalVars = varTable.localVarN
-            params_vars_pair = funct_info(self.k_params_declrd, totalLocalVars, self.functTyp, returnsType)
+            params_vars_pair = funct_info(self.k_params_declrd, totalLocalVars, vars.currentFnType, returnsType)
             if key in self.table:
                 raise CompilerError("Subroutine `%s' has already been declared. Line %s, %s" % (vars.currentFunction, token.line, globalVars.inputFileName))
             self.table[key] = params_vars_pair
@@ -96,7 +93,6 @@ Returns a 'funct_info' (named) tuple :: (k_params, n_vars, funct_type, returnsTy
             raise CompilerError("`%s': Function does not exist. Line %s, %s" % (function, subroutinetoken.line, globalVars.inputFileName))
 
 
-
 var_info = collections.namedtuple('var_info', ['TYPE', 'KIND', 'N'])
 # /\ Tuple that forms the basis of the varTable
 # Associated with a key, formatted 'vars.currentClass^vars.currentFunction^varName' or vars.currentClass+'^'+varName
@@ -117,7 +113,7 @@ class variableTable():
 
     def resetVarCounter(self):
         if vars.parsenum == 1:
-            if functionsInfo.functTyp == 'method':
+            if vars.currentFnType == 'method':
                 self.localVarN = 1
             else:
                 self.localVarN = 0
@@ -233,7 +229,7 @@ relevant parse stage.'''
             output.code('function %s.%s %s' % (vars.currentClass, vars.currentFunction, num))
 
             # If we're dealing with a constructor, we've got to allocate memory and 
-            if functionsInfo.functTyp == 'constructor':
+            if vars.currentFnType == 'constructor':
                 if vars.currentClass == shouldReturnType:
                     memtoalloc = functionsInfo.getField_N()
                     output.code('push constant '+str(memtoalloc))
@@ -243,7 +239,7 @@ relevant parse stage.'''
                     raise CompilerError("A constructor's return type must be the class type, Line %s, %s" % (token.line, globalVars.inputFileName))
 
             # If we're dealing with a method, we have to pop pointer to the object upon which our method operates
-            elif functionsInfo.functTyp == 'method':
+            elif vars.currentFnType == 'method':
                 output.code('push argument 0')   # argument 0 is the object called by the method. This pops it into pointer 0, so that
                 output.code('pop pointer 0')     # `this n` VM commands work.
 

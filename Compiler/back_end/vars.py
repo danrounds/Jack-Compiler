@@ -19,3 +19,13 @@ def setCurrentFunction(functiontoken):
     """Sets the function that we're currently in the midst of parsing"""
     global currentFunction
     currentFunction = functiontoken.value
+
+
+def setAndGetCurrentTnType(typeToken):
+    """
+    Sets the type (as in typing) of the fucking we're currently parsing.
+    Returns string : the type in question
+    """
+    global currentFnType
+    currentFnType = typeToken.value
+    return currentFnType
