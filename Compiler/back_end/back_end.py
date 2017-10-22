@@ -9,8 +9,6 @@ from . import Semantics
 
 def initializeHashTables(_variableTable, _classAndFunctionsHash):
     global functionsInfo, varTable
-    # functionsInfo = classAndFunctionsHash()
-    # varTable = variableTable()
     varTable = _variableTable
     functionsInfo = _classAndFunctionsHash
 
