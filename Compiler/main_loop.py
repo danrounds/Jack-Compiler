@@ -26,6 +26,7 @@ from parser import parser
 import back_end.back_end as output_stage
 import back_end.vars as output_stage_vars
 import back_end.output as Output
+import back_end.SymbolTable as SymbolTable
 import globalVars
 
 def mainloop(in_pathorfile='./tests/test_code0/Square/Square.jack', outputmode='code', stronglinking='False',\
@@ -77,7 +78,7 @@ code output to resolve variable/function references.'''
 def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
     import os
     output_stage_vars.setParseNumber(1)
-    output_stage.initializeHashTables()
+    output_stage.initializeHashTables(*SymbolTable.initialize())
 
     output = Output.Output('initial')
     output_stage.defineOutput(output)
@@ -118,7 +119,7 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
 
 def outputParseTree(filelist):
     output_stage_vars.setParseNumber(0)
-    output_stage.initializeHashTables()
+    output_stage.initializeHashTables(*SymbolTable.initialize())
 
     output = Output.Output('parseTest')
     output_stage.defineOutput(output)
@@ -137,7 +138,7 @@ def outputParseTree(filelist):
 
 def outputTokens(filelist):
     output_stage_vars.setParseNumber(0)
-    output_stage.initializeHashTables()
+    output_stage.initializeHashTables(*SymbolTable.initialize())
 
     output = Output.Output('parseTest')
     output_stage.defineOutput(output)
