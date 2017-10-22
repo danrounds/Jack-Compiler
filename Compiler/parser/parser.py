@@ -114,7 +114,7 @@ def parseClassVarDec(token, generator):
 
 def parseSubroutineDec(token, generator):
     if token is None: token = next(generator)
-    functTyp = vars.setAndGetCurrentTnType(token)
+    functTyp = vars.setAndGetCurrentFnType(token)
     if functTyp in ('constructor', 'function', 'method'):
 
         doesFunctionReturn.stack_init()

@@ -21,7 +21,7 @@ def setCurrentFunction(functiontoken):
     currentFunction = functiontoken.value
 
 
-def setAndGetCurrentTnType(typeToken):
+def setAndGetCurrentFnType(typeToken):
     """
     Sets the type (as in typing) of the fucking we're currently parsing.
     Returns string : the type in question
