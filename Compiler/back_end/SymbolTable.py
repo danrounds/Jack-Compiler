@@ -1,6 +1,7 @@
 import collections
 import sys
 
+from compiler_error import CompilerError
 import globalVars
 from . import vars
 
