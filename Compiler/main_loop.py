@@ -28,11 +28,11 @@ It also has really...unique truth semantics (e.g. in if/while statements)
 from compiler_error import CompilerError
 from lexer.lexer import lexer
 from parser import parser
-import back_end.back_end as output_stage
-import back_end.vars as output_stage_vars
-import back_end.Output as Output
-import back_end.ReturnSemantics as output_semantics_check
-import back_end.SymbolTable as SymbolTable
+import backEnd.CodeProcessor as output_stage
+import backEnd.vars as output_stage_vars
+import backEnd.Output as Output
+import backEnd.ReturnSemantics as output_semantics_check
+import backEnd.SymbolTable as SymbolTable
 import globalVars
 
 
@@ -99,6 +99,7 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
     # Stub out our output (as in I/O) to do nothing on initial parse
     output = Output.OutputSetup('initial')
     output_stage.defineOutput(output)
+    parser.initializeTagOutput(output)
     print('Doing initial parse of:')
 
     # Initial parse; fleshes out hash-tables, so that we have relevant
@@ -147,12 +148,14 @@ def outputParseTree(filelist):
     # Set up the `o` part of I/O
     output = Output.OutputSetup('test')
     output_stage.defineOutput(output)
+    parser.initializeTagOutput(output)
 
     # ...now for the `i`
     for filename in filelist:
         outfilename = filename[:-5] + '_.xml'
         globalVars.defineGlobalInputFile(filename)
         output.defineOutputValues('test', outfilename)
+        parser.initializeTagOutput(output)
 
         # Outputs parse tree in XML
         tokengenerator = lexer(filename)
@@ -172,6 +175,7 @@ def outputTokens(filelist):
     # Set up the `o` part of I/O
     output = Output.OutputSetup('test')
     output_stage.defineOutput(output)
+    parser.initializeTagOutput(output)
 
     # ...now for the `i`
     for filename in filelist:
