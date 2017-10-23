@@ -10,7 +10,7 @@ functInfo = functionTableDataAndTypes.functInfo
 # functInfo = collections.namedtuple('functInfo', [
 #     'kParams', 'nVars', 'fnType', 'returnsType'
 # ])
-# ^ the "value" part of the key:value in our class.unctions table. Used for
+# ^ the "value" part of the key:value in our class.functions table. Used for
 # code output and error-checking.
 #
 # -`kParams` is the number of variables declared in a function prototype/
@@ -105,7 +105,7 @@ class classAndFunctionsHash():
                 return self.table[vars.currentClass+'^'+function]
 
             else:
-                # `Class.function()`
+                # `Class.function()` or `object.function()`
                 return self.table[tokenOrString.replace('.', '^')]
 
         except:
@@ -118,8 +118,8 @@ class classAndFunctionsHash():
 
     def getCurrentFnContext(self):
         """
-        This, like `lookupFn` gives us information about the
-        function we're currently in the middle of parsing.
+        This, like `lookupFn`, gives us information about the function we're
+        currently in the middle of parsing.
 
         This is used in areas where we need to know whether we're dealing with
         a `function` (versus a method or constructor), whether our function is
