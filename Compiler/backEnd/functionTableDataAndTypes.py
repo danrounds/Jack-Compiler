@@ -1,16 +1,16 @@
 import collections
 
 functInfo = collections.namedtuple('functInfo', [
-    'k_params', 'n_vars', 'funct_type', 'returnsType'
+    'kParams', 'nVars', 'fnType', 'returnsType'
 ])
 # ^ the "value" part of the key:value in our class.functions table. Used for
 # code output and error-checking.
 #
-# -`n_vars` is the number of local variables declared in a given function, i.e.
-#  `var int name1, ... n'
-# -`k_params` is the number of variables declared in a function prototype/
+# -`kParams` is the number of variables declared in a function prototype/
 #   declaration
-# -`funct_type`, used to ensure that:
+# -`nVars` is the number of local variables declared in a given function, i.e.
+#  `var int name1, ... n'
+# -`fnType`, used to ensure that:
 #     * `constructor`s return `this` (parseReturnStatement),
 #     * `this` is not used in `function`s,
 #     * `functions` don't call `methods` without passing an object
@@ -26,53 +26,53 @@ functInfo = collections.namedtuple('functInfo', [
 
 def getJackStdLibrary():
     return {
-        'Math^max': functInfo(k_params='2', n_vars='x', funct_type='function', returnsType='int'),
-        'Array^new': functInfo(k_params='1', n_vars='x', funct_type='function', returnsType='Array'),
-        'Memory^deAlloc': functInfo(k_params='1', n_vars='x', funct_type='function', returnsType='void'),
-        'String^dispose': functInfo(k_params='1', n_vars='x', funct_type='method', returnsType='void'),
-        'String^backSpace': functInfo(k_params='0', n_vars='x', funct_type='function', returnsType='char'),
-        'Math^sqrt': functInfo(k_params='1', n_vars='x', funct_type='function', returnsType='int'),
-        'Math^init': functInfo(k_params='0', n_vars='x', funct_type='function', returnsType='void'),
-        'Keyboard^readChar': functInfo(k_params='0', n_vars='x', funct_type='function', returnsType='char'),
-        'Array^dispose': functInfo(k_params='1', n_vars='x', funct_type='method', returnsType='void'),
-        'Math^min': functInfo(k_params='2', n_vars='x', funct_type='function', returnsType='int'),
-        'String^setCharAt': functInfo(k_params='3', n_vars='x', funct_type='method', returnsType='void'),
-        'Memory^init': functInfo(k_params='0', n_vars='x', funct_type='function', returnsType='void'),
-        'Memory^peek': functInfo(k_params='1', n_vars='x', funct_type='function', returnsType='int'),
-        'Screen^drawRectangle': functInfo(k_params='4', n_vars='x', funct_type='function', returnsType='void'),
-        'Output^printChar': functInfo(k_params='1', n_vars='x', funct_type='function', returnsType='void'),
-        'Keyboard^readInt': functInfo(k_params='1', n_vars='x', funct_type='function', returnsType='int'),
-        'String^length': functInfo(k_params='1', n_vars='x', funct_type='method', returnsType='int'),
-        'Sys^init': functInfo(k_params='0', n_vars='x', funct_type='function', returnsType='void'),
-        'Math^multiply': functInfo(k_params='2', n_vars='x', funct_type='function', returnsType='int'),
-        'Sys^error': functInfo(k_params='1', n_vars='x', funct_type='function', returnsType='void'),
-        'Sys^wait': functInfo(k_params='1', n_vars='x', funct_type='function', returnsType='void'),
-        'Output^backSpace': functInfo(k_params='0', n_vars='x', funct_type='function', returnsType='void'),
-        'Memory^poke': functInfo(k_params='2', n_vars='x', funct_type='function', returnsType='void'),
-        'Sys^halt': functInfo(k_params='0', n_vars='x', funct_type='function', returnsType='void'),
-        'String^new': functInfo(k_params='1', n_vars='x', funct_type='constructor', returnsType='String'),
-        'Output^init': functInfo(k_params='0', n_vars='x', funct_type='function', returnsType='void'),
-        'Math^abs': functInfo(k_params='1', n_vars='x', funct_type='function', returnsType='int'),
-        'String^eraseLastChar': functInfo(k_params='1', n_vars='x', funct_type='method', returnsType='void'),
-        'Output^printInt': functInfo(k_params='1', n_vars='x', funct_type='function', returnsType='void'),
-        'Screen^init': functInfo(k_params='0', n_vars='x', funct_type='function', returnsType='void'),
-        'Output^println': functInfo(k_params='0', n_vars='x', funct_type='function', returnsType='void'),
-        'Screen^drawCircle': functInfo(k_params='3', n_vars='x', funct_type='function', returnsType='void'),
-        'Math^divide': functInfo(k_params='2', n_vars='x', funct_type='function', returnsType='int'),
-        'Screen^drawPixel': functInfo(k_params='2', n_vars='x', funct_type='function', returnsType='void'),
-        'Output^moveCursor': functInfo(k_params='2', n_vars='x', funct_type='function', returnsType='void'),
-        'Keyboard^keyPressed': functInfo(k_params='0', n_vars='x', funct_type='function', returnsType='char'),
-        'Screen^setColor': functInfo(k_params='1', n_vars='x', funct_type='function', returnsType='void'),
-        'Memory^alloc': functInfo(k_params='1', n_vars='x', funct_type='function', returnsType='Array'),
-        'Screen^drawLine': functInfo(k_params='4', n_vars='x', funct_type='function', returnsType='void'),
-        'String^newLine': functInfo(k_params='0', n_vars='x', funct_type='function', returnsType='char'),
-        'String^appendChar': functInfo(k_params='2', n_vars='x', funct_type='method', returnsType='String'),
-        'Output^printString': functInfo(k_params='1', n_vars='x', funct_type='function', returnsType='void'),
-        'Keyboard^init': functInfo(k_params='0', n_vars='x', funct_type='function', returnsType='void'),
-        'String^charAt': functInfo(k_params='2', n_vars='x', funct_type='method', returnsType='char'),
-        'Keyboard^readLine': functInfo(k_params='1', n_vars='x', funct_type='function', returnsType='String'),
-        'String^doubleQuote': functInfo(k_params='0', n_vars='x', funct_type='function', returnsType='char'),
-        'Screen^clearScreen': functInfo(k_params='0', n_vars='x', funct_type='function', returnsType='void'),
-        'String^setInt': functInfo(k_params='2', n_vars='x', funct_type='method', returnsType='void'),
-        'String^intValue': functInfo(k_params='1', n_vars='x', funct_type='method', returnsType='int')
+        'Math^max': functInfo(kParams='2', nVars='x', fnType='function', returnsType='int'),
+        'Array^new': functInfo(kParams='1', nVars='x', fnType='function', returnsType='Array'),
+        'Memory^deAlloc': functInfo(kParams='1', nVars='x', fnType='function', returnsType='void'),
+        'String^dispose': functInfo(kParams='1', nVars='x', fnType='method', returnsType='void'),
+        'String^backSpace': functInfo(kParams='0', nVars='x', fnType='function', returnsType='char'),
+        'Math^sqrt': functInfo(kParams='1', nVars='x', fnType='function', returnsType='int'),
+        'Math^init': functInfo(kParams='0', nVars='x', fnType='function', returnsType='void'),
+        'Keyboard^readChar': functInfo(kParams='0', nVars='x', fnType='function', returnsType='char'),
+        'Array^dispose': functInfo(kParams='1', nVars='x', fnType='method', returnsType='void'),
+        'Math^min': functInfo(kParams='2', nVars='x', fnType='function', returnsType='int'),
+        'String^setCharAt': functInfo(kParams='3', nVars='x', fnType='method', returnsType='void'),
+        'Memory^init': functInfo(kParams='0', nVars='x', fnType='function', returnsType='void'),
+        'Memory^peek': functInfo(kParams='1', nVars='x', fnType='function', returnsType='int'),
+        'Screen^drawRectangle': functInfo(kParams='4', nVars='x', fnType='function', returnsType='void'),
+        'Output^printChar': functInfo(kParams='1', nVars='x', fnType='function', returnsType='void'),
+        'Keyboard^readInt': functInfo(kParams='1', nVars='x', fnType='function', returnsType='int'),
+        'String^length': functInfo(kParams='1', nVars='x', fnType='method', returnsType='int'),
+        'Sys^init': functInfo(kParams='0', nVars='x', fnType='function', returnsType='void'),
+        'Math^multiply': functInfo(kParams='2', nVars='x', fnType='function', returnsType='int'),
+        'Sys^error': functInfo(kParams='1', nVars='x', fnType='function', returnsType='void'),
+        'Sys^wait': functInfo(kParams='1', nVars='x', fnType='function', returnsType='void'),
+        'Output^backSpace': functInfo(kParams='0', nVars='x', fnType='function', returnsType='void'),
+        'Memory^poke': functInfo(kParams='2', nVars='x', fnType='function', returnsType='void'),
+        'Sys^halt': functInfo(kParams='0', nVars='x', fnType='function', returnsType='void'),
+        'String^new': functInfo(kParams='1', nVars='x', fnType='constructor', returnsType='String'),
+        'Output^init': functInfo(kParams='0', nVars='x', fnType='function', returnsType='void'),
+        'Math^abs': functInfo(kParams='1', nVars='x', fnType='function', returnsType='int'),
+        'String^eraseLastChar': functInfo(kParams='1', nVars='x', fnType='method', returnsType='void'),
+        'Output^printInt': functInfo(kParams='1', nVars='x', fnType='function', returnsType='void'),
+        'Screen^init': functInfo(kParams='0', nVars='x', fnType='function', returnsType='void'),
+        'Output^println': functInfo(kParams='0', nVars='x', fnType='function', returnsType='void'),
+        'Screen^drawCircle': functInfo(kParams='3', nVars='x', fnType='function', returnsType='void'),
+        'Math^divide': functInfo(kParams='2', nVars='x', fnType='function', returnsType='int'),
+        'Screen^drawPixel': functInfo(kParams='2', nVars='x', fnType='function', returnsType='void'),
+        'Output^moveCursor': functInfo(kParams='2', nVars='x', fnType='function', returnsType='void'),
+        'Keyboard^keyPressed': functInfo(kParams='0', nVars='x', fnType='function', returnsType='char'),
+        'Screen^setColor': functInfo(kParams='1', nVars='x', fnType='function', returnsType='void'),
+        'Memory^alloc': functInfo(kParams='1', nVars='x', fnType='function', returnsType='Array'),
+        'Screen^drawLine': functInfo(kParams='4', nVars='x', fnType='function', returnsType='void'),
+        'String^newLine': functInfo(kParams='0', nVars='x', fnType='function', returnsType='char'),
+        'String^appendChar': functInfo(kParams='2', nVars='x', fnType='method', returnsType='String'),
+        'Output^printString': functInfo(kParams='1', nVars='x', fnType='function', returnsType='void'),
+        'Keyboard^init': functInfo(kParams='0', nVars='x', fnType='function', returnsType='void'),
+        'String^charAt': functInfo(kParams='2', nVars='x', fnType='method', returnsType='char'),
+        'Keyboard^readLine': functInfo(kParams='1', nVars='x', fnType='function', returnsType='String'),
+        'String^doubleQuote': functInfo(kParams='0', nVars='x', fnType='function', returnsType='char'),
+        'Screen^clearScreen': functInfo(kParams='0', nVars='x', fnType='function', returnsType='void'),
+        'String^setInt': functInfo(kParams='2', nVars='x', fnType='method', returnsType='void'),
+        'String^intValue': functInfo(kParams='1', nVars='x', fnType='method', returnsType='int')
     }

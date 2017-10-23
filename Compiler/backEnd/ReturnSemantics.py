@@ -28,21 +28,21 @@ def checkReturn(token):
                 errorMiddle = '. Found: `%s`' % value
                 raise CompilerError('`%s` is a constructor and should return '
                                     '`this`%s. Line %s, %s' %
-                                    (vars.currentFunction, errorMiddle,
+                                    (vars.currentFn, errorMiddle,
                                      token.line, globalVars.inputFileName))
 
         elif returnsType == 'void':
             if value != ';':
                 raise CompilerError('`%s` is a void function, and so mustn\`t'
                                     'return a value. It does. Line %s, %s' %
-                                    (vars.currentFunction, token.line,
+                                    (vars.currentFn, token.line,
                                      globalVars.inputFileName))
 
         else:
             if value == ';':
                 raise CompilerError('`%s` isn`t a void function, and so must '
                                     'return a value. Line %s, %s' %
-                                    (vars.currentFunction, token.line,
+                                    (vars.currentFn, token.line,
                                      globalVars.inputFileName))
 
 

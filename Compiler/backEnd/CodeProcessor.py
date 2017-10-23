@@ -1,9 +1,6 @@
-# import sys
-
 from compiler_error import CompilerError
 import globalVars
 from . import vars
-# import JackStdLib
 
 
 def initializeHashTables(_variableTable, _classAndFunctionsHash):
@@ -25,19 +22,19 @@ directly from its relevant parse stage:
 
 def SubroutineDeclaration(token):
     if vars.parsenum == 2:
-        currentFunctionContext = functionsInfo.getCurrentFnContext()
-        shouldReturnType = currentFunctionContext.returnsType
-        num = currentFunctionContext.n_vars
+        currentFnContext = functionsInfo.getCurrentFnContext()
+        shouldReturnType = currentFnContext.returnsType
+        num = currentFnContext.nVars
 
         # The function declaration, itself:
         output.code('function %s.%s %s' %
-                    (vars.currentClass, vars.currentFunction, num))
+                    (vars.currentClass, vars.currentFn, num))
 
         # If we're dealing with a constructor, we've got to allocate memory,
         # and put the reference to our new object in the right memory location
         if vars.currentFnType == 'constructor':
             if vars.currentClass == shouldReturnType:
-                memtoalloc = functionsInfo.getField_N()
+                memtoalloc = functionsInfo.getFieldN()
                 output.code('push constant '+str(memtoalloc))
                 output.code('call Memory.alloc 1')
                 # ^ Leaves the address of our allocated object @ top of stack
@@ -179,7 +176,7 @@ def TermKEYWORD(token):
         elif keyword == 'null':
             output.code("push constant 0")
         elif keyword == 'this':
-            if functionsInfo.getCurrentFnContext().funct_type != 'function':
+            if functionsInfo.getCurrentFnContext().fnType != 'function':
                 output.code("push pointer 0")
             else:
                 raise CompilerError('`this\' cannot be used in a function. Line %s, %s' % (token.line, globalVars.inputFileName))

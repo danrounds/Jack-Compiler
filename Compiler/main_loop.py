@@ -69,7 +69,7 @@ def mainloop(in_pathorfile='./tests/test_code0/Square/Square.jack',
 
     The parse can be thought of as going through text files, one at a time,
     moving left-to-right, top-to-bottom. State variables (denoting the current
-    input file, currentClass, currentFunction) are maintained and are
+    input file, currentClass, currentFn) are maintained and are
     referenced in code output to resolve variable/function references.
     """
 

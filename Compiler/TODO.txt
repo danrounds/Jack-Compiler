@@ -3,7 +3,7 @@ TODO & Possible additions:
   - Automate testing of error-messages/warnings
   - Link the OS files referenced in the files being compiled to the relevant OS
     files (./OS/*). This would be easily accomplished by using the
-    `varTable.list_of_extended_types' list and testing presence of ('Array',\
+    `varTable.listOfExtendedTypes' list and testing presence of ('Array',\
     'Keyboard', 'Math', 'Memory', 'Output', 'Screen', 'String', 'Sys')
   - Document Function Returns? Stack
   - Document IfWhile identifiers

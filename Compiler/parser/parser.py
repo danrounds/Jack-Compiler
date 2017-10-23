@@ -6,7 +6,7 @@
 # token generator and/or specific tokens.
 #
 # On the first parse, our parse functions call the `backEnd' to construct our
-# varTable and functionInfo table (including our list_of_extended_types -- i.e.
+# varTable and functionInfo table (including our listOfExtendedTypes -- i.e.
 # the user-defined types we find while parsing).
 #
 # On the second parse, we call `backEnd', and use this information to check
@@ -60,7 +60,7 @@ def parseClass(generator):
             while moreClassVarDecd is True:
                 moreClassVarDecd = parseClassVarDec(next(generator), generator)
             # Now we know the n fields that Class defines for its object type:
-            backEnd.functionsInfo.setField_N()
+            backEnd.functionsInfo.setFieldN()
 
             # Time to parse subroutines:
             moreSubroutineDeclared = parseSubroutineDec(moreClassVarDecd, generator)
@@ -135,7 +135,7 @@ def parseSubroutineDec(token, generator):
         doesFunctionReturn.stack_init()
         # \/ Sets an initial value for `k' parameters
 
-        backEnd.functionsInfo.init_k_params()
+        backEnd.functionsInfo.initKParams()
         tagOutput.startt('subroutineDec'); tagOutput.outt(token)
 
         token = next(generator)
@@ -194,15 +194,15 @@ def parseParameterList(generator):
 
         token = next(generator)
         parseVarName(token)
-        backEnd.varTable.addVariable(token, type_, _kind='argument', scope='function')
+        backEnd.varTable.addVariable(token, type_, kind='argument', scope='function')
 
         token = next(generator)
-        backEnd.functionsInfo.increment_k_params()
+        backEnd.functionsInfo.incrementKParams()
         comma = parseComma(token)
 
         # \/ Tallying the number of argument variables in our fn declarations:
         while comma is True:
-            backEnd.functionsInfo.increment_k_params()
+            backEnd.functionsInfo.incrementKParams()
 
             token = next(generator)
             type_ = parseType(token)
@@ -212,7 +212,7 @@ def parseParameterList(generator):
 
                 token = next(generator)
                 parseVarName(token)
-                backEnd.varTable.addVariable(token, type_, _kind='argument', scope='function')
+                backEnd.varTable.addVariable(token, type_, kind='argument', scope='function')
 
                 token = next(generator)
                 comma = parseComma(token)
@@ -552,16 +552,16 @@ def parseVarDec(token, generator):
 
     token = next(generator)
     parseVarName(token)
-    backEnd.varTable.addVariable(token, type_, _kind='var', scope='function')
+    backEnd.varTable.addVariable(token, type_, kind='var', scope='function')
 
     token = next(generator)
     comma = parseComma(token)
 
-    # _kind=`var' means local variable. We're tallying the number of locals
+    # kind=`var' means local variable. We're tallying the number of locals
     while comma is True:
         token = next(generator)
         parseVarName(token)
-        backEnd.varTable.addVariable(token, type_, _kind='var', scope='function')
+        backEnd.varTable.addVariable(token, type_, kind='var', scope='function')
 
         token = next(generator)
         comma = parseComma(token)

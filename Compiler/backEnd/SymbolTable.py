@@ -8,16 +8,16 @@ from . import functionTableDataAndTypes
 
 functInfo = functionTableDataAndTypes.functInfo
 # functInfo = collections.namedtuple('functInfo', [
-#     'k_params', 'n_vars', 'funct_type', 'returnsType'
+#     'kParams', 'nVars', 'fnType', 'returnsType'
 # ])
 # ^ the "value" part of the key:value in our class.unctions table. Used for
 # code output and error-checking.
 #
-# -`n_vars` is the number of local variables declared in a given function, i.e.
-#  `var int name1, ... n'
-# -`k_params` is the number of variables declared in a function prototype/
+# -`kParams` is the number of variables declared in a function prototype/
 #   declaration
-# -`funct_type`, used to ensure that:
+# -`nVars` is the number of local variables declared in a given function, i.e.
+#  `var int name1, ... n'
+# -`fnType`, used to ensure that:
 #     * `constructor`s return `this` (parseReturnStatement),
 #     * `this` is not used in `function`s,
 #     * `functions` don't call `methods` without passing an object
@@ -35,21 +35,21 @@ class classAndFunctionsHash():
     def __init__(self):
         self.table = functionTableDataAndTypes.getJackStdLibrary()
 
-    def init_k_params(self):
-        # k_params_declrd  is the number of parameters (arguments) declared in
+    def initKParams(self):
+        # kParamsDeclrd  is the number of parameters (arguments) declared in
         # a function header/prototype
         if vars.currentFnType in ('constructor', 'function'):
             #  Constructors and functions operate on k arguments
-            self.k_params_declrd = 0
+            self.kParamsDeclrd = 0
         else:
             # ... methods, on k + 1.
-            self.k_params_declrd = 1
+            self.kParamsDeclrd = 1
 
-    def increment_k_params(self):
+    def incrementKParams(self):
         if vars.parsenum == 1:
-            self.k_params_declrd += 1
+            self.kParamsDeclrd += 1
 
-    def setField_N(self):
+    def setFieldN(self):
         """
         This creates a key in our class/function lookup table which will us how
         many fields our Class defines/object has. It will tell us how much
@@ -58,7 +58,7 @@ class classAndFunctionsHash():
         if vars.parsenum == 1:
             self.table[vars.currentClass+'$$N_FIELDS'] = varTable.fieldVarN
 
-    def getField_N(self):
+    def getFieldN(self):
         """
         Returns the number of field variables the requested object type (i.e.
         class) has, so that we allocate enough memory for them
@@ -67,18 +67,18 @@ class classAndFunctionsHash():
 
     def addFunction(self, returnsType, token):
         if vars.parsenum == 1:
-            key = vars.currentClass+'^'+vars.currentFunction
+            key = vars.currentClass+'^'+vars.currentFn
             totalLocalVars = varTable.localVarN
-            params_vars_pair = functInfo(self.k_params_declrd, totalLocalVars,
-                                         vars.currentFnType, returnsType)
+            paramsVarsPair = functInfo(self.kParamsDeclrd, totalLocalVars,
+                                       vars.currentFnType, returnsType)
 
             if key in self.table:
                 raise CompilerError('Subroutine `%s` has already been declared'
                                     '. Line %s, %s' %
-                                    (vars.currentFunction, token.line,
+                                    (vars.currentFn, token.line,
                                      globalVars.inputFileName))
 
-            self.table[key] = params_vars_pair
+            self.table[key] = paramsVarsPair
 
     def lookupFn(self, tokenOrString):
         """
@@ -86,7 +86,7 @@ class classAndFunctionsHash():
         `function()`, in the case of a token; `Class.function()`, in the case
         of a string.
 
-        Returns a 'functInfo' (named) tuple :: (k_params, n_vars, funct_type,
+        Returns a 'functInfo' (named) tuple :: (kParams, nVars, fnType,
         returnsType)
 
         This is a utility function, and is used to evaluate semantics, tell us
@@ -126,7 +126,7 @@ class classAndFunctionsHash():
         of type void` (or conversely whether it should return), and how many
         many variables our declared function has.
         """
-        return self.table[vars.currentClass+'^'+vars.currentFunction]
+        return self.table[vars.currentClass+'^'+vars.currentFn]
 
 
 #
@@ -137,8 +137,8 @@ class classAndFunctionsHash():
 #
 #
 varInfo = collections.namedtuple('varInfo', ['type_', 'kind', 'n'])
-# /\ Tuple that forms the basis of the varTable
-# Associated with a key, formatted 'currentClass^currentFunction^varName' or
+# ^ Tuple that forms the basis of the varTable
+# Associated with a key, formatted 'currentClass^currentFn^varName' or
 # vars.currentClass+'^'+varName (for function and class scopes, respectively)
 
 
@@ -146,7 +146,7 @@ class variableTable():
     def __init__(self):
         self.functScope = {}
         self.classScope = {}
-        self.list_of_extended_types = []
+        self.listOfExtendedTypes = []
 
         self.localVarN = self.fieldVarN = self.staticVarN = None
         self.inDeclaration = None
@@ -166,12 +166,12 @@ class variableTable():
         if vars.parsenum == 1:
             self.inDeclaration = boolean
 
-    def addVariable(self, token, _type, _kind, scope):
+    def addVariable(self, token, type_, kind, scope):
         """
         Adds a variable to either our class-level variable table (classScope)
         or our function-level one (functScope). Included is information for
         `Type' (int, char, boolean, void, and arbitrary types);
-        `_kind` (field, static, local, argument); and the variable number,
+        `kind` (field, static, local, argument); and the variable number,
         which is used for relative addressing.
         """
         if vars.parsenum == 1:
@@ -184,10 +184,10 @@ class variableTable():
             # warning, if they have, then adds the variable and typing, scope,
             # and position (variable number) to our function scope hash table.
             if scope == 'function':
-                key = vars.currentClass+'^'+vars.currentFunction+'^'+variableName
+                key = vars.currentClass+'^'+vars.currentFn+'^'+variableName
                 if classkey in self.classScope:
                     kind1 = self.classScope[classkey].kind
-                    kind2 = _kind
+                    kind2 = kind
                     line = token.line
                     if kind2 == 'var': kind2 = 'local'
                     print('WARNING: Duplicate variable names. %s\'s scope is '
@@ -203,7 +203,7 @@ class variableTable():
                           (line, globalVars.inputFileName, variableName),
                           file=sys.stderr)
 
-                self.functScope[key] = varInfo(_type, _kind, self.localVarN)
+                self.functScope[key] = varInfo(type_, kind, self.localVarN)
                 self.localVarN += 1
 
             else:  # == 'class'
@@ -213,11 +213,11 @@ class variableTable():
                                         '`%s\'. Line %s, %s' %
                                         (variableName, line,
                                          globalVars.inputFileName))
-                if _kind == 'field':
-                    self.classScope[key] = varInfo(_type, _kind, self.fieldVarN)
+                if kind == 'field':
+                    self.classScope[key] = varInfo(type_, kind, self.fieldVarN)
                     self.fieldVarN += 1
-                else:  # _kind == 'static':
-                    self.classScope[key] = varInfo(_type, _kind, self.staticVarN)
+                else:  # kind == 'static':
+                    self.classScope[key] = varInfo(type_, kind, self.staticVarN)
                     self.staticVarN += 1
 
     def lookupVariable(self, variableToken):
@@ -225,7 +225,7 @@ class variableTable():
         if vars.parsenum == 2:
             variableName = variableToken.value
             try:
-                key = vars.currentClass+'^'+vars.currentFunction+'^'+variableName
+                key = vars.currentClass+'^'+vars.currentFn+'^'+variableName
                 if key in self.functScope:
                     base = self.functScope[key]
                 else:
@@ -253,8 +253,8 @@ class variableTable():
         """
         if vars.parsenum == 1:
             try:
-                if vars.currentClass not in self.list_of_extended_types:
-                    self.list_of_extended_types.append(vars.currentClass)
+                if vars.currentClass not in self.listOfExtendedTypes:
+                    self.listOfExtendedTypes.append(vars.currentClass)
             except:
                 pass
 
@@ -271,7 +271,7 @@ class variableTable():
                                         'subroutine return value. Line %s, %s'
                                         % (token.line, globalVars.inputFileName))
             elif type_ not in ('int', 'char', 'boolean', 'Array', 'String'):
-                if type_ not in self.list_of_extended_types:
+                if type_ not in self.listOfExtendedTypes:
                     raise CompilerError('Unknown type `%s`, line %s, %s'
                                         % (token.value, token.line, globalVars.inputFileName))
 
@@ -284,7 +284,7 @@ class variableTable():
             class_ = token.value
             if class_ not in ('Array', 'Keyboard', 'Math', 'Memory',
                               'Output', 'Screen', 'String', 'Sys'):
-                if class_ not in self.list_of_extended_types:
+                if class_ not in self.listOfExtendedTypes:
                     raise CompilerError('Class `%s` doesn\'t seem to exist. '
                                         'Line %s, %s' % (token.value, token.line, globalVars.inputFileName))
 

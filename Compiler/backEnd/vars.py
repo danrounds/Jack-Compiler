@@ -17,8 +17,8 @@ def setCurrentClass(classtoken):
 
 def setCurrentFunction(functiontoken):
     """Sets the function that we're currently in the midst of parsing"""
-    global currentFunction
-    currentFunction = functiontoken.value
+    global currentFn
+    currentFn = functiontoken.value
 
 
 def setAndGetCurrentFnType(typeToken):
