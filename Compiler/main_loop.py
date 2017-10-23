@@ -97,7 +97,7 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
     output_semantics_check.initialize(classAndFns)
 
     # Stub out our output (as in I/O) to do nothing on initial parse
-    output = Output.Output('initial')
+    output = Output.OutputSetup('initial')
     output_stage.defineOutput(output)
     print('Doing initial parse of:')
 
@@ -145,14 +145,14 @@ def outputParseTree(filelist):
     output_semantics_check.initialize(classAndFns)
 
     # Set up the `o` part of I/O
-    output = Output.Output('parseTest')
+    output = Output.OutputSetup('test')
     output_stage.defineOutput(output)
 
     # ...now for the `i`
     for filename in filelist:
         outfilename = filename[:-5] + '_.xml'
         globalVars.defineGlobalInputFile(filename)
-        output.defineOutputValues('parseTest', outfilename)
+        output.defineOutputValues('test', outfilename)
 
         # Outputs parse tree in XML
         tokengenerator = lexer(filename)
@@ -170,7 +170,7 @@ def outputTokens(filelist):
     output_semantics_check.initialize(classAndFns)
 
     # Set up the `o` part of I/O
-    output = Output.Output('parseTest')
+    output = Output.OutputSetup('test')
     output_stage.defineOutput(output)
 
     # ...now for the `i`
@@ -178,7 +178,7 @@ def outputTokens(filelist):
         outfilename = filename[:-5] + 'T_.xml'
         # outfilename = filename[:-5] + '_COMPARE_T_.xml'
         globalVars.defineGlobalInputFile(filename)
-        output.defineOutputValues('parseTest', outfilename)
+        output.defineOutputValues('test', outfilename)
         print('Reading: %s' % filename)
 
         # Outputs tokens in XML

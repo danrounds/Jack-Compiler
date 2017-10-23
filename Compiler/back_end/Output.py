@@ -1,11 +1,11 @@
-class Output():
-    '''Outputs XML or code, depending on the parse number'''
+class OutputSetup():
+    '''Outputs XML or code, depending on the `stage` variable'''
     def __init__(self, stage):
         self.stage = stage
-        if stage == 'parseTest':
-            self.code = Output.null
+        if stage == 'test':
+            self.code = OutputSetup.null
         elif stage == 'initial':
-            self.outt = self.startt = self.endt = self.code = Output.null
+            self.outt = self.startt = self.endt = self.code = OutputSetup.null
 
     def defineOutputValues(self, stage, output_file_name):
         self.stage = stage
@@ -25,7 +25,7 @@ class Output():
 
     # XML output
     def outt(self, token):
-        if self.stage == 'parseTest':
+        if self.stage == 'test':
             val, tag = token.value, token.typ
             if   val == '<': val = '&lt;'
             elif val == '>': val = '&gt;'
@@ -33,11 +33,11 @@ class Output():
             self.global_file_out.write("<%s> %s </%s>\n" % (tag, val, tag))
 
     def startt(self, tag):
-        if self.stage == 'parseTest':
+        if self.stage == 'test':
             self.global_file_out.write("<%s>\n" % tag)
 
     def endt(self, tag):
-        if self.stage == 'parseTest':
+        if self.stage == 'test':
             self.global_file_out.write("</%s>\n" % tag)
 
     # Code output
