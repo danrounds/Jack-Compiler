@@ -23,6 +23,10 @@ import backEnd.ReturnSemantics as ReturnSemantics
 
 
 def initializeTagOutput(_output):
+    """
+    The main loop passes our output object to the parser, so that we can
+    write out XML tags for parser/lexer tests (when applicable)
+    """
     global tagOutput
     tagOutput = _output
 
