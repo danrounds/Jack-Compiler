@@ -136,7 +136,7 @@ class classAndFunctionsHash():
 #
 #
 #
-var_info = collections.namedtuple('var_info', ['TYPE', 'KIND', 'N'])
+varInfo = collections.namedtuple('varInfo', ['type_', 'kind', 'n'])
 # /\ Tuple that forms the basis of the varTable
 # Associated with a key, formatted 'currentClass^currentFunction^varName' or
 # vars.currentClass+'^'+varName (for function and class scopes, respectively)
@@ -186,7 +186,7 @@ class variableTable():
             if scope == 'function':
                 key = vars.currentClass+'^'+vars.currentFunction+'^'+variableName
                 if classkey in self.classScope:
-                    kind1 = self.classScope[classkey].KIND
+                    kind1 = self.classScope[classkey].kind
                     kind2 = _kind
                     line = token.line
                     if kind2 == 'var': kind2 = 'local'
@@ -203,7 +203,7 @@ class variableTable():
                           (line, globalVars.inputFileName, variableName),
                           file=sys.stderr)
 
-                self.functScope[key] = var_info(_type, _kind, self.localVarN)
+                self.functScope[key] = varInfo(_type, _kind, self.localVarN)
                 self.localVarN += 1
 
             else:  # == 'class'
@@ -214,10 +214,10 @@ class variableTable():
                                         (variableName, line,
                                          globalVars.inputFileName))
                 if _kind == 'field':
-                    self.classScope[key] = var_info(_type, _kind, self.fieldVarN)
+                    self.classScope[key] = varInfo(_type, _kind, self.fieldVarN)
                     self.fieldVarN += 1
                 else:  # _kind == 'static':
-                    self.classScope[key] = var_info(_type, _kind, self.staticVarN)
+                    self.classScope[key] = varInfo(_type, _kind, self.staticVarN)
                     self.staticVarN += 1
 
     def lookupVariable(self, variableToken):
@@ -232,12 +232,12 @@ class variableTable():
                     key = vars.currentClass+'^'+variableName
                     base = self.classScope[key]
 
-                kind = base.KIND
+                kind = base.kind
                 if kind == 'field': kind = 'this'
                 elif kind == 'var': kind = 'local'
 
-                n = base.N
-                type_ = base.TYPE
+                n = base.n
+                type_ = base.type_
 
             except:
                 # raise ValueError("Variable `%s' not found. Line %s, %s" % (variableName, variableToken.line, globalVars.inputFileName))
