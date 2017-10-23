@@ -1,15 +1,16 @@
 ###############################################################################
 # Parser for the Jack compiler, tECS
 #
-# I've treated this file as largely self-documenting (since the functions are all nameed
-#  according to function). Each parse function passes and accepts our token generator and/or
-#  specific tokens.
+# I've treated this file as largely self-documenting (since the functions are
+# all named  according to function). Each parse function passes and accepts our
+# token generator and/or specific tokens.
 #
-# On the first parse, our parse functions call the `backEnd' to construct our varTable,
-#  and functionInfo table (including our list_of_extended_types -- i.e. the user-defined types
-#  we find while parsing).
+# On the first parse, our parse functions call the `backEnd' to construct our
+# varTable and functionInfo table (including our list_of_extended_types -- i.e.
+# the user-defined types we find while parsing).
 #
-# On the second parse, we call `backEnd', and use this information to check semantics and output code.
+# On the second parse, we call `backEnd', and use this information to check
+# semantics and output code.
 # -DR, August 2016
 
 from compiler_error import CompilerError
@@ -20,17 +21,20 @@ import backEnd.vars as vars
 import backEnd.doesFunctionReturn as doesFunctionReturn
 import backEnd.ReturnSemantics as ReturnSemantics
 
-#### PARSER ####    #### PARSER ####    #### PARSER ####    #### PARSER ####
-## Everything below is our parser.
-
 
 def initializeTagOutput(_output):
     global tagOutput
     tagOutput = _output
 
+# PARSER ####    #### PARSER ####    #### PARSER ####    #### PARSER ####
+# Everything below is our parser.
+
 
 def parseClass(generator):
-    '''Initial parse function. Each file holds a class, thus the `class` is the main unit of compilation'''
+    """
+    Initial parse function. Each file holds a class, thus the `class` is the
+    main unit of compilation
+    """
     uniqueIfAndWhileIds.init()
     doesFunctionReturn.stackvars_init()
     token = next(generator)
@@ -39,7 +43,6 @@ def parseClass(generator):
         token = next(generator)
         if parseClassName(token) is False:
             raise CompilerError(PErrorMsg.no_class_name(token))
-        # backEnd.setCurrentClass(token)
         vars.setCurrentClass(token)
         parseLeftCurly(next(generator))
         token = next(generator)
@@ -76,6 +79,7 @@ def parseClass(generator):
                 ## CLEAN UP
     else:
         raise CompilerError(PErrorMsg.no_class_declr(token))
+
 
 def parseClassVarDec(token, generator):
     '''Returns True if thing parsed is of the form classVarDec,
@@ -118,14 +122,16 @@ def parseClassVarDec(token, generator):
             raise CompilerError(PErrorMsg.no_semivar(token))
     else: return token
 
+
 def parseSubroutineDec(token, generator):
     if token is None: token = next(generator)
     functTyp = vars.setAndGetCurrentFnType(token)
     if functTyp in ('constructor', 'function', 'method'):
 
         doesFunctionReturn.stack_init()
+        # \/ Sets an initial value for `k' parameters
 
-        backEnd.functionsInfo.init_k_params()  # Sets an initial value for `k' parameters
+        backEnd.functionsInfo.init_k_params()
         tagOutput.startt('subroutineDec'); tagOutput.outt(token)
 
         token = next(generator)
@@ -150,29 +156,34 @@ def parseSubroutineDec(token, generator):
         backEnd.SubroutineDeclaration(token)
 
         parseLeftParen(next(generator))
-        backEnd.varTable.resetVarCounter()    # Resets `localVarN' declared
-        token = parseParameterList(generator)  # Will figure out our `k' parameters
+        backEnd.varTable.resetVarCounter()  # Resets `localVarN' declared
+        token = parseParameterList(generator)  # Figures out our `k' parameters
         parseRightParen(token)
 
         parseSubroutineBody(generator)
 
         doesFunctionReturn.codecheck(subroutinetoken)
-        # checks whether the code in the this subroutine (i.e. function) will actually return
-        
+        # Checks whether the code in the this subroutine will actually return
+
         backEnd.functionsInfo.addFunction(returnTyp, subroutinetoken)
-        # @ this point,variableTable.localVarN contains the total n of local vars decl'd in the current function
+        # @ this point, variableTable.localVarN contains the total n of local
+        # variables declared in the current function
 
         tagOutput.endt('subroutineDec'); return True
     else: return token
 
+
 def parseParameterList(generator):
-    '''Returns a token--either after evaluating `type varName` (',' `type varName`) or after finding
-    nothing of that form. Returned token should be a '(', else calling function will grind to a halt'''
+    '''
+    Returns a token--either after evaluating `type varName` (',' `type varName`)
+    or after finding nothing of that form. Returned token should be a '(', else
+    calling function will grind to a halt
+    '''
 
     tagOutput.startt('parameterList')
 
     token = next(generator)
-    type_= parseType(token)
+    type_ = parseType(token)
 
     if type_:
         backEnd.varTable.checkTypeExistence(token)
@@ -185,7 +196,7 @@ def parseParameterList(generator):
         backEnd.functionsInfo.increment_k_params()
         comma = parseComma(token)
 
-        # we're tallying the number of argument variables in our function declarations:
+        # \/ Tallying the number of argument variables in our fn declarations:
         while comma is True:
             backEnd.functionsInfo.increment_k_params()
 
@@ -206,6 +217,7 @@ def parseParameterList(generator):
     tagOutput.endt('parameterList')
     return token
 
+
 def parseSubroutineBody(generator):
     tagOutput.startt('subroutineBody')
     parseLeftCurly(next(generator))
@@ -221,6 +233,7 @@ def parseSubroutineBody(generator):
         raise CompilerError(PErrorMsg.rightcurly(token))
     tagOutput.endt('subroutineBody')
 
+
 def parseStatements(token, generator):
     tagOutput.startt('statements')
     
@@ -228,7 +241,7 @@ def parseStatements(token, generator):
     backEnd.varTable.setInDeclaration(False)
     
     while token.value != '}':
-        doesFunctionReturn.IFissue_warning(token) # warns if there's unreachable code
+        doesFunctionReturn.IFissue_warning(token)  # Warns of unreachable code
         token = parseStatement(token, generator)
         if token is None:
             token = next(generator)
@@ -237,12 +250,13 @@ def parseStatements(token, generator):
     backEnd.varTable.setInDeclaration(True)
     tagOutput.endt('statements'); return token
 
+
 def parseStatement(token, generator):
     if parseLetStatement(token, generator) is False:
         boolORtoken = parseIfStatement(token, generator)
         #   == token, if it was an if statement.
         #   == False, if the parsed statement wasn't an if statement,
-        if boolORtoken: 
+        if boolORtoken:
             return boolORtoken
         else:
             if parseWhileStatement(token, generator) is False:
@@ -250,7 +264,8 @@ def parseStatement(token, generator):
                     if parseReturnStatement(token, generator) is False:
                         raise CompilerError(PErrorMsg.badstatement(token))
     return None
-        
+
+
 def parseLetStatement(token, generator):
     if token.value == 'let':
         tagOutput.startt('letStatement'); tagOutput.outt(token)
@@ -286,6 +301,7 @@ def parseLetStatement(token, generator):
         return True
     else:
         return False
+
 
 def parseIfStatement(token, generator):
     if token.value == 'if':
@@ -323,7 +339,8 @@ def parseIfStatement(token, generator):
             backEnd.IfStatement_NOELSE(n)
         tagOutput.endt('ifStatement'); return token
     return False
-    
+
+
 def parseWhileStatement(token, generator):
     if token.value == 'while':
 
@@ -348,7 +365,8 @@ def parseWhileStatement(token, generator):
             raise CompilerError(PErrorMsg.endofstatement(token))
         tagOutput.endt('whileStatement'); return True
     else: return False
-    
+
+
 def parseDoStatement(token, generator):
     if token.value == 'do':
         tagOutput.startt('doStatement'); tagOutput.outt(token)
@@ -381,6 +399,7 @@ def parseReturnStatement(token, generator):
         tagOutput.endt('returnStatement'); return True
     else: return False
 
+
 def parseExpression(token, generator):
     tagOutput.startt('expression')
     token = parseTerm(token, generator)
@@ -398,19 +417,19 @@ def parseTerm(token, generator):
     typ = token.typ
 
     if typ in ['integerConstant', 'stringConstant'] or parseKeywordConstant(token) is True:
-    # integerConstant | stringConstant | keywordConstant
+        # integerConstant | stringConstant | keywordConstant
         if typ == 'integerConstant':
             backEnd.TermINTEGER(token)
         elif typ == 'stringConstant':
             backEnd.TermSTRING(token)
-        else: #== KeywordConstant
+        else:  #== KeywordConstant
             backEnd.TermKEYWORD(token)
         tagOutput.outt(token)
         token = next(generator)
     else:
         lookahead = next(generator)
-        if lookahead.value  == ('['):
-        # varName `[` expression `]`
+        if lookahead.value == ('['):
+            # varName `[` expression `]`
             parseVarName(token)
             variableToken = token
 
@@ -427,20 +446,20 @@ def parseTerm(token, generator):
             token = parseSubroutineCall(token, lookahead, generator, callerexpectsreturnval=True)
         else:
             if token.value in ('~', '-'):
-            # unaryOp term
+                # unaryOp term
                 op = token
                 tagOutput.outt(token)
                 token = parseTerm(lookahead, generator)
                 backEnd.TermUNARYOP(op)
             else:
                 try:
-                # varName
+                    # varName
                     parseVarName(token)
                     variableToken = token
                     backEnd.TermVARNAME(variableToken)
                     token = lookahead
                 except CompilerError:
-                # `(` expression `)`
+                    # `(` expression `)`
                     parseLeftParen(token)
                     token = parseExpression(lookahead, generator)
                     parseRightParen(token)
@@ -464,7 +483,7 @@ def parseSubroutineCall(token, lookahead, generator, callerexpectsreturnval):
         parseRightParen(token)
         token = next(generator)
     else:
-        worked = parseClassName(token) #parseVarName(token)
+        worked = parseClassName(token)  # parseVarName(token)
         classORvariable = token
 
         if worked is False:
@@ -505,19 +524,22 @@ def parseExpressionList(generator, methodcall):
     if methodcall: numofexpressions += 1
     tagOutput.endt('expressionList'); return token, numofexpressions
 
+
 def parseOp(token):
     value = token.value
     if value in ['+', '-', '*', '/', '&', '|', '<', '>', '=']:
         tagOutput.outt(token); return True
     else: return False
 
+
 def parseKeywordConstant(token):
     if token.value in ['true', 'false', 'null', 'this']:
         return True
     else: return False
 
+
 def parseVarDec(token, generator):
-# parses varDec, returns the next token, and adds variables to variable table
+    # Parses varDec, returns next token, and adds variables to variable table
     tagOutput.startt('varDec'); tagOutput.outt(token)
 
     token = next(generator)
@@ -547,62 +569,70 @@ def parseVarDec(token, generator):
     tagOutput.endt('varDec')
     return token
 
+
 def parseClassName(token):
     if token.typ == 'identifier':
         tagOutput.outt(token)
         return token.value
     else: return False
 
+
 def parseType(token):
     type_ = token.value
     if type_ in ('int', 'char', 'boolean', 'void'):
-    # if type_ in ('int', 'char', 'boolean'):
         tagOutput.outt(token)
         return type_
     else:
         return parseClassName(token)
-  
+
 def parseSubroutineName(token):
     if token.typ == 'identifier':
         tagOutput.outt(token)
     else: raise CompilerError(PErrorMsg.badidentifier(token))
+
 
 def parseVarName(token):
     if 'identifier' == token.typ:
         tagOutput.outt(token)
     else: raise CompilerError(PErrorMsg.badidentifier(token))
 
+
 def parseLeftCurly(token):
     if token.value == '{':
-        ### \/ Updates how far embedded in curly braces we are, for purposes of the FunctionReturnStack
-        ###    (which determines whether functions are likely to return
+        # \/ Updates how far embedded in curly braces we are, for purposes of
+        # FunctionReturnStack,which determines whether fns are likely to return
         doesFunctionReturn.stackvars_incr()
 
         tagOutput.outt(token)
     else: raise CompilerError(PErrorMsg.leftcurly(token))
 
+
 def parseRightCurly(token):
     if token.value == '}':
-        ### Updates how deeply embedded in curly braces we are
+        # Updates how deeply embedded in curly braces we are
         doesFunctionReturn.stackvars_decr()
-        ### /\
+        # /\
         tagOutput.outt(token); return True
     else: return False
+
 
 def parseLeftParen(token):
     if token.value == '(':
         tagOutput.outt(token)
     else: raise CompilerError(PErrorMsg.leftparen(token))
 
+
 def parseRightParen(token):
     if token.value == ')':
         tagOutput.outt(token)
     else: raise CompilerError(PErrorMsg.rightparen(token))
 
+
 def parseComma(token):
     if token.value == ',':
         tagOutput.outt(token); return True
     else: return False
+
 
 def parseSemicolon(token):
     if token.value == ';':
