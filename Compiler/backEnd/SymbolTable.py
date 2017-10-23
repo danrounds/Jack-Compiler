@@ -4,11 +4,13 @@ import sys
 from compiler_error import CompilerError
 import globalVars
 from . import vars
+from . import functionTableDataAndTypes
 
-
-funct_info = collections.namedtuple('funct_info', ['k_params', 'n_vars',
-                                                   'funct_type', 'returnsType'])
-# ^ the "value" part of the key:value in our classDOTfunctions table. Used for
+functInfo = functionTableDataAndTypes.functInfo
+# functInfo = collections.namedtuple('functInfo', [
+#     'k_params', 'n_vars', 'funct_type', 'returnsType'
+# ])
+# ^ the "value" part of the key:value in our class.unctions table. Used for
 # code output and error-checking.
 #
 # -`n_vars` is the number of local variables declared in a given function, i.e.
@@ -31,7 +33,7 @@ funct_info = collections.namedtuple('funct_info', ['k_params', 'n_vars',
 
 class classAndFunctionsHash():
     def __init__(self):
-        self.table = {'Math^max': funct_info(k_params='2', n_vars='x', funct_type='function', returnsType='int'), 'Array^new': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='Array'), 'Memory^deAlloc': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='void'), 'String^dispose': funct_info(k_params='1', n_vars='x', funct_type='method', returnsType='void'), 'String^backSpace': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='char'), 'Math^sqrt': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='int'), 'Math^init': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='void'), 'Keyboard^readChar': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='char'), 'Array^dispose': funct_info(k_params='1', n_vars='x', funct_type='method', returnsType='void'), 'Math^min': funct_info(k_params='2', n_vars='x', funct_type='function', returnsType='int'), 'String^setCharAt': funct_info(k_params='3', n_vars='x', funct_type='method', returnsType='void'), 'Memory^init': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='void'), 'Memory^peek': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='int'), 'Screen^drawRectangle': funct_info(k_params='4', n_vars='x', funct_type='function', returnsType='void'), 'Output^printChar': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='void'), 'Keyboard^readInt': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='int'), 'String^length': funct_info(k_params='1', n_vars='x', funct_type='method', returnsType='int'), 'Sys^init': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='void'), 'Math^multiply': funct_info(k_params='2', n_vars='x', funct_type='function', returnsType='int'), 'Sys^error': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='void'), 'Sys^wait': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='void'), 'Output^backSpace': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='void'), 'Memory^poke': funct_info(k_params='2', n_vars='x', funct_type='function', returnsType='void'), 'Sys^halt': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='void'), 'String^new': funct_info(k_params='1', n_vars='x', funct_type='constructor', returnsType='String'), 'Output^init': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='void'), 'Math^abs': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='int'), 'String^eraseLastChar': funct_info(k_params='1', n_vars='x', funct_type='method', returnsType='void'), 'Output^printInt': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='void'), 'Screen^init': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='void'), 'Output^println': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='void'), 'Screen^drawCircle': funct_info(k_params='3', n_vars='x', funct_type='function', returnsType='void'), 'Math^divide': funct_info(k_params='2', n_vars='x', funct_type='function', returnsType='int'), 'Screen^drawPixel': funct_info(k_params='2', n_vars='x', funct_type='function', returnsType='void'), 'Output^moveCursor': funct_info(k_params='2', n_vars='x', funct_type='function', returnsType='void'), 'Keyboard^keyPressed': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='char'), 'Screen^setColor': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='void'), 'Memory^alloc': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='Array'), 'Screen^drawLine': funct_info(k_params='4', n_vars='x', funct_type='function', returnsType='void'), 'String^newLine': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='char'), 'String^appendChar': funct_info(k_params='2', n_vars='x', funct_type='method', returnsType='String'), 'Output^printString': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='void'), 'Keyboard^init': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='void'), 'String^charAt': funct_info(k_params='2', n_vars='x', funct_type='method', returnsType='char'), 'Keyboard^readLine': funct_info(k_params='1', n_vars='x', funct_type='function', returnsType='String'), 'String^doubleQuote': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='char'), 'Screen^clearScreen': funct_info(k_params='0', n_vars='x', funct_type='function', returnsType='void'), 'String^setInt': funct_info(k_params='2', n_vars='x', funct_type='method', returnsType='void'), 'String^intValue': funct_info(k_params='1', n_vars='x', funct_type='method', returnsType='int')}
+        self.table = functionTableDataAndTypes.getJackStdLibrary()
 
     def init_k_params(self):
         # k_params_declrd  is the number of parameters (arguments) declared in
@@ -67,8 +69,8 @@ class classAndFunctionsHash():
         if vars.parsenum == 1:
             key = vars.currentClass+'^'+vars.currentFunction
             totalLocalVars = varTable.localVarN
-            params_vars_pair = funct_info(self.k_params_declrd, totalLocalVars,
-                                          vars.currentFnType, returnsType)
+            params_vars_pair = functInfo(self.k_params_declrd, totalLocalVars,
+                                         vars.currentFnType, returnsType)
 
             if key in self.table:
                 raise CompilerError('Subroutine `%s` has already been declared'
@@ -84,7 +86,7 @@ class classAndFunctionsHash():
         `function()`, in the case of a token; `Class.function()`, in the case
         of a string.
 
-        Returns a 'funct_info' (named) tuple :: (k_params, n_vars, funct_type,
+        Returns a 'functInfo' (named) tuple :: (k_params, n_vars, funct_type,
         returnsType)
 
         This is a utility function, and is used to evaluate semantics, tell us
