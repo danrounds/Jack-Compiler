@@ -3,7 +3,7 @@ import sys
 import globalVars
 from . import vars
 
-global n_curlies, max_curlies   # << for insane if/else "stack", to determine
+global nCurlies, maxCurlies   # << for insane if/else "stack", to determine
 global functionRtnsStack, codeHasTerminated  # whether a function might return
 
 
@@ -24,69 +24,68 @@ won't be).
 unreachableTriggered = False
 
 
-def stackvars_init():
+def stackVarsInit():
     if vars.parsenum == 2:
-        global n_curlies, max_curlies
-        n_curlies = max_curlies = 0
+        global nCurlies, maxCurlies
+        nCurlies = maxCurlies = 0
 
 
-def stackvars_incr():
+def stackVarsIncr():
     if vars.parsenum == 2:
-        global n_curlies, max_curlies
-        n_curlies += 1
-        if n_curlies > max_curlies:
-            max_curlies = n_curlies
+        global nCurlies, maxCurlies
+        nCurlies += 1
+        if nCurlies > maxCurlies:
+            maxCurlies = nCurlies
 
 
-def stackvars_decr():
+def stackVarsDecr():
     if vars.parsenum == 2:
-        global n_curlies
-        n_curlies -= 1
+        global nCurlies
+        nCurlies -= 1
 
 
-def stack_init():
+def stackInit():
     if vars.parsenum == 2:
         global functionRtnsStack
         functionRtnsStack = ""
 
 
-def stack_addIfStmnt():
+def stackAddIfStmnt():
     if vars.parsenum == 2:
         global functionRtnsStack
-        functionRtnsStack = functionRtnsStack + 'if'+str(n_curlies)
+        functionRtnsStack = functionRtnsStack + 'if'+str(nCurlies)
 
 
-def stack_addElseStmnt():
+def stackAddElseStmnt():
     if vars.parsenum == 2:
         global functionRtnsStack
-        functionRtnsStack = functionRtnsStack + 'else'+str(n_curlies)
+        functionRtnsStack = functionRtnsStack + 'else'+str(nCurlies)
 
 
-def stack_addReturnStmnt():
+def stackAddReturnStmnt():
     if vars.parsenum == 2:
         global functionRtnsStack
-        functionRtnsStack = functionRtnsStack + 'return'+str(n_curlies)
+        functionRtnsStack = functionRtnsStack + 'return'+str(nCurlies)
 
 
-############### These three functions are used as each statement is parsed,
-############### to see whether there seems to be unreachable code
-def warning_test_init():
+# These three functions are used as each statement is parsed,
+# to see whether there seems to be unreachable code
+def warningTestInit():
     global codeHasTerminated
     codeHasTerminated = False
 
 
-def warning_reduc():
+def warningReduc():
     if vars.parsenum == 2:
-        #            functionRtnsStack = reduction(functionRtnsStack, n_curlies)
         reduction()
         if functionRtnsStack[-7:] == 'return2':
             global codeHasTerminated
             codeHasTerminated = True
 
 
-def IFissue_warning(token):
+def IFissueWarning(token):
     global unreachableTriggered
-    ## \/ added the vars.parsenum == 2 as a hail Mary
+    # \/ added the vars.parsenum == 2 as a hail Mary
     if vars.parsenum == 2:
         if codeHasTerminated is True and not unreachableTriggered:
             print("Warning: Unreachable code. Line %s, %s" % (token.line, globalVars.inputFileName), file=sys.stderr)
@@ -94,7 +93,7 @@ def IFissue_warning(token):
             ###############
 
 
-def codecheck(token):
+def codeCheck(token):
     if vars.parsenum == 2:
         if functionRtnsStack[-7:] not in ('return2', ''):
             old = None
@@ -107,20 +106,20 @@ def codecheck(token):
 
 def reduction():
     global functionRtnsStack
-    for i in range(1, max_curlies):
-        string = 'if'+str(i)+'return'+str(i+1)
-        if string+string in functionRtnsStack:
-            functionRtnsStack = functionRtnsStack.replace(string+string, string)
+    for i in range(1, maxCurlies):
+        str_ = 'if'+str(i)+'return'+str(i+1)
+        if str_ + str_ in functionRtnsStack:
+            functionRtnsStack = functionRtnsStack.replace(str_+str_, str_)
 
-    for i in range(1, max_curlies):
-        string = 'if'+str(i)+'return'+str(i+1)+'else'+str(i)+'return'+str(i+1)
-        if string in functionRtnsStack:
-            functionRtnsStack = functionRtnsStack.replace(string, 'return'+str(i))
+    for i in range(1, maxCurlies):
+        str_ = 'if'+str(i)+'return'+str(i+1)+'else'+str(i)+'return'+str(i+1)
+        if str_ in functionRtnsStack:
+            functionRtnsStack = functionRtnsStack.replace(str_, 'return'+str(i))
 
-    for i in range(1, max_curlies):
-        string = 'if'+str(i)+'return'+str(i)
-        if string in functionRtnsStack:
-            functionRtnsStack = functionRtnsStack.replace(string, 'return'+str(i))
+    for i in range(1, maxCurlies):
+        str_ = 'if'+str(i)+'return'+str(i)
+        if str_ in functionRtnsStack:
+            functionRtnsStack = functionRtnsStack.replace(str_, 'return'+str(i))
 
 
 def reduction2(test, max):
@@ -137,4 +136,3 @@ def reduction2(test, max):
         if string in test:
             test = test.replace(string, 'return'+str(i))
     return(test)
-

@@ -40,7 +40,7 @@ def parseClass(generator):
     main unit of compilation
     """
     uniqueIfAndWhileIds.init()
-    doesFunctionReturn.stackvars_init()
+    doesFunctionReturn.stackVarsInit()
     token = next(generator)
     if token.value == 'class':
         tagOutput.startt('class'); tagOutput.outt(token)
@@ -132,7 +132,7 @@ def parseSubroutineDec(token, generator):
     functTyp = vars.setAndGetCurrentFnType(token)
     if functTyp in ('constructor', 'function', 'method'):
 
-        doesFunctionReturn.stack_init()
+        doesFunctionReturn.stackInit()
         # \/ Sets an initial value for `k' parameters
 
         backEnd.functionsInfo.initKParams()
@@ -166,7 +166,7 @@ def parseSubroutineDec(token, generator):
 
         parseSubroutineBody(generator)
 
-        doesFunctionReturn.codecheck(subroutinetoken)
+        doesFunctionReturn.codeCheck(subroutinetoken)
         # Checks whether the code in the this subroutine will actually return
 
         backEnd.functionsInfo.addFunction(returnTyp, subroutinetoken)
@@ -240,16 +240,16 @@ def parseSubroutineBody(generator):
 
 def parseStatements(token, generator):
     tagOutput.startt('statements')
-    
-    doesFunctionReturn.warning_test_init()
+
+    doesFunctionReturn.warningTestInit()
     backEnd.varTable.setInDeclaration(False)
-    
+
     while token.value != '}':
-        doesFunctionReturn.IFissue_warning(token)  # Warns of unreachable code
+        doesFunctionReturn.IFissueWarning(token)  # Warns of unreachable code
         token = parseStatement(token, generator)
         if token is None:
             token = next(generator)
-            doesFunctionReturn.warning_reduc()
+            doesFunctionReturn.warningReduc()
 
     backEnd.varTable.setInDeclaration(True)
     tagOutput.endt('statements'); return token
@@ -311,7 +311,7 @@ def parseIfStatement(token, generator):
     if token.value == 'if':
         n = uniqueIfAndWhileIds.getIfID()
 
-        doesFunctionReturn.stack_addIfStmnt()
+        doesFunctionReturn.stackAddIfStmnt()
 
         tagOutput.startt('ifStatement'); tagOutput.outt(token)
         parseLeftParen(next(generator))
@@ -329,7 +329,7 @@ def parseIfStatement(token, generator):
         if token.value == 'else':
             tagOutput.outt(token)
 
-            doesFunctionReturn.stack_addElseStmnt()
+            doesFunctionReturn.stackAddElseStmnt()
 
             parseLeftCurly(next(generator))
             backEnd.IfStatement_ELSE_A(n)
@@ -386,7 +386,7 @@ def parseDoStatement(token, generator):
 def parseReturnStatement(token, generator):
     if token.value == 'return':        
 
-        doesFunctionReturn.stack_addReturnStmnt()
+        doesFunctionReturn.stackAddReturnStmnt()
 
         tagOutput.startt('returnStatement'); tagOutput.outt(token)
         token = next(generator)
@@ -605,7 +605,7 @@ def parseLeftCurly(token):
     if token.value == '{':
         # \/ Updates how far embedded in curly braces we are, for purposes of
         # FunctionReturnStack,which determines whether fns are likely to return
-        doesFunctionReturn.stackvars_incr()
+        doesFunctionReturn.stackVarsIncr()
 
         tagOutput.outt(token)
     else: raise CompilerError(PErrorMsg.leftcurly(token))
@@ -614,7 +614,7 @@ def parseLeftCurly(token):
 def parseRightCurly(token):
     if token.value == '}':
         # Updates how deeply embedded in curly braces we are
-        doesFunctionReturn.stackvars_decr()
+        doesFunctionReturn.stackVarsDecr()
         # /\
         tagOutput.outt(token); return True
     else: return False

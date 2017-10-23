@@ -46,7 +46,7 @@ def checkReturn(token):
                                      globalVars.inputFileName))
 
 
-def checkDotlessFunctionCall(subroutinetoken, callerexpectsreturnval):
+def checkDotlessFunctionCall(subroutineToken, callerExpectsReturnval):
     """
     This checks whether dotless function calls (i.e. ones of the form
     `do function()` or `let thing = function()` return value when they should
@@ -57,32 +57,32 @@ def checkDotlessFunctionCall(subroutinetoken, callerexpectsreturnval):
     if vars.parsenum != 2:
         return
 
-    *NULL, calledfunct, calledreturns = functionsInfo.lookupFn(subroutinetoken)
+    *NULL, calledFunct, calledReturns = functionsInfo.lookupFn(subroutineToken)
 
     *NULL, callingfunct, NULL = functionsInfo.getCurrentFnContext()
 
-    if calledfunct == 'method' and callingfunct == 'function':
+    if calledFunct == 'method' and callingfunct == 'function':
         raise CompilerError('Argument-less method calls cannot be made from '
                             'within functions. Method calls must be of the '
                             'form `OBJECT.method(), or else we have no object '
                             'to work on`. Line %s, %s' %
-                            (subroutinetoken.line, globalVars.inputFileName))
+                            (subroutineToken.line, globalVars.inputFileName))
 
-    if callerexpectsreturnval is True:
-        if calledreturns == 'void':
+    if callerExpectsReturnval is True:
+        if calledReturns == 'void':
             print('WARNING: Call to `%s` expects return value, but subroutine '
                   'is of type void. Line %s, %s' %
-                  (subroutinetoken.value, subroutinetoken.line,
+                  (subroutineToken.value, subroutineToken.line,
                    globalVars.inputFileName), file=sys.stderr)
 
     else:
-        if calledreturns != 'void':
+        if calledReturns != 'void':
             print('WARNING: Function `%s` is value-returning, but that value '
                   'is ignored. Line %s, %s' %
-                  (subroutinetoken.value, subroutinetoken.line,
+                  (subroutineToken.value, subroutineToken.line,
                    globalVars.inputFileName), file=sys.stderr)
 
-    return calledfunct
+    return calledFunct
 
 
 def initialize(_functionsInfo):
