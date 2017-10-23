@@ -1,12 +1,13 @@
+import sys
 
 class VM():
-    arithlogicoperations = ('add', 'sub', 'neg', 'eq', 'gt', 'lt', 'and', 'or', 'not')
-    memoryoperations     = ('push', 'pop')
-    programflowcommands  = ('label', 'goto', 'if-goto')
-    functioncallcommands = ('function', 'call', 'return')
+    arithLogicOperations = ('add', 'sub', 'neg', 'eq', 'gt', 'lt', 'and', 'or', 'not')
+    memoryOperations     = ('push', 'pop')
+    programFlowCommands  = ('label', 'goto', 'if-goto')
+    functionCallCommands = ('function', 'call', 'return')
 
-    nopointnostaticDict  = {'argument':'ARG', 'local':'LCL', 'this':'THIS', 'that':'THAT'}
-    pointerandtempDict   = {'pointer':  {'0':'THIS',  '1':'THAT'}, \
+    noPointNoStaticDict  = {'argument':'ARG', 'local':'LCL', 'this':'THIS', 'that':'THAT'}
+    pointerAndTempDict   = {'pointer':  {'0':'THIS',  '1':'THAT'}, \
                             'temp':     {'0':'R5',    '1':'R6',   '2':'R7',   '3':'R8',
                                          '4':'R9',    '5':'R10',  '6':'R11',  '7':'R12'}}
 
@@ -17,20 +18,20 @@ def initialize(_file):
     file_ = _file
 
 
-def processVmInstruction(line, moduleprefix, linenum, globallyuniqueNUM):
+def processVmInstruction(line, moduleprefix, lineNum, globallyuniqueNUM):
     try:
         OP = line[0]
-        if OP in VM.arithlogicoperations:
-            processArithmeticLogic(line, linenum, globallyuniqueNUM)
+        if OP in VM.arithLogicOperations:
+            processArithmeticLogic(line, lineNum, globallyuniqueNUM)
 
-        elif OP in VM.memoryoperations and len(line) == 3:
+        elif OP in VM.memoryOperations and len(line) == 3:
             if not processPushPop(line, moduleprefix):
                 raise
 
-        elif OP in VM.programflowcommands:
+        elif OP in VM.programFlowCommands:
             processProgramFlow(line, moduleprefix)
 
-        elif OP in VM.functioncallcommands:
+        elif OP in VM.functionCallCommands:
             processFunctionCmds(line, globallyuniqueNUM)
 
         elif OP == '': pass
@@ -39,7 +40,7 @@ def processVmInstruction(line, moduleprefix, linenum, globallyuniqueNUM):
             raise
     except:
             raise RuntimeError('Line %s. Something went wrong. '
-                               'Conversion halted.' % linenum)
+                               'Conversion halted.' % lineNum)
 
 
 def writeBootstrap():
@@ -69,7 +70,7 @@ def writeBootstrap():
     file_.out('(RTN_ADR_Sys.init)\n')             # (return-address)
 
 
-def processArithmeticLogic(line, linenum, gID):
+def processArithmeticLogic(line, lineNum, gID):
     """
     Receives `line' (list of VM tokens); line[0] is ostensibly a VM operator.
     Writes the relevant assembly to the output file
@@ -82,7 +83,7 @@ def processArithmeticLogic(line, linenum, gID):
     if len(line) != 1:
         print('Line %s. Warning: Arithmetic and Logical operations on the '
               'stack don\'t take arguments. Make sure you know what your code '
-              'does\n' & linenum, file=sys.stderr)
+              'does\n' & lineNum, file=sys.stderr)
     line = line[0]
     if line == 'add':
         file_.out('@SP\nAM=M-1\nD=M\n@SP\nAM=M-1\nM=M+D\n@SP\nM=M+1\n')
@@ -121,7 +122,7 @@ def processPushPop(line, module):
     operator, location, offset = line[0], line[1], line[2]
     if operator == 'push':
         if location in ['argument', 'local', 'this', 'that']:
-            area = VM.nopointnostaticDict[location]
+            area = VM.noPointNoStaticDict[location]
             if offset == '0':
                 file_.out('@'+area+'\nA=M\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n')
             else:
@@ -134,7 +135,7 @@ def processPushPop(line, module):
                 area = module + '.' + offset
             elif location in ['pointer', 'temp']:
                 try:
-                    area = VM.pointerandtempDict[location][offset]
+                    area = VM.pointerAndTempDict[location][offset]
                 except:
                     return False
             else:
@@ -144,7 +145,7 @@ def processPushPop(line, module):
     elif operator == 'pop':
         if location in ['argument', 'local', 'this', 'that']:
             # No memory-bounding checks
-            area = VM.nopointnostaticDict[location]
+            area = VM.noPointNoStaticDict[location]
             if offset == '0':
                 file_.out('@SP\nAM=M-1\nD=M\n@'+area+'\nA=M\nM=D\n')
             else:
@@ -155,7 +156,7 @@ def processPushPop(line, module):
                 area = module + '.' + offset
             elif location in ['pointer', 'temp']:
                 try:  # <<< out of memory range will trigger exception
-                    area = VM.pointerandtempDict[location][offset]
+                    area = VM.pointerAndTempDict[location][offset]
                 except:
                     return False
             else:

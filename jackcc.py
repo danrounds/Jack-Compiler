@@ -64,7 +64,7 @@ def main():
     # stage is outputting correct VM code, our VM is outputting correct Hack
     # Assembly, etc.
     MUTE(args)  # If verbose output flag is set (args.verbose=True), this will do nothing
-    VM.vmtoassembly(vmInput, outputfile=vmFilename, custom_out_dir=vmOutDir)
+    VM.vmtoassembly(vmInput, outputFile=vmFilename, customOutDir=vmOutDir)
     assembler.assembler(asmInput, asmFilename, asmOutDir)
 
     cleanUp(tmpDir)

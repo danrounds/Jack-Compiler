@@ -3,6 +3,7 @@
 from processVmInstructions import VM, processArithmeticLogic, processPushPop,\
     processProgramFlow, processFunctionCmds, writeBootstrap
 
+
 def VMinterpreter():
     """
     An `interpreter' for tECS VM commands. Doesn't execute VM commands, but
@@ -49,7 +50,7 @@ def printVMcmd(command):
     file_ = Output.Output(None)
     processVmInstructions.initialize(file_)
 
-    globallyuniqueNUM = linenum = 0
+    globallyUniqueN = lineNum = 0
     moduleprefix = 'interpreter'
     command = command.split()
 
@@ -58,17 +59,17 @@ def printVMcmd(command):
     else:
         OP = command[0]
 
-    if OP in VM.arithlogicoperations:
-        processArithmeticLogic(command, linenum, globallyuniqueNUM)
-    elif OP in VM.memoryoperations and len(command) == 3:
+    if OP in VM.arithLogicOperations:
+        processArithmeticLogic(command, lineNum, globallyUniqueN)
+    elif OP in VM.memoryOperations and len(command) == 3:
         processPushPop(command, moduleprefix)
-    elif OP in VM.programflowcommands:
+    elif OP in VM.programFlowCommands:
         processProgramFlow(command, moduleprefix)
-    elif OP in VM.functioncallcommands:
+    elif OP in VM.functionCallCommands:
         if len(command) == 1 and command[0] != 'return':
             command.append('function')
             command.append('0')
-        processFunctionCmds(command, globallyuniqueNUM)
+        processFunctionCmds(command, globallyUniqueN)
     elif OP == 'bootstrap':
         writeBootstrap()
     elif OP == 'h':

@@ -31,7 +31,7 @@ things outside the very primitive grammar of tECS VM.
 """
 
 
-def vmtoassembly(pathorfile, outputfile='whatever.asm', custom_out_dir=None,
+def vmtoassembly(pathOrFile, outputFile='whatever.asm', customOutDir=None,
                  bootstrap=True):
     """
     Main function
@@ -48,41 +48,40 @@ def vmtoassembly(pathorfile, outputfile='whatever.asm', custom_out_dir=None,
     import os
     import processVmInstructions
     from processVmInstructions import processVmInstruction, writeBootstrap
-    global file_
 
-    filelist = fileorpathparser(pathorfile)
+    filelist = parseFileOrPath(pathOrFile)
 
-    n_to_translate = len(filelist)
-    asmfilepathname, file_ = setupOutputFile(outputfile, custom_out_dir, filelist)
+    nToTranslate = len(filelist)
+    asmOutPath, file_ = setupOutputFile(outputFile, customOutDir, filelist)
     processVmInstructions.initialize(file_)
-    globallyuniqueNUM = 1
+    globallyUniqueN = 1
 
     if bootstrap:
         writeBootstrap()
 
-    for file in filelist:
-        read = setupInputFile(file)
-        moduleprefix = os.path.basename(file)[:-3]
+    for f in filelist:
+        read = setupInputFile(f)
+        moduleprefix = os.path.basename(f)[:-3]
 
-        linenum = 1
+        lineNum = 1
         for line in read:
             line = tokenize(line)
             # `line' is now a list of operators and arguments.
 
-            processVmInstruction(line, moduleprefix, linenum, globallyuniqueNUM)
-            # /\ Where the magic happens            
+            processVmInstruction(line, moduleprefix, lineNum, globallyUniqueN)
+            # /\ Where the magic happens
 
-            linenum += 1
-            globallyuniqueNUM += 1
+            lineNum += 1
+            globallyUniqueN += 1
 
-        n_to_translate -= 1
+        nToTranslate -= 1
         read.close()
-        print('%s translated. %s file(s) to go.' % (file, n_to_translate))
-    print('Output file: %s\n' % asmfilepathname)
+        print('%s translated. %s file(s) to go.' % (f, nToTranslate))
+    print('Output file: %s\n' % asmOutPath)
     file_.close()  # close output
 
 
-def fileorpathparser(path):
+def parseFileOrPath(path):
     """
     Returns a list containing either the single .vm file `path' points to OR
     the .vm files in the specified directory
@@ -94,8 +93,8 @@ def fileorpathparser(path):
             files = [path]
         else:
             files = []  # enter'd nonsense
-            for infile in glob.glob(os.path.join(path, '*.vm')):
-                files.append(infile)
+            for inFile in glob.glob(os.path.join(path, '*.vm')):
+                files.append(inFile)
             if files == []:
                 raise
     except:
@@ -104,25 +103,25 @@ def fileorpathparser(path):
     return files
 
 
-def setupOutputFile(outputfile, custom_out_dir, filelist):
+def setupOutputFile(outputFile, customOutDir, filelist):
     import os
     import Output
-    if custom_out_dir:
-        directory = custom_out_dir
+    if customOutDir:
+        directory = customOutDir
     else:
         directory = os.path.dirname(filelist[0])
-    asmfilepathname = os.path.join(directory, outputfile)
+    asmOutPath = os.path.join(directory, outputFile)
 
     try:
-        file_ = Output.Output(asmfilepathname)
+        file_ = Output.Output(asmOutPath)
     except:
         raise Exception('TRANSLATION FAILURE. You seem not to have write permission.')
-    return asmfilepathname, file_
+    return asmOutPath, file_
 
 
-def setupInputFile(file):
+def setupInputFile(file_):
     try:
-        return open(file)
+        return open(file_)
     except:
         raise RuntimeError('Could not open file. Maybe check permissions.')
 

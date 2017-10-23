@@ -41,7 +41,7 @@ def testscript():
 
     test = [a,b,c,d,e,f,g,h]
     for i in test:
-        vmtoassembly(bootstrap=False, pathorfile=i[0], outputfile=i[1])
+        vmtoassembly(bootstrap=False, pathOrFile=i[0], outputFile=i[1])
     toc = time.clock()
     print("DONE. Time to complete: %s" % (toc - tic))
 
