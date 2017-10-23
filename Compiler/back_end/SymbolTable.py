@@ -78,42 +78,45 @@ class classAndFunctionsHash():
 
             self.table[key] = params_vars_pair
 
-    def lookupSubroutineInfo(self, class_, subroutinetoken):
+    def lookupFn(self, tokenOrString):
         """
-        This is a utility function, and is used to evaluate semantics, tell us
-        about our current context (based on our position in the
-        parse), and give us info for code output.
+        Returns information about the function specified by tokenOrString --
+        `function()`, in the case of a token; `Class.function()`, in the case
+        of a string.
 
-        `subroutinetoken', in the header, is a misnomer. Sometimes, we'll be
-        calling this with a string, in its place.
+        Returns a 'funct_info' (named) tuple :: (k_params, n_vars, funct_type,
+        returnsType)
+
+        This is a utility function, and is used to evaluate semantics, tell us
+        about our current context (based on our position in the parse), and
+        give us info for code output.
 
         The instance in which we do this where it /might/ not have a value is
         `SubroutineCall_WithDot_B\', and it also crashes our exception handler.
         That's good, because we want the exception handled /there/, and the
         proper error message output.
-
-        Returns a 'funct_info' (named) tuple :: (k_params, n_vars, funct_type,
-        returnsType)
         """
         try:
-            if type(subroutinetoken) is not str:
-                # Dealing with a subroutine token
-                function = subroutinetoken.value
+            if type(tokenOrString) is not str:
+                # `function()` -- either a function or internal method call
+                function = tokenOrString.value
                 return self.table[vars.currentClass+'^'+function]
+
             else:
-                function = subroutinetoken
-                if vars.currentClass+'^'+function in self.table:
-                    return self.table[vars.currentClass+'^'+function]
-                classdotfunction = function.replace('.', '^')
-                return self.table[classdotfunction]
+                # `Class.function()`
+                return self.table[tokenOrString.replace('.', '^')]
+
         except:
+            # tokenOrString won't have the attribute .line if tokenOrString was
+            # type str. That's okay. Our caller has an an exception handler for
+            # `AttributeError`s
             raise CompilerError('`%s`: Function does not exist. Line %s, %s' %
-                                (function, subroutinetoken.line,
+                                (tokenOrString.value, tokenOrString.line,
                                  globalVars.inputFileName))
 
     def getCurrentFnContext(self):
         """
-        This, like `lookupSubroutineInfo` gives us information about the
+        This, like `lookupFn` gives us information about the
         function we're currently in the middle of parsing.
 
         This is used in areas where we need to know whether we're dealing with

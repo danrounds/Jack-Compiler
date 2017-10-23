@@ -186,7 +186,7 @@ relevant parse stage.'''
         '''Second part of our logic/error-checking for method-less/Class-less subroutine calls\ni.e., in the language of Jack, "function" call'''
         if vars.parsenum == 2:
 
-            k, NULL, proceduretype, NULL = functionsInfo.lookupSubroutineInfo(vars.currentClass, subroutinetoken)
+            k, NULL, proceduretype, NULL = functionsInfo.lookupFn(subroutinetoken)
             if proceduretype == 'method': numberofparams += 1
 
             if numberofparams != k:
@@ -215,18 +215,18 @@ relevant parse stage.'''
 
         return methodcall, function
 
-    def SubroutineCall_WithDot_B(subroutinetoken, function, n_exprs_in_call):
+    def SubroutineCall_WithDot_B(subroutinetoken, fn, n_exprs_in_call):
         '''2nd part of output logic for `object.method()\' or `class.subroutine()\`'''
 
         if vars.parsenum == 2:
             try:
-                expectedparams, *NULL = functionsInfo.lookupSubroutineInfo('', function)
+                expectedparams, *NULL = functionsInfo.lookupFn(fn)
                 if int(n_exprs_in_call) != int(expectedparams):
-                    raise CompilerError('Function `%s\' takes %s argument(s). Number given: %s. Line %s, %s' % (function, expectedparams, n_exprs_in_call, subroutinetoken.line, globalVars.inputFileName))
+                    raise CompilerError('Function `%s\' takes %s argument(s). Number given: %s. Line %s, %s' % (fn, expectedparams, n_exprs_in_call, subroutinetoken.line, globalVars.inputFileName))
 
             except AttributeError:
-                raise CompilerError("Call to `%s\': Class/object does not exist or subroutine doesn't (or both). Line %s, %s" % (function, subroutinetoken.line, globalVars.inputFileName))
+                raise CompilerError("Call to `%s\': Class/object does not exist or subroutine doesn't (or both). Line %s, %s" % (fn, subroutinetoken.line, globalVars.inputFileName))
                 # if STRONGLINKING == True:
                 #     ...
 
-            output.code('call %s %s' % (function, n_exprs_in_call))
+            output.code('call %s %s' % (fn, n_exprs_in_call))

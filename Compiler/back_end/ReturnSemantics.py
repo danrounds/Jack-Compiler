@@ -20,8 +20,7 @@ def checkReturn(token):
     if vars.parsenum == 2:
         value = token.value
 
-        *NULL, functRole, returnsType = functionsInfo.lookupSubroutineInfo(vars.currentClass,
-                                                                            vars.currentFunction)
+        *NULL, functRole, returnsType = functionsInfo.getCurrentFnContext()
 
         if functRole == 'constructor':
             errorMiddle = ''
@@ -58,11 +57,9 @@ def checkDotlessFunctionCall(subroutinetoken, callerexpectsreturnval):
     if vars.parsenum != 2:
         return
 
-    *NULL, calledfunct, calledreturns = functionsInfo.lookupSubroutineInfo(vars.currentClass,
-                                                                           subroutinetoken)
+    *NULL, calledfunct, calledreturns = functionsInfo.lookupFn(subroutinetoken)
 
-    *NULL, callingfunct, NULL = functionsInfo.lookupSubroutineInfo(vars.currentClass,
-                                                                   vars.currentFunction)
+    *NULL, callingfunct, NULL = functionsInfo.getCurrentFnContext()
 
     if calledfunct == 'method' and callingfunct == 'function':
         raise CompilerError('Argument-less method calls cannot be made from '
