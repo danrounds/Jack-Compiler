@@ -70,7 +70,10 @@ class hacklanguage():
 
 
 class system():
-    '''This defines the basic parameters of the HACK architecture/computer/memory model'''
+    """
+    This defines the basic parameters of the HACK architecture/computer/memory
+    model
+    """
     start_statics_mem = 16
     max_literal = 32767
 
@@ -118,12 +121,15 @@ class SymbolTable():
 
 
 def assembler(asmfilename, outputname='a.hack', custom_out_dir=None,):
-    '''Turns Hack Assembly into Hack Machine code. Does one parse to flesh out a symbol table for labels, \
-and a second to actually output our code. I kept function calls to a minimum, because even though this task \
-is essentially I/O bound, we're potentially processing thousands of lines of text. An alt implementation can \
-be found in this same directory.
+    """
+    Turns Hack Assembly into Hack Machine code. Does one parse to flesh out a
+    symbol table for labels, and a second to actually output our code. I kept
+    function calls to a minimum, because even though this task is essentially
+    I/O bound, we're potentially processing thousands of lines of text. An alt
+    implementation can be found in the backup directory.
 
-Main function'''
+    Main function
+    """
     import sys
 
     outputname, output = openOutputFile(asmfilename, outputname, custom_out_dir)
@@ -238,7 +244,7 @@ def openOutputFile(asmfilename, outputname, custom_out_dir):
 
 
 def parseLabels(file_, symbolTable):
-    '''Initial parse. Populates our symbol table with values for `(labels)\''''
+    """Initial parse. Populates our symbol table with values for `(labels)`"""
     import sys
 
     in_line_no = 1; out_line_no = 0
