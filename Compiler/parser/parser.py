@@ -152,10 +152,10 @@ def parseSubroutineDec(token, generator):
         else:
             raise CompilerError(PErrorMsg.no_voidtype(token))
 
-        subroutinetoken = next(generator)
-        parseSubroutineName(subroutinetoken)
-        # backEnd.setCurrentFunction(subroutinetoken)
-        vars.setCurrentFunction(subroutinetoken)
+        subroutineToken = next(generator)
+        parseSubroutineName(subroutineToken)
+        # backEnd.setCurrentFunction(subroutineToken)
+        vars.setCurrentFunction(subroutineToken)
 
         backEnd.SubroutineDeclaration(token)
 
@@ -166,10 +166,10 @@ def parseSubroutineDec(token, generator):
 
         parseSubroutineBody(generator)
 
-        doesFunctionReturn.codeCheck(subroutinetoken)
+        doesFunctionReturn.codeCheck(subroutineToken)
         # Checks whether the code in the this subroutine will actually return
 
-        backEnd.functionsInfo.addFunction(returnTyp, subroutinetoken)
+        backEnd.functionsInfo.addFunction(returnTyp, subroutineToken)
         # @ this point, variableTable.localVarN contains the total n of local
         # variables declared in the current function
 
@@ -375,7 +375,7 @@ def parseDoStatement(token, generator):
     if token.value == 'do':
         tagOutput.startt('doStatement'); tagOutput.outt(token)
         token = next(generator)
-        token = parseSubroutineCall(token, next(generator), generator, callerexpectsreturnval=False)
+        token = parseSubroutineCall(token, next(generator), generator, callerExpectsReturnVal=False)
         parseSemicolon(token)
         backEnd.DoStatementNULLPOP()
         tagOutput.endt('doStatement')
@@ -447,7 +447,7 @@ def parseTerm(token, generator):
             token = next(generator)
         elif token.typ == 'identifier' and lookahead.value in ('(', '.'):
             # subroutineCall
-            token = parseSubroutineCall(token, lookahead, generator, callerexpectsreturnval=True)
+            token = parseSubroutineCall(token, lookahead, generator, callerExpectsReturnVal=True)
         else:
             if token.value in ('~', '-'):
                 # unaryOp term
@@ -471,24 +471,24 @@ def parseTerm(token, generator):
     tagOutput.endt('term'); return token
 
 
-def parseSubroutineCall(token, lookahead, generator, callerexpectsreturnval):
+def parseSubroutineCall(token, lookahead, generator, callerExpectsReturnVal):
     if lookahead.value == '(':
-        subroutinetoken = token
+        subroutineToken = token
         parseSubroutineName(token)
 
-        calledFunctRole = ReturnSemantics.checkDotlessFunctionCall(subroutinetoken, callerexpectsreturnval)
+        calledFunctRole = ReturnSemantics.checkDotlessFunctionCall(subroutineToken, callerExpectsReturnVal)
         backEnd.SubroutineCall_NoDot_A(calledFunctRole)
 
         parseLeftParen(lookahead)
-        token, numberofparams = parseExpressionList(generator, methodcall=False)
+        token, numberOfParams = parseExpressionList(generator, methodCall=False)
 
-        backEnd.SubroutineCall_NoDot_B(subroutinetoken, numberofparams)
+        backEnd.SubroutineCall_NoDot_B(subroutineToken, numberOfParams)
 
         parseRightParen(token)
         token = next(generator)
     else:
         worked = parseClassName(token)  # parseVarName(token)
-        classORvariable = token
+        classOrObject = token
 
         if worked is False:
             return token
@@ -496,15 +496,15 @@ def parseSubroutineCall(token, lookahead, generator, callerexpectsreturnval):
             token = lookahead
             if token.value == '.':
                 tagOutput.outt(token)
-                subroutinetoken = next(generator)
-                parseSubroutineName(subroutinetoken)
+                subroutineToken = next(generator)
+                parseSubroutineName(subroutineToken)
 
-                methodcall, function = backEnd.SubroutineCall_WithDot_A(subroutinetoken, classORvariable)
+                methodCall, fn = backEnd.SubroutineCall_WithDot_A(subroutineToken, classOrObject)
 
                 parseLeftParen(next(generator))
-                token, numberofexpressions = parseExpressionList(generator, methodcall)
+                token, numberOfExprs = parseExpressionList(generator, methodCall)
 
-                backEnd.SubroutineCall_WithDot_B(subroutinetoken, function, numberofexpressions)
+                backEnd.SubroutineCall_WithDot_B(subroutineToken, fn, numberOfExprs)
 
                 parseRightParen(token)
                 token = next(generator)
@@ -513,7 +513,7 @@ def parseSubroutineCall(token, lookahead, generator, callerexpectsreturnval):
     return token
 
 
-def parseExpressionList(generator, methodcall):
+def parseExpressionList(generator, methodCall):
     tagOutput.startt('expressionList')
     token = next(generator)
     numofexpressions = 0
@@ -525,7 +525,7 @@ def parseExpressionList(generator, methodcall):
             numofexpressions += 1
             token = parseExpression(next(generator), generator)
             comma = parseComma(token)
-    if methodcall: numofexpressions += 1
+    if methodCall: numofexpressions += 1
     tagOutput.endt('expressionList'); return token, numofexpressions
 
 
@@ -613,7 +613,7 @@ def parseLeftCurly(token):
 
 def parseRightCurly(token):
     if token.value == '}':
-        # Updates how deeply embedded in curly braces we are
+        # \/ Updates how deeply embedded in curly braces we are
         doesFunctionReturn.stackVarsDecr()
         # /\
         tagOutput.outt(token); return True

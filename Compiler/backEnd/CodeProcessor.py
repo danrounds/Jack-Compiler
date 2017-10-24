@@ -215,64 +215,64 @@ def SubroutineCall_NoDot_A(calledFnRole):
         output.code('push pointer 0')
 
 
-def SubroutineCall_NoDot_B(subroutinetoken, numberofparams):
+def SubroutineCall_NoDot_B(subroutineToken, numberOfParams):
     """
     Second part of our logic/error-checking for method-less/Class-less
     subroutine calls -- i.e., in the language of Jack, "function" call
     """
     if vars.parsenum == 2:
 
-        k, NULL, proceduretype, NULL = functionsInfo.lookupFn(subroutinetoken)
-        if proceduretype == 'method': numberofparams += 1
+        k, NULL, proceduretype, NULL = functionsInfo.lookupFn(subroutineToken)
+        if proceduretype == 'method': numberOfParams += 1
 
-        if numberofparams != k:
+        if numberOfParams != k:
             raise CompilerError('Function `%s\' takes %s arguments. Number '
                                 'given: %s. Line %s, %s' %
-                                (subroutinetoken.value, k, numberofparams,
-                                 subroutinetoken.line, globalVars.inputFileName))
+                                (subroutineToken.value, k, numberOfParams,
+                                 subroutineToken.line, globalVars.inputFileName))
         else:
-            output.code('call %s.%s %s' % (vars.currentClass, subroutinetoken.value, numberofparams))
+            output.code('call %s.%s %s' % (vars.currentClass, subroutineToken.value, numberOfParams))
 
 
-def SubroutineCall_WithDot_A(subroutinetoken, classORobject):
+def SubroutineCall_WithDot_A(subroutineToken, classOrObject):
     '''`object.method()` or `class.subroutine()`'''
 
-    methodcall = function = None
+    methodCall = function = None
     if vars.parsenum == 2:
 
         # \/ this checks to see whether what we have is `var.method()`, as
         # opposed to a `class.function()` call
         try:
-            Class, kind, n = varTable.lookupVariable(classORobject)
-            methodcall = True
+            Class, kind, n = varTable.lookupVariable(classOrObject)
+            methodCall = True
             output.code('push %s %s' % (kind, n))
         except:
-            varTable.checkClassExistence(classORobject)
-            Class = classORobject.value
-            methodcall = False
+            varTable.checkClassExistence(classOrObject)
+            Class = classOrObject.value
+            methodCall = False
 
-        function = '%s.%s' % (Class, subroutinetoken.value)
+        function = '%s.%s' % (Class, subroutineToken.value)
 
-    return methodcall, function
+    return methodCall, function
 
 
-def SubroutineCall_WithDot_B(subroutinetoken, fn, n_exprs_in_call):
+def SubroutineCall_WithDot_B(subroutineToken, fn, nExprsInCall):
     """Second part of output logic for `class.subroutine()`"""
 
     if vars.parsenum == 2:
         try:
-            expectedparams, *NULL = functionsInfo.lookupFn(fn)
-            if int(n_exprs_in_call) != int(expectedparams):
+            expectedParams, *NULL = functionsInfo.lookupFn(fn)
+            if int(nExprsInCall) != int(expectedParams):
                 raise CompilerError('Function `%s` takes %s argument(s). '
                                     'Number given: %s. Line %s, %s' %
-                                    (fn, expectedparams, n_exprs_in_call,
-                                     subroutinetoken.line, globalVars.inputFileName))
+                                    (fn, expectedParams, nExprsInCall,
+                                     subroutineToken.line, globalVars.inputFileName))
 
         except AttributeError:
             raise CompilerError('Call to `%s`: Class/object does not exist or '
                                 'subroutine doesn\'t (or both). Line %s, %s' %
-                                (fn, subroutinetoken.line, globalVars.inputFileName))
+                                (fn, subroutineToken.line, globalVars.inputFileName))
             # if STRONGLINKING == True:
             #     ...
 
-        output.code('call %s %s' % (fn, n_exprs_in_call))
+        output.code('call %s %s' % (fn, nExprsInCall))
