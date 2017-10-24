@@ -51,7 +51,7 @@ VM.py             ::  Main loop; `vmtoassembly(...)` sets up file input/output
 Output.py         ::  Holds the class used to define output by VM.py and
                       interpreter.py
 
-processVmInstructions ::
+processVmInstructions.py  ::
                       The actual translations for VM commands to Hack asm
 
 interpreter.py    ::  Interpreter--type in a VM command to get the Hack-
