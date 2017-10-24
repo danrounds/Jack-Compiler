@@ -2,9 +2,9 @@ This is the "Virtual Machine" component of the Elements of Computing System-
 defined compiler. It translates programs in tECS-VM language to Hack Assembly.
 Both are defined in tECS.
 
-Though in theory, someone could hand write programs in tECS-VM, the
-possibility's remote. The translator assumes its input is machine-written, and
-is thus lax about error-checking.
+Though in theory, someone could hand write programs in tECS-VM, it's really
+meant to be an intermediate language. The translator assumes its input is
+machine-written, and is thus lax about error-checking.
 
 The VM language defines a stack-machine with simple stack-based/structured-
 programming operations, i.e.,
@@ -44,8 +44,25 @@ second.
 
 Yes. Hack Assembly is verbose.
 
+Files in this folder:
+--------------------------------------------------------------------------------
+VM.py             ::  Main loop; `vmtoassembly(...)` sets up file input/output
+
+Output.py         ::  Holds the class used to define output by VM.py and
+                      interpreter.py
+
+processVmInstructions ::
+                      The actual translations for VM commands to Hack asm
+
+interpreter.py    ::  Interpreter--type in a VM command to get the Hack-
+                      equivalent output
+
+tests.py          ::  Exactly what it sounds like; interactive
+----
+
+
 For more documentation, see VM.py
 
 ----
 Daniel J Rounds,
-27 August, 2016
+23 October, 2017
