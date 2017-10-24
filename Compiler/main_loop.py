@@ -28,10 +28,10 @@ It also has really...unique truth semantics (e.g. in if/while statements)
 from compiler_error import CompilerError
 from lexer.lexer import lexer
 from parser import parser
-import backEnd.CodeProcessor as output_stage
+import backEnd.processCode as output_stage
 import backEnd.vars as output_stage_vars
 import backEnd.Output as Output
-import backEnd.ReturnSemantics as output_semantics_check
+import backEnd.returnSemantics as output_semantics_check
 import backEnd.SymbolTable as SymbolTable
 import globalVars
 

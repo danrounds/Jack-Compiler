@@ -16,10 +16,10 @@
 from compiler_error import CompilerError
 from . import parser_errors as PErrorMsg
 from . import uniqueIfAndWhileIds
-import backEnd.CodeProcessor as backEnd
+import backEnd.processCode as backEnd
 import backEnd.vars as vars
 import backEnd.doesFunctionReturn as doesFunctionReturn
-import backEnd.ReturnSemantics as ReturnSemantics
+import backEnd.returnSemantics as returnSemantics
 
 
 def initializeTagOutput(_output):
@@ -391,7 +391,7 @@ def parseReturnStatement(token, generator):
         tagOutput.startt('returnStatement'); tagOutput.outt(token)
         token = next(generator)
 
-        ReturnSemantics.checkReturn(token)
+        returnSemantics.checkReturn(token)
 
         if token.value != ';':
             token = parseExpression(token, generator)
@@ -476,7 +476,7 @@ def parseSubroutineCall(token, lookahead, generator, callerExpectsReturnVal):
         subroutineToken = token
         parseSubroutineName(token)
 
-        calledFunctRole = ReturnSemantics.checkDotlessFunctionCall(subroutineToken, callerExpectsReturnVal)
+        calledFunctRole = returnSemantics.checkDotlessFunctionCall(subroutineToken, callerExpectsReturnVal)
         backEnd.SubroutineCall_NoDot_A(calledFunctRole)
 
         parseLeftParen(lookahead)
