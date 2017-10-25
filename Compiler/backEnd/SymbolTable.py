@@ -3,9 +3,9 @@ import sys
 
 from CompilerError import CompilerError
 import globalVars
-from . import functionTableDataAndTypes
+from . import _functionTableDataAndTypes
 
-functInfo = functionTableDataAndTypes.functInfo
+functInfo = _functionTableDataAndTypes.functInfo
 # functInfo = collections.namedtuple('functInfo', [
 #     'kParams', 'nVars', 'fnType', 'returnsType'
 # ])
@@ -32,7 +32,7 @@ functInfo = functionTableDataAndTypes.functInfo
 
 class classAndFunctionsHash():
     def __init__(self):
-        self.table = functionTableDataAndTypes.getJackStdLibrary()
+        self.table = _functionTableDataAndTypes.getJackStdLibrary()
 
     def initKParams(self):
         # kParamsDeclrd  is the number of parameters (arguments) declared in
