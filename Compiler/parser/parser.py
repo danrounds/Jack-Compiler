@@ -13,8 +13,8 @@
 # semantics and output code.
 # -DR, August 2016
 
-from compiler_error import CompilerError
-from . import parser_errors as PErrorMsg
+from CompilerError import CompilerError
+from . import parserErrors as PErrorMsg
 from . import uniqueIfAndWhileIds
 import backEnd.processCode as backEnd
 import backEnd.setGlobals as setGlobals

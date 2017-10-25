@@ -3,8 +3,8 @@
 ##########################################################################################
 ##########################################################################################
 
-from compiler_error import CompilerError
-from . import lexer_errors as TErrorMsg
+from CompilerError import CompilerError
+from . import lexerErrors as TErrorMsg
 
 import collections
 # \/ data type yielded by the tokenizer (called `generator`, throughout the code)

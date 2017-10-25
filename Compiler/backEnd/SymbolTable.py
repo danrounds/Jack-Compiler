@@ -1,7 +1,7 @@
 import collections
 import sys
 
-from compiler_error import CompilerError
+from CompilerError import CompilerError
 import globalVars
 from . import functionTableDataAndTypes
 

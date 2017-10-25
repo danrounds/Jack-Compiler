@@ -25,7 +25,7 @@ Things like dynamic dispatch are /no-go/.
 It also has really...unique truth semantics (e.g. in if/while statements)
 """
 
-from compiler_error import CompilerError
+from CompilerError import CompilerError
 from lexer.lexer import lexer
 from parser import parser
 import backEnd.processCode as output_stage

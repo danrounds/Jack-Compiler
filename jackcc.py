@@ -24,7 +24,7 @@ for path in ['/Compiler', '/Virtual Machine', '/Assembler']:
     sys.path.insert(0, basePath + path)
 
 import main_loop as compiler
-from compiler_error import CompilerError
+from CompilerError import CompilerError
 import VM
 import HACK_rewrite as assembler
 
