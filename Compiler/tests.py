@@ -23,9 +23,15 @@ import main_loop as main
 ############################ T  ###### E ###### S ###### T ###### S ###########
 ###############################################################################
 def currentTest():
-    '''This is the default test suite. It sees whether book projects AND a ton of classroom projects (which I've not re-found the link to, yet) will compile.
-    If it successfully compiles every file, tokenization and parsing have (ostensibly) worked, as has code output. Warnings are normal, as the compiler is over-zealous.
-    If it freezes, it's (probably) because something's wrong with the compiler.'''
+    """
+    This is the default test suite. It sees whether book projects AND a ton of
+    classroom projects (which I've not re-found the link to, yet) will compile.
+    If it successfully compiles every file, tokenization and parsing have
+    (ostensibly) worked, as has code output. Warnings are normal, as the
+    compiler is over-zealous.
+
+    If it freezes, it's (probably) because something's wrong with the compiler.
+    """
     import time
     tic = time.clock()
     a = './tests/test_code0/ArrayTest'
@@ -60,7 +66,11 @@ def currentTest():
 
 
 def currentBookTest():
-    '''Tests the most \"difficult\"-to-compile book projects. If it finishes without error, the compiler's (ostensibly) successfully outputted the proper .vm files'''
+    """
+    Tests the most "difficult"-to-compile book projects. If it finishes without
+    error, the compiler's (ostensibly) successfully outputted the proper
+    .vm files
+    """
     import time
     tic = time.clock()
     a = './tests/test_code1/Average'
@@ -149,9 +159,13 @@ def extendedTestToken():
 
 #def extendedTestParse(log=False):
 def extendedTestParse():
-    '''Tests the output of the parser (and only the parser), by diff-ing output from other people's files/parser with the output of our parser.
-    Errors on `TickJackToe' and `Maze3d' are to be expected, because the comparison files don't use XML `less-than'/`greater-than' symbols correctly, and `TicJackToe' was parsed with a non-spec-compliant parser that allows for escaped characters, e.g. quotation marks: \\\" == \"
-    '''
+    """
+    Tests the output of the parser (and only the parser), by diff-ing output
+    from other people's files/parser with the output of our parser.
+
+    Diff is folder-by-folder, file-by-file, and should output nothing (i.e.
+    compared files should be identical)
+    """
     import subprocess
     import time
     tic = time.clock()
@@ -212,4 +226,10 @@ def extendedTestParse():
 #         print('DONE. Log file:', logfilename)
 
 if __name__ == '__main__':
-    currentTest()
+    for fn in [currentTest, currentBookTest, extendedTestParse, testParse,
+               testParse, testLexer]:
+        fn()
+        input('Press ENTER')
+    # currentTest()
+    # input('Press ENTER for more')
+    
