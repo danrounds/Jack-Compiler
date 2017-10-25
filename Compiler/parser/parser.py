@@ -17,10 +17,11 @@ from compiler_error import CompilerError
 from . import parser_errors as PErrorMsg
 from . import uniqueIfAndWhileIds
 import backEnd.processCode as backEnd
-import backEnd.vars as vars
+import backEnd.setGlobals as setGlobals
 import backEnd.doesFunctionReturn as doesFunctionReturn
 import backEnd.returnSemantics as returnSemantics
 
+setGlobals = setGlobals.setGlobals
 
 def initializeTagOutput(_output):
     """
@@ -47,7 +48,7 @@ def parseClass(generator):
         token = next(generator)
         if parseClassName(token) is False:
             raise CompilerError(PErrorMsg.no_class_name(token))
-        vars.setCurrentClass(token)
+        setGlobals(currentClass=token)
         parseLeftCurly(next(generator))
         token = next(generator)
         isCurly = parseRightCurly(token)
@@ -129,8 +130,8 @@ def parseClassVarDec(token, generator):
 
 def parseSubroutineDec(token, generator):
     if token is None: token = next(generator)
-    functTyp = vars.setAndGetCurrentFnType(token)
-    if functTyp in ('constructor', 'function', 'method'):
+    setGlobals(currentFnType=token)
+    if token.value in ('constructor', 'function', 'method'):
 
         doesFunctionReturn.stackInit()
         # \/ Sets an initial value for `k' parameters
@@ -154,8 +155,7 @@ def parseSubroutineDec(token, generator):
 
         subroutineToken = next(generator)
         parseSubroutineName(subroutineToken)
-        # backEnd.setCurrentFunction(subroutineToken)
-        vars.setCurrentFunction(subroutineToken)
+        setGlobals(currentFn=subroutineToken)
 
         backEnd.SubroutineDeclaration(token)
 

@@ -1,10 +1,14 @@
 import sys
 
 import globalVars
-from . import vars
 
 global nCurlies, maxCurlies   # << for insane if/else "stack", to determine
 global functionRtnsStack, codeHasTerminated  # whether a function might return
+
+
+def setParseNum(_parseNum):
+    global parseNum
+    parseNum = _parseNum
 
 
 """
@@ -25,13 +29,13 @@ unreachableTriggered = False
 
 
 def stackVarsInit():
-    if vars.parsenum == 2:
+    if parseNum == 2:
         global nCurlies, maxCurlies
         nCurlies = maxCurlies = 0
 
 
 def stackVarsIncr():
-    if vars.parsenum == 2:
+    if parseNum == 2:
         global nCurlies, maxCurlies
         nCurlies += 1
         if nCurlies > maxCurlies:
@@ -39,31 +43,31 @@ def stackVarsIncr():
 
 
 def stackVarsDecr():
-    if vars.parsenum == 2:
+    if parseNum == 2:
         global nCurlies
         nCurlies -= 1
 
 
 def stackInit():
-    if vars.parsenum == 2:
+    if parseNum == 2:
         global functionRtnsStack
         functionRtnsStack = ""
 
 
 def stackAddIfStmnt():
-    if vars.parsenum == 2:
+    if parseNum == 2:
         global functionRtnsStack
         functionRtnsStack = functionRtnsStack + 'if'+str(nCurlies)
 
 
 def stackAddElseStmnt():
-    if vars.parsenum == 2:
+    if parseNum == 2:
         global functionRtnsStack
         functionRtnsStack = functionRtnsStack + 'else'+str(nCurlies)
 
 
 def stackAddReturnStmnt():
-    if vars.parsenum == 2:
+    if parseNum == 2:
         global functionRtnsStack
         functionRtnsStack = functionRtnsStack + 'return'+str(nCurlies)
 
@@ -76,7 +80,7 @@ def warningTestInit():
 
 
 def warningReduc():
-    if vars.parsenum == 2:
+    if parseNum == 2:
         reduction()
         if functionRtnsStack[-7:] == 'return2':
             global codeHasTerminated
@@ -85,8 +89,8 @@ def warningReduc():
 
 def IFissueWarning(token):
     global unreachableTriggered
-    # \/ added the vars.parsenum == 2 as a hail Mary
-    if vars.parsenum == 2:
+    # \/ added the parseNum == 2 as a hail Mary
+    if parseNum == 2:
         if codeHasTerminated is True and not unreachableTriggered:
             print("Warning: Unreachable code. Line %s, %s" % (token.line, globalVars.inputFileName), file=sys.stderr)
             unreachableTriggered = True
@@ -94,7 +98,7 @@ def IFissueWarning(token):
 
 
 def codeCheck(token):
-    if vars.parsenum == 2:
+    if parseNum == 2:
         if functionRtnsStack[-7:] not in ('return2', ''):
             old = None
             while old != functionRtnsStack:

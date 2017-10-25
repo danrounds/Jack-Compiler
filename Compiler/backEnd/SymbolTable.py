@@ -3,7 +3,6 @@ import sys
 
 from compiler_error import CompilerError
 import globalVars
-from . import vars
 from . import functionTableDataAndTypes
 
 functInfo = functionTableDataAndTypes.functInfo
@@ -38,7 +37,7 @@ class classAndFunctionsHash():
     def initKParams(self):
         # kParamsDeclrd  is the number of parameters (arguments) declared in
         # a function header/prototype
-        if vars.currentFnType in ('constructor', 'function'):
+        if currentFnType in ('constructor', 'function'):
             #  Constructors and functions operate on k arguments
             self.kParamsDeclrd = 0
         else:
@@ -46,7 +45,7 @@ class classAndFunctionsHash():
             self.kParamsDeclrd = 1
 
     def incrementKParams(self):
-        if vars.parsenum == 1:
+        if parseNum == 1:
             self.kParamsDeclrd += 1
 
     def setFieldN(self):
@@ -55,27 +54,27 @@ class classAndFunctionsHash():
         many fields our Class defines/object has. It will tell us how much
         memory to allocate for our objects
         """
-        if vars.parsenum == 1:
-            self.table[vars.currentClass+'$$N_FIELDS'] = varTable.fieldVarN
+        if parseNum == 1:
+            self.table[currentClass+'$$N_FIELDS'] = varTable.fieldVarN
 
     def getFieldN(self):
         """
         Returns the number of field variables the requested object type (i.e.
         class) has, so that we allocate enough memory for them
         """
-        return self.table[vars.currentClass+'$$N_FIELDS']
+        return self.table[currentClass+'$$N_FIELDS']
 
     def addFunction(self, returnsType, token):
-        if vars.parsenum == 1:
-            key = vars.currentClass+'^'+vars.currentFn
+        if parseNum == 1:
+            key = currentClass+'^'+currentFn
             totalLocalVars = varTable.localVarN
             paramsVarsPair = functInfo(self.kParamsDeclrd, totalLocalVars,
-                                       vars.currentFnType, returnsType)
+                                       currentFnType, returnsType)
 
             if key in self.table:
                 raise CompilerError('Subroutine `%s` has already been declared'
                                     '. Line %s, %s' %
-                                    (vars.currentFn, token.line,
+                                    (currentFn, token.line,
                                      globalVars.inputFileName))
 
             self.table[key] = paramsVarsPair
@@ -102,7 +101,7 @@ class classAndFunctionsHash():
             if type(tokenOrString) is not str:
                 # `function()` -- either a function or internal method call
                 function = tokenOrString.value
-                return self.table[vars.currentClass+'^'+function]
+                return self.table[currentClass+'^'+function]
 
             else:
                 # `Class.function()` or `object.function()`
@@ -126,7 +125,7 @@ class classAndFunctionsHash():
         of type void` (or conversely whether it should return), and how many
         many variables our declared function has.
         """
-        return self.table[vars.currentClass+'^'+vars.currentFn]
+        return self.table[currentClass+'^'+currentFn]
 
 
 #
@@ -139,7 +138,7 @@ class classAndFunctionsHash():
 varInfo = collections.namedtuple('varInfo', ['type_', 'kind', 'n'])
 # ^ Tuple that forms the basis of the varTable
 # Associated with a key, formatted 'currentClass^currentFn^varName' or
-# vars.currentClass+'^'+varName (for function and class scopes, respectively)
+# currentClass+'^'+varName (for function and class scopes, respectively)
 
 
 class variableTable():
@@ -152,18 +151,18 @@ class variableTable():
         self.inDeclaration = None
 
     def resetFieldStaticCount(self):
-        if vars.parsenum == 1:
+        if parseNum == 1:
             self.fieldVarN = self.staticVarN = 0
 
     def resetVarCounter(self):
-        if vars.parsenum == 1:
-            if vars.currentFnType == 'method':
+        if parseNum == 1:
+            if currentFnType == 'method':
                 self.localVarN = 1
             else:
                 self.localVarN = 0
 
     def setInDeclaration(self, boolean):
-        if vars.parsenum == 1:
+        if parseNum == 1:
             self.inDeclaration = boolean
 
     def addVariable(self, token, type_, kind, scope):
@@ -174,17 +173,17 @@ class variableTable():
         `kind` (field, static, local, argument); and the variable number,
         which is used for relative addressing.
         """
-        if vars.parsenum == 1:
+        if parseNum == 1:
 
             variableName = token.value
-            classkey = vars.currentClass+'^'+variableName
+            classkey = currentClass+'^'+variableName
 
             # Checks whether our local variable has already been declared as
             # class-level variables or function parameters. Issues appropriate
             # warning, if they have, then adds the variable and typing, scope,
             # and position (variable number) to our function scope hash table.
             if scope == 'function':
-                key = vars.currentClass+'^'+vars.currentFn+'^'+variableName
+                key = currentClass+'^'+currentFn+'^'+variableName
                 if classkey in self.classScope:
                     kind1 = self.classScope[classkey].kind
                     kind2 = kind
@@ -207,7 +206,7 @@ class variableTable():
                 self.localVarN += 1
 
             else:  # == 'class'
-                key = vars.currentClass+'^'+variableName
+                key = currentClass+'^'+variableName
                 if key in self.classScope:
                     raise CompilerError('Duplicate class-level variable name: '
                                         '`%s\'. Line %s, %s' %
@@ -222,14 +221,14 @@ class variableTable():
 
     def lookupVariable(self, variableToken):
         kind = n = None
-        if vars.parsenum == 2:
+        if parseNum == 2:
             variableName = variableToken.value
             try:
-                key = vars.currentClass+'^'+vars.currentFn+'^'+variableName
+                key = currentClass+'^'+currentFn+'^'+variableName
                 if key in self.functScope:
                     base = self.functScope[key]
                 else:
-                    key = vars.currentClass+'^'+variableName
+                    key = currentClass+'^'+variableName
                     base = self.classScope[key]
 
                 kind = base.kind
@@ -251,10 +250,10 @@ class variableTable():
         We're keeping a list of the types (i.e. defined classes) available in
         our compiled files, so that type declarations are meaningful
         """
-        if vars.parsenum == 1:
+        if parseNum == 1:
             try:
-                if vars.currentClass not in self.listOfExtendedTypes:
-                    self.listOfExtendedTypes.append(vars.currentClass)
+                if currentClass not in self.listOfExtendedTypes:
+                    self.listOfExtendedTypes.append(currentClass)
             except:
                 pass
 
@@ -263,7 +262,7 @@ class variableTable():
         This checks whether a declared type actually exists in the files we're
         compiling OR the Jack Standard Library
         """
-        if vars.parsenum == 2:
+        if parseNum == 2:
             type_ = token.value
             if type_ == 'void':
                 if not subroutineDeclaration:
@@ -280,7 +279,7 @@ class variableTable():
         This checks whether a called class name exists, so that
         Class.subroutine() actually calls code that exists
         """
-        if vars.parsenum == 2:
+        if parseNum == 2:
             class_ = token.value
             if class_ not in ('Array', 'Keyboard', 'Math', 'Memory',
                               'Output', 'Screen', 'String', 'Sys'):
@@ -294,3 +293,16 @@ def initialize():
     functionsInfo = classAndFunctionsHash()
     varTable = variableTable()
     return varTable, functionsInfo
+
+
+def setGlobals(_parseNum=None, _currentClass=None, _currentFn=None,
+               _currentFnType=None):
+    global parseNum, currentClass, currentFn, currentFnType
+    if _parseNum is not None:
+        parseNum = _parseNum
+    elif _currentClass:
+        currentClass = _currentClass
+    elif _currentFn:
+        currentFn = _currentFn
+    elif _currentFnType:
+        currentFnType = _currentFnType

@@ -1,12 +1,24 @@
 from compiler_error import CompilerError
 import globalVars
-from . import vars
 
 
 def initializeHashTables(_variableTable, _classAndFunctionsHash):
     global functionsInfo, varTable
     varTable = _variableTable
     functionsInfo = _classAndFunctionsHash
+
+
+def setGlobals(_parseNum=None, _currentClass=None, _currentFn=None,
+               _currentFnType=None):
+    global parseNum, currentClass, currentFn, currentFnType
+    if _parseNum is not None:
+        parseNum = _parseNum
+    elif _currentClass:
+        currentClass = _currentClass
+    elif _currentFn:
+        currentFn = _currentFn
+    elif _currentFnType:
+        currentFnType = _currentFnType
 
 
 def defineOutput(_output):
@@ -21,19 +33,19 @@ directly from its relevant parse stage:
 
 
 def SubroutineDeclaration(token):
-    if vars.parsenum == 2:
+    if parseNum == 2:
         currentFnContext = functionsInfo.getCurrentFnContext()
         shouldReturnType = currentFnContext.returnsType
         num = currentFnContext.nVars
 
         # The function declaration, itself:
         output.code('function %s.%s %s' %
-                    (vars.currentClass, vars.currentFn, num))
+                    (currentClass, currentFn, num))
 
         # If we're dealing with a constructor, we've got to allocate memory,
         # and put the reference to our new object in the right memory location
-        if vars.currentFnType == 'constructor':
-            if vars.currentClass == shouldReturnType:
+        if currentFnType == 'constructor':
+            if currentClass == shouldReturnType:
                 memtoalloc = functionsInfo.getFieldN()
                 output.code('push constant '+str(memtoalloc))
                 output.code('call Memory.alloc 1')
@@ -47,7 +59,7 @@ def SubroutineDeclaration(token):
 
         # If we're dealing with a method, we have to pop pointer to the object
         # upon which our method operates
-        elif vars.currentFnType == 'method':
+        elif currentFnType == 'method':
             # `argument 0` is the object called by the method. This pops it
             # into pointer 0, so that `this n` VM commands work.
             output.code('push argument 0')
@@ -55,7 +67,7 @@ def SubroutineDeclaration(token):
 
 
 def LetStatement_ARRAY_BASE(variableToken):
-    if vars.parsenum == 2:
+    if parseNum == 2:
         NULL, kind, n = varTable.lookupVariable(variableToken)
         output.code('push %s %s' % (kind, n))
         output.code('add')
@@ -65,7 +77,7 @@ def LetStatement_ARRAY_BASE(variableToken):
 def LetStatement(array, variableToken):
     # I THINK This is where you could optimize code for array indexing
     # knowable at compile time
-    if vars.parsenum == 2:
+    if parseNum == 2:
         NULL, kind, n = varTable.lookupVariable(variableToken)
         if array is True:
             output.code('pop temp 0')
@@ -121,7 +133,7 @@ def DoStatementNULLPOP():
 
 
 def ReturnStatementVoidPrep(token):
-    if vars.parsenum == 2:
+    if parseNum == 2:
         if functionsInfo.getCurrentFnContext().returnsType == 'void':
             output.code('push constant 0')
         # /\ If you deleted the code that automatically pops the result of a
@@ -138,7 +150,7 @@ def ReturnStatementOutput():
 def ExpressionOP(op):
     # Tried this as a "jump" into the dictionary above, instead of loads of
     # sequential logic, but it offered no performance improvements
-    if vars.parsenum == 2:
+    if parseNum == 2:
         if op == "+":    output.code('add')
         elif op == "-":  output.code('sub')
         elif op == "&":  output.code('and')
@@ -156,7 +168,7 @@ def TermINTEGER(token):
 
 
 def TermSTRING(token):
-    if vars.parsenum == 2:
+    if parseNum == 2:
         string = token.value
         output.code("push constant %s" % len(string))
         output.code("call String.new 1")
@@ -166,7 +178,7 @@ def TermSTRING(token):
 
 
 def TermKEYWORD(token):
-    if vars.parsenum == 2:
+    if parseNum == 2:
         keyword = token.value
         if keyword == 'true':
             output.code("push constant 1")
@@ -183,7 +195,7 @@ def TermKEYWORD(token):
 
 
 def TermARRAY(variableToken):
-    if vars.parsenum == 2:
+    if parseNum == 2:
         NULL, kind,  n = varTable.lookupVariable(variableToken)
         output.code('push %s %s' % (kind, n))
         output.code('add')
@@ -192,7 +204,7 @@ def TermARRAY(variableToken):
 
 
 def TermUNARYOP(op):
-    if vars.parsenum == 2:
+    if parseNum == 2:
         if op.value == '~':
             output.code('not')
         else:
@@ -200,7 +212,7 @@ def TermUNARYOP(op):
 
 
 def TermVARNAME(variableToken):
-    if vars.parsenum == 2:
+    if parseNum == 2:
         NULL, kind, n = varTable.lookupVariable(variableToken)
         output.code('push %s %s' % (kind, n))
 
@@ -220,7 +232,7 @@ def SubroutineCall_NoDot_B(subroutineToken, numberOfParams):
     Second part of our logic/error-checking for method-less/Class-less
     subroutine calls -- i.e., in the language of Jack, "function" call
     """
-    if vars.parsenum == 2:
+    if parseNum == 2:
 
         k, NULL, proceduretype, NULL = functionsInfo.lookupFn(subroutineToken)
         if proceduretype == 'method': numberOfParams += 1
@@ -231,14 +243,14 @@ def SubroutineCall_NoDot_B(subroutineToken, numberOfParams):
                                 (subroutineToken.value, k, numberOfParams,
                                  subroutineToken.line, globalVars.inputFileName))
         else:
-            output.code('call %s.%s %s' % (vars.currentClass, subroutineToken.value, numberOfParams))
+            output.code('call %s.%s %s' % (currentClass, subroutineToken.value, numberOfParams))
 
 
 def SubroutineCall_WithDot_A(subroutineToken, classOrObject):
     '''`object.method()` or `class.subroutine()`'''
 
     methodCall = function = None
-    if vars.parsenum == 2:
+    if parseNum == 2:
 
         # \/ this checks to see whether what we have is `var.method()`, as
         # opposed to a `class.function()` call
@@ -259,7 +271,7 @@ def SubroutineCall_WithDot_A(subroutineToken, classOrObject):
 def SubroutineCall_WithDot_B(subroutineToken, fn, nExprsInCall):
     """Second part of output logic for `class.subroutine()`"""
 
-    if vars.parsenum == 2:
+    if parseNum == 2:
         try:
             expectedParams, *NULL = functionsInfo.lookupFn(fn)
             if int(nExprsInCall) != int(expectedParams):

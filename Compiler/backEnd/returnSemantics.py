@@ -2,7 +2,6 @@ import sys
 
 from compiler_error import CompilerError
 import globalVars
-from . import vars
 
 
 def checkReturn(token):
@@ -17,7 +16,7 @@ def checkReturn(token):
     least no impedance mismatch
     """
 
-    if vars.parsenum == 2:
+    if parseNum == 2:
         value = token.value
 
         *NULL, functRole, returnsType = functionsInfo.getCurrentFnContext()
@@ -28,21 +27,21 @@ def checkReturn(token):
                 errorMiddle = '. Found: `%s`' % value
                 raise CompilerError('`%s` is a constructor and should return '
                                     '`this`%s. Line %s, %s' %
-                                    (vars.currentFn, errorMiddle,
+                                    (currentFn, errorMiddle,
                                      token.line, globalVars.inputFileName))
 
         elif returnsType == 'void':
             if value != ';':
                 raise CompilerError('`%s` is a void function, and so mustn\`t'
                                     'return a value. It does. Line %s, %s' %
-                                    (vars.currentFn, token.line,
+                                    (currentFn, token.line,
                                      globalVars.inputFileName))
 
         else:
             if value == ';':
                 raise CompilerError('`%s` isn`t a void function, and so must '
                                     'return a value. Line %s, %s' %
-                                    (vars.currentFn, token.line,
+                                    (currentFn, token.line,
                                      globalVars.inputFileName))
 
 
@@ -54,7 +53,7 @@ def checkDotlessFunctionCall(subroutineToken, callerExpectsReturnval):
     method calls.
     """
 
-    if vars.parsenum != 2:
+    if parseNum != 2:
         return
 
     *NULL, calledFunct, calledReturns = functionsInfo.lookupFn(subroutineToken)
@@ -83,6 +82,14 @@ def checkDotlessFunctionCall(subroutineToken, callerExpectsReturnval):
                    globalVars.inputFileName), file=sys.stderr)
 
     return calledFunct
+
+
+def setGlobals(_parseNum=None, _currentFn=None):
+    global parseNum, currentClass, currentFn
+    if _parseNum is not None:
+        parseNum = _parseNum
+    elif _currentFn:
+        currentFn = _currentFn
 
 
 def initialize(_functionsInfo):

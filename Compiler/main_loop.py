@@ -29,7 +29,7 @@ from compiler_error import CompilerError
 from lexer.lexer import lexer
 from parser import parser
 import backEnd.processCode as output_stage
-import backEnd.vars as output_stage_vars
+import backEnd.setGlobals as output_stage_set_vars
 import backEnd.Output as Output
 import backEnd.returnSemantics as output_semantics_check
 import backEnd.SymbolTable as SymbolTable
@@ -91,7 +91,7 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
     import os
 
     # Set parse n and set up SymbolTable/modules that depend on it
-    output_stage_vars.setParseNumber(1)
+    output_stage_set_vars.setGlobals(parseNum=1)
     vars_, classAndFns = SymbolTable.initialize()
     output_stage.initializeHashTables(vars_, classAndFns)
     output_semantics_check.initialize(classAndFns)
@@ -112,7 +112,7 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
         parser.parseClass(tokengenerator)
 
     # Second parse + code output \/
-    output_stage_vars.setParseNumber(2)
+    output_stage_set_vars.setGlobals(parseNum=2)
     for filename in filelist:
         if custom_out_dir:
             # We've specified a custom directory path for output.
@@ -140,7 +140,7 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
 def outputParseTree(filelist):
 
     # Set parse n and set up SymbolTable/modules that depend on it
-    output_stage_vars.setParseNumber(0)
+    output_stage_set_vars.setGlobals(parseNum=0)
     vars_, classAndFns = SymbolTable.initialize()
     output_stage.initializeHashTables(vars_, classAndFns)
     output_semantics_check.initialize(classAndFns)
@@ -167,7 +167,7 @@ def outputParseTree(filelist):
 def outputTokens(filelist):
 
     # Set parse n and set up SymbolTable/modules that depend on it
-    output_stage_vars.setParseNumber(0)
+    output_stage_set_vars.setGlobals(parseNum=0)
     vars_, classAndFns = SymbolTable.initialize()
     output_stage.initializeHashTables(vars_, classAndFns)
     output_semantics_check.initialize(classAndFns)
