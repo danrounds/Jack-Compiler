@@ -21,7 +21,6 @@ import backEnd.setGlobals as setGlobals
 import backEnd.doesFunctionReturn as doesFunctionReturn
 import backEnd.returnSemantics as returnSemantics
 
-setGlobals = setGlobals.setGlobals
 
 def initializeTagOutput(_output):
     """

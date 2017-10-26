@@ -26,13 +26,9 @@ It also has really...unique truth semantics (e.g. in if/while statements)
 """
 
 from CompilerError import CompilerError
-from lexer.lexer import lexer
+from lexer import lexer
 from parser import parser
-import backEnd.processCode as output_stage
-import backEnd.setGlobals as output_stage_set_vars
-import backEnd.Output as Output
-import backEnd.returnSemantics as output_semantics_check
-import backEnd.SymbolTable as SymbolTable
+import backEnd as backEnd
 import globalVars
 
 
@@ -91,14 +87,14 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
     import os
 
     # Set parse n and set up SymbolTable/modules that depend on it
-    output_stage_set_vars.setGlobals(parseNum=1)
-    vars_, classAndFns = SymbolTable.initialize()
-    output_stage.initializeHashTables(vars_, classAndFns)
-    output_semantics_check.initialize(classAndFns)
+    backEnd.setGlobals(parseNum=1)
+    vars_, classAndFns = backEnd.SymbolTable.initialize()
+    backEnd.processCode.initializeHashTables(vars_, classAndFns)
+    backEnd.returnSemantics.initialize(classAndFns)
 
     # Stub out our output (as in I/O) to do nothing on initial parse
-    output = Output.OutputSetup('initial')
-    output_stage.defineOutput(output)
+    output = backEnd.OutputSetup('initial')
+    backEnd.processCode.defineOutput(output)
     parser.initializeTagOutput(output)
     print('Doing initial parse of:')
 
@@ -112,7 +108,7 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
         parser.parseClass(tokengenerator)
 
     # Second parse + code output \/
-    output_stage_set_vars.setGlobals(parseNum=2)
+    backEnd.setGlobals(parseNum=2)
     for filename in filelist:
         if custom_out_dir:
             # We've specified a custom directory path for output.
@@ -140,14 +136,14 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
 def outputParseTree(filelist):
 
     # Set parse n and set up SymbolTable/modules that depend on it
-    output_stage_set_vars.setGlobals(parseNum=0)
-    vars_, classAndFns = SymbolTable.initialize()
-    output_stage.initializeHashTables(vars_, classAndFns)
-    output_semantics_check.initialize(classAndFns)
+    backEnd.setGlobals(parseNum=0)
+    vars_, classAndFns = backEnd.SymbolTable.initialize()
+    backEnd.processCode.initializeHashTables(vars_, classAndFns)
+    backEnd.returnSemantics.initialize(classAndFns)
 
     # Set up the `o` part of I/O
-    output = Output.OutputSetup('test')
-    output_stage.defineOutput(output)
+    output = backEnd.OutputSetup('test')
+    backEnd.processCode.defineOutput(output)
     parser.initializeTagOutput(output)
 
     # ...now for the `i`
@@ -167,14 +163,14 @@ def outputParseTree(filelist):
 def outputTokens(filelist):
 
     # Set parse n and set up SymbolTable/modules that depend on it
-    output_stage_set_vars.setGlobals(parseNum=0)
-    vars_, classAndFns = SymbolTable.initialize()
-    output_stage.initializeHashTables(vars_, classAndFns)
-    output_semantics_check.initialize(classAndFns)
+    backEnd.setGlobals(parseNum=0)
+    vars_, classAndFns = backEnd.SymbolTable.initialize()
+    backEnd.processCode.initializeHashTables(vars_, classAndFns)
+    backEnd.returnSemantics.initialize(classAndFns)
 
     # Set up the `o` part of I/O
-    output = Output.OutputSetup('test')
-    output_stage.defineOutput(output)
+    output = backEnd.OutputSetup('test')
+    backEnd.processCode.defineOutput(output)
     parser.initializeTagOutput(output)
 
     # ...now for the `i`
@@ -187,10 +183,10 @@ def outputTokens(filelist):
 
         # Outputs tokens in XML
         tokengenerator = lexer(filename)
-        output_stage.output.startt('tokens')  # opening tag `<tokens>`
+        backEnd.processCode.output.startt('tokens')  # opening tag `<tokens>`
         for token in tokengenerator:
-            output_stage.output.outt(token)  # tokenizing + output
-        output_stage.output.endt('tokens')  # closing tag `</tokens>`
+            backEnd.processCode.output.outt(token)  # tokenizing + output
+        backEnd.processCode.output.endt('tokens')  # closing tag `</tokens>`
         print('Output: %s' % outfilename)
         output.closeFile()
 
