@@ -5,6 +5,24 @@ from CompilerError import CompilerError
 import globalVars
 from . import _functionTableDataAndTypes
 
+
+def setGlobals(_parseNum=None, _currentClass=None, _currentFn=None,
+               _currentFnType=None):
+    """
+    Both classes defined in this file make extensive use of these global
+    variables.
+    """
+    global parseNum, currentClass, currentFn, currentFnType
+    if _parseNum is not None:
+        parseNum = _parseNum
+    elif _currentClass:
+        currentClass = _currentClass
+    elif _currentFn:
+        currentFn = _currentFn
+    elif _currentFnType:
+        currentFnType = _currentFnType
+
+
 functInfo = _functionTableDataAndTypes.functInfo
 # functInfo = collections.namedtuple('functInfo', [
 #     'kParams', 'nVars', 'fnType', 'returnsType'
@@ -31,6 +49,13 @@ functInfo = _functionTableDataAndTypes.functInfo
 
 
 class classAndFunctionsHash():
+    """
+    The class that defines our `functionsInfo` object--which we set values for
+    in our parser and use values from throughout our backEnd.
+
+    Lets us keep track of basic info about functions (type, argument numbers,
+    etc)
+    """
     def __init__(self):
         self.table = _functionTableDataAndTypes.getJackStdLibrary()
 
@@ -139,9 +164,20 @@ varInfo = collections.namedtuple('varInfo', ['type_', 'kind', 'n'])
 # ^ Tuple that forms the basis of the varTable
 # Associated with a key, formatted 'currentClass^currentFn^varName' or
 # currentClass+'^'+varName (for function and class scopes, respectively)
+# `type`, as in data type
+# `kind`, as in local, field, or static
+# `n` is the "index" of the variable
 
 
 class variableTable():
+    """
+    Class that defines our varTable object, which we use throughout the backEnd
+    to keep track of info about variables.
+
+    Keeps track of variable type, variable index, and "kind"--i.e. local
+    (automatic), static (associated with a class), or field (associated with an
+    object).
+    """
     def __init__(self):
         self.functScope = {}
         self.classScope = {}
@@ -293,16 +329,3 @@ def initialize():
     functionsInfo = classAndFunctionsHash()
     varTable = variableTable()
     return varTable, functionsInfo
-
-
-def setGlobals(_parseNum=None, _currentClass=None, _currentFn=None,
-               _currentFnType=None):
-    global parseNum, currentClass, currentFn, currentFnType
-    if _parseNum is not None:
-        parseNum = _parseNum
-    elif _currentClass:
-        currentClass = _currentClass
-    elif _currentFn:
-        currentFn = _currentFn
-    elif _currentFnType:
-        currentFnType = _currentFnType
