@@ -197,7 +197,7 @@ def fileorpathparser(path):
     .jack files in the specified directory
     '''
 
-    import os; import glob
+    import os, glob
     try:
         if path.endswith('.jack'):
             files = [path]
