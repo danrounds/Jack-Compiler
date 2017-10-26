@@ -68,8 +68,8 @@ def SubroutineDeclaration(token):
 
 def LetStatement_ARRAY_BASE(variableToken):
     if parseNum == 2:
-        NULL, kind, n = varTable.lookupVariable(variableToken)
-        output.code('push %s %s' % (kind, n))
+        NULL, kind, i = varTable.lookupVariable(variableToken)
+        output.code('push %s %s' % (kind, i))
         output.code('add')
         # ^ adds variable *(kind n) to the prior stack value (an expression)
 
@@ -78,14 +78,14 @@ def LetStatement(array, variableToken):
     # I THINK This is where you could optimize code for array indexing
     # knowable at compile time
     if parseNum == 2:
-        NULL, kind, n = varTable.lookupVariable(variableToken)
+        NULL, kind, i = varTable.lookupVariable(variableToken)
         if array is True:
             output.code('pop temp 0')
             output.code('pop pointer 1')
             output.code('push temp 0')
             output.code('pop that 0')
         else:
-            output.code('pop %s %s' % (kind, n))
+            output.code('pop %s %s' % (kind, i))
 
 
 def IfStatement_IF(n):
@@ -196,8 +196,8 @@ def TermKEYWORD(token):
 
 def TermARRAY(variableToken):
     if parseNum == 2:
-        NULL, kind,  n = varTable.lookupVariable(variableToken)
-        output.code('push %s %s' % (kind, n))
+        NULL, kind, i = varTable.lookupVariable(variableToken)
+        output.code('push %s %s' % (kind, i))
         output.code('add')
         output.code('pop pointer 1')
         output.code('push that 0')
@@ -213,8 +213,8 @@ def TermUNARYOP(op):
 
 def TermVARNAME(variableToken):
     if parseNum == 2:
-        NULL, kind, n = varTable.lookupVariable(variableToken)
-        output.code('push %s %s' % (kind, n))
+        NULL, kind, i = varTable.lookupVariable(variableToken)
+        output.code('push %s %s' % (kind, i))
 
 
 def SubroutineCall_NoDot_A(calledFnRole):

@@ -160,13 +160,13 @@ class classAndFunctionsHash():
 #
 #
 #
-varInfo = collections.namedtuple('varInfo', ['type_', 'kind', 'n'])
+varInfo = collections.namedtuple('varInfo', ['type_', 'kind', 'i'])
 # ^ Tuple that forms the basis of the varTable
 # Associated with a key, formatted 'currentClass^currentFn^varName' or
 # currentClass+'^'+varName (for function and class scopes, respectively)
 # `type`, as in data type
 # `kind`, as in local, field, or static
-# `n` is the "index" of the variable
+# `i` is the "index" of the variable--i.e. which "one" it is
 
 
 class variableTable():
@@ -256,7 +256,7 @@ class variableTable():
                     self.staticVarN += 1
 
     def lookupVariable(self, variableToken):
-        kind = n = None
+        kind = i = None
         if parseNum == 2:
             variableName = variableToken.value
             try:
@@ -271,7 +271,7 @@ class variableTable():
                 if kind == 'field': kind = 'this'
                 elif kind == 'var': kind = 'local'
 
-                n = base.n
+                i = base.i
                 type_ = base.type_
 
             except:
@@ -279,7 +279,7 @@ class variableTable():
                 raise CompilerError('Variable `%s` not found. Line %s, %s' %
                                     (variableName, variableToken.line,
                                      globalVars.inputFileName))
-        return type_, kind,  n
+        return type_, kind,  i
 
     def addToAvailableTypes(self):
         """
