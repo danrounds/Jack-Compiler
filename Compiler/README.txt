@@ -19,6 +19,18 @@ tests.py          ::  Array of tests. Exectuable.
 ----
 
 
+Lesser files in this folder:
+--------------------------------------------------------------------------------
+CompilerError.py  ::  Our defined exception type for the compiler
+
+globalVars.py     ::  Place to hold variables for the entire compiler--really
+                      only used to that the whole compiler has access to the
+                      filename of the file we're parsing
+
+cmp_test.bash     ::  Small series of diffs that gives us a little bit of
+                      assurance everything is working
+----
+
 
 TEST material:
 --------------------------------------------------------------------------------

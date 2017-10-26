@@ -1,8 +1,16 @@
-JackCC -- Jack Complete Compiler 
+JackCC -- Jack Complete Compiler -- A production-ready compiler for a toy
+                                    language™
 ---------------------
 
 Jack is a C-esque, weakly-typed structured programming language. This is a spec-
 compliant compiler.
+
+All made as a part of the course at: http://nand2tetris.org/
+
+Apologies to Nisan and Schocken for hosting this repo, but there're enough
+other folks that've done it that the cat's out of the bag. If you're a student,
+and you're reading this, please do the work, yourself; it'll be immeasurably
+valuable.
 
 Jack, along with the tECS VM intermediary language, Hack Architecture, and
 corresponding Hack Assembly language are defined in the book The Elements of
@@ -88,11 +96,6 @@ collection of ambitious student games, written in Jack. Without them,  I was
 writing a compiler for an abstractly-defined language with very little
 accompanying practice. When and if I find a substitute, I'll throw it into this
 repo. Code is hosted: https://github.com/ybakos/n2t-games-2011
-
-A NOTE ON STYLE: My code lines are almost invariably longer than 80 characters,
-because my variable/function/method/&c names are verbose. This is a conscious
-stylistic choice, but perhaps I'm underestimating the number of people stuck
-reading code on hardline terminals. Apologies to you, if you're one.
 
 
                                Project History:
