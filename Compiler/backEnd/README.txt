@@ -10,7 +10,7 @@ Files here:
   A heuristic that does a decent job of telling us whether a function is likely
   to return (no, I didn't solve the halting problem)
 
-* OutputSetup.py
+* SetupOutput.py
   Class that defines our file output object
 
 * processCode.py

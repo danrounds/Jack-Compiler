@@ -1,5 +1,5 @@
 from . import doesFunctionReturn
-from .OutputSetup import OutputSetup
+from .SetupOutput import SetupOutput
 from . import processCode
 from . import returnSemantics
 from .setGlobals import setGlobals

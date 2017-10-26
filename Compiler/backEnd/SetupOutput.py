@@ -1,11 +1,11 @@
-class OutputSetup():
+class SetupOutput():
     '''Outputs XML or code, depending on the `stage` variable'''
     def __init__(self, stage):
         self.stage = stage
         if stage == 'test':
-            self.code = OutputSetup.null
+            self.code = SetupOutput.null
         elif stage == 'initial':
-            self.outt = self.startt = self.endt = self.code = OutputSetup.null
+            self.outt = self.startt = self.endt = self.code = SetupOutput.null
 
     def defineOutputValues(self, stage, output_file_name):
         self.stage = stage
@@ -15,7 +15,7 @@ class OutputSetup():
             self.global_file_out = open(output_file_name, 'w')
 
         if self.stage == 'codeOutput':
-            self.code = self.codeoutput
+            self.code = self.codeOutput
 
     def closeFile(self):
         if self.stage == 'initial':
@@ -41,7 +41,7 @@ class OutputSetup():
             self.global_file_out.write("</%s>\n" % tag)
 
     # Code output
-    def codeoutput(self, line_of_code):
+    def codeOutput(self, line_of_code):
         self.global_file_out.write(line_of_code + '\n')
 
     ###

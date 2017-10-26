@@ -93,7 +93,7 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
     backEnd.returnSemantics.initialize(classAndFns)
 
     # Stub out our output (as in I/O) to do nothing on initial parse
-    output = backEnd.OutputSetup('initial')
+    output = backEnd.SetupOutput('initial')
     backEnd.processCode.defineOutput(output)
     parser.initializeTagOutput(output)
     print('Doing initial parse of:')
@@ -142,7 +142,7 @@ def outputParseTree(filelist):
     backEnd.returnSemantics.initialize(classAndFns)
 
     # Set up the `o` part of I/O
-    output = backEnd.OutputSetup('test')
+    output = backEnd.SetupOutput('test')
     backEnd.processCode.defineOutput(output)
     parser.initializeTagOutput(output)
 
@@ -169,7 +169,7 @@ def outputTokens(filelist):
     backEnd.returnSemantics.initialize(classAndFns)
 
     # Set up the `o` part of I/O
-    output = backEnd.OutputSetup('test')
+    output = backEnd.SetupOutput('test')
     backEnd.processCode.defineOutput(output)
     parser.initializeTagOutput(output)
 
