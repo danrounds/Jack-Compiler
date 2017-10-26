@@ -23,7 +23,7 @@ basePath = os.path.dirname(sys.argv[0])
 for path in ['/Compiler', '/Virtual Machine', '/Assembler']:
     sys.path.insert(0, basePath + path)
 
-import main_loop as compiler
+import mainLoop as compiler
 from CompilerError import CompilerError
 import VM
 import HACK_rewrite as assembler

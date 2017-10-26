@@ -3,7 +3,7 @@ This is the Jack to VM section of the compiler, complete with error-checks.
 
 Files/MODULES in this folder:
 --------------------------------------------------------------------------------
-main_loop.py      ::  Drives the whole compliation process. Can also output an
+mainLoop.py       ::  Drives the whole compliation process. Can also output an
                       XML parse tree or XML tokens (for testing purposes)
 
 lexer/            ::  Our tokenizer
