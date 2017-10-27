@@ -33,7 +33,7 @@ import globalVars
 
 
 def mainloop(in_pathorfile='./tests/test_code0/Square/Square.jack',
-             outputmode='code', stronglinking='False', custom_out_dir=None,
+             outputMode='code', stronglinking='False', customOutDir=None,
              vmfinaloutput=True, warnings=True):
 
     """
@@ -69,21 +69,21 @@ def mainloop(in_pathorfile='./tests/test_code0/Square/Square.jack',
     referenced in code output to resolve variable/function references.
     """
 
-    filelist = fileorpathparser(in_pathorfile)
+    fileList = fileOrPathParser(in_pathorfile)
 
-    if outputmode == 'code':  # `Code output' OR `code output into temp files'
-        outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput)
+    if outputMode == 'code':  # `Code output' OR `code output into temp files'
+        outputCode(fileList, stronglinking, customOutDir, vmfinaloutput)
 
-    elif outputmode == 'parse_tree':  # Outputs XML parse tree (for testing)
-        outputParseTree(filelist)
+    elif outputMode == 'parseTree':  # Outputs XML parse tree (for testing)
+        outputParseTree(fileList)
 
-    elif outputmode == 'tokens':  # Tokenizer -- outputs XML token "tree"
-        outputTokens(filelist)
+    elif outputMode == 'tokens':  # Tokenizer -- outputs XML token "tree"
+        outputTokens(fileList)
 
     print()
 
 
-def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
+def outputCode(fileList, stronglinking, customOutDir, vmfinaloutput):
     import os
 
     # Set parse n and set up SymbolTable/modules that depend on it
@@ -100,40 +100,40 @@ def outputCode(filelist, stronglinking, custom_out_dir, vmfinaloutput):
 
     # Initial parse; fleshes out hash-tables, so that we have relevant
     # typing/function prototype (&c) information, for the output stage \/
-    for filename in filelist:
-        print(filename)
+    for fileName in fileList:
+        print(fileName)
 
-        tokengenerator = lexer(filename)
-        globalVars.defineGlobalInputFile(filename)
-        parser.parseClass(tokengenerator)
+        tokenGenerator = lexer(fileName)
+        globalVars.defineGlobalInputFile(fileName)
+        parser.parseClass(tokenGenerator)
 
     # Second parse + code output \/
     backEnd.setGlobals(parseNum=2)
-    for filename in filelist:
-        if custom_out_dir:
+    for fileName in fileList:
+        if customOutDir:
             # We've specified a custom directory path for output.
             # Files are still INPUT_FILE_PREFIX.jack,
-            base = os.path.basename(filename)[:-5] + '.vm'
-            outfilename = os.path.join(custom_out_dir, base)
+            base = os.path.basename(fileName)[:-5] + '.vm'
+            outFileName = os.path.join(customOutDir, base)
         else:
-            outfilename = filename[:-5] + '.vm'
+            outFileName = fileName[:-5] + '.vm'
 
-        globalVars.defineGlobalInputFile(filename)
+        globalVars.defineGlobalInputFile(fileName)
 
-        tokengenerator = lexer(filename)
+        tokenGenerator = lexer(fileName)
         # \/ Make output (I/O) object actually write out for 2nd parse
-        output.defineOutputValues('codeOutput', outfilename)
-        parser.parseClass(tokengenerator)
+        output.defineOutputValues('codeOutput', outFileName)
+        parser.parseClass(tokenGenerator)
 
         if vmfinaloutput is True:
             # \/ We only output file names if we're keeping output files. If
             # this is false, VM files are just a step toward full conversion
             # (i.e. we're using JackCC as a 1st stage for further processing)
-            print('Output: %s' % outfilename)
+            print('Output: %s' % outFileName)
         output.closeFile()
 
 
-def outputParseTree(filelist):
+def outputParseTree(fileList):
 
     # Set parse n and set up SymbolTable/modules that depend on it
     backEnd.setGlobals(parseNum=0)
@@ -147,20 +147,21 @@ def outputParseTree(filelist):
     parser.initializeTagOutput(output)
 
     # ...now for the `i`
-    for filename in filelist:
-        outfilename = filename[:-5] + '_.xml'
-        globalVars.defineGlobalInputFile(filename)
-        output.defineOutputValues('test', outfilename)
+    for fileName in fileList:
+        print('Reading: %s' % fileName)
+        outFileName = fileName[:-5] + '_.xml'
+        globalVars.defineGlobalInputFile(fileName)
+        output.defineOutputValues('test', outFileName)
         parser.initializeTagOutput(output)
 
         # Outputs parse tree in XML
-        tokengenerator = lexer(filename)
-        parser.parseClass(tokengenerator)
-        print('Output: %s\n' % outfilename)
+        tokenGenerator = lexer(fileName)
+        parser.parseClass(tokenGenerator)
+        print('Parse tree output: %s' % outFileName)
         output.closeFile()
 
 
-def outputTokens(filelist):
+def outputTokens(fileList):
 
     # Set parse n and set up SymbolTable/modules that depend on it
     backEnd.setGlobals(parseNum=0)
@@ -174,28 +175,27 @@ def outputTokens(filelist):
     parser.initializeTagOutput(output)
 
     # ...now for the `i`
-    for filename in filelist:
-        outfilename = filename[:-5] + 'T_.xml'
-        # outfilename = filename[:-5] + '_COMPARE_T_.xml'
-        globalVars.defineGlobalInputFile(filename)
-        output.defineOutputValues('test', outfilename)
-        print('Reading: %s' % filename)
+    for fileName in fileList:
+        outFileName = fileName[:-5] + 'T_.xml'
+        globalVars.defineGlobalInputFile(fileName)
+        output.defineOutputValues('test', outFileName)
+        print('Reading: %s' % fileName)
 
         # Outputs tokens in XML
-        tokengenerator = lexer(filename)
+        tokenGenerator = lexer(fileName)
         backEnd.processCode.output.startt('tokens')  # opening tag `<tokens>`
-        for token in tokengenerator:
+        for token in tokenGenerator:
             backEnd.processCode.output.outt(token)  # tokenizing + output
         backEnd.processCode.output.endt('tokens')  # closing tag `</tokens>`
-        print('Output: %s' % outfilename)
+        print('Tokenized output: %s' % outFileName)
         output.closeFile()
 
 
-def fileorpathparser(path):
-    '''
+def fileOrPathParser(path):
+    """
     Returns a list containing either the single .jack file pointed to or the
     .jack files in the specified directory
-    '''
+    """
 
     import os, glob
     try:
@@ -203,8 +203,8 @@ def fileorpathparser(path):
             files = [path]
         else:
             files = []  # enter'd nonsense
-            for infile in glob.glob(os.path.join(path, '*.jack')):
-                files.append(infile)
+            for inFile in glob.glob(os.path.join(path, '*.jack')):
+                files.append(inFile)
             if files == []:
                 raise
     except RuntimeError:

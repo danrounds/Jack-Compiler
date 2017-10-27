@@ -94,11 +94,11 @@ def testLexer():# unit test for tokenizer
     testpaths = [a, b, c]
     filelist = []
     for path in testpaths:
-#        filelist_, path = main.fileorpathparser(path)
-        filelist_ = main.fileorpathparser(path)
+#        filelist_, path = main.fileOrPathParser(path)
+        filelist_ = main.fileOrPathParser(path)
         filelist = filelist + filelist_
     for filename in filelist:
-        main.mainloop(filename, outputmode='tokens')
+        main.mainloop(filename, outputMode='tokens')
     print('===========================================================')
     print('Diff results will appear, below each file. If none appear, everything worked.')
 #    batch = './tests/tokentestscript.bat'  # Windows test script
@@ -114,11 +114,11 @@ def testParse():
     testpaths = [a, b, c]
     filelist = []
     for path in testpaths:
-#        filelist_, path = main.fileorpathparser(path)
-        filelist_ = main.fileorpathparser(path)
+#        filelist_, path = main.fileOrPathParser(path)
+        filelist_ = main.fileOrPathParser(path)
         filelist = filelist + filelist_
     for filename in filelist:
-        main.mainloop(filename, outputmode='parse_tree')
+        main.mainloop(filename, outputMode='parseTree')
     print('===========================================================')
     print('Diff results will appear, below each file. If none appear, everything worked.')
 #    batch = './tests/parsetestscript.bat'  # Windows test script
@@ -149,10 +149,10 @@ def extendedTestToken():
     testpaths = [a, b, c, d, e, f, g, h, i, j, k, l, m, n, o0, q]
     filelist = []
     for path in testpaths:
-        filelist_ = main.fileorpathparser(path)
+        filelist_ = main.fileOrPathParser(path)
         filelist = filelist + filelist_
     for filename in filelist:
-        main.mainloop(filename, outputmode='tokens')
+        main.mainloop(filename, outputMode='tokens')
     toc = time.clock()
     print('===========================================================')
     print("%s files tokenized. Tokenizing took %s seconds." % (len(filelist), (toc - tic)))
@@ -190,10 +190,10 @@ def extendedTestParse():
     testpaths = [a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, q]
     filelist = []
     for path in testpaths:
-        filelist_ = main.fileorpathparser(path)
+        filelist_ = main.fileOrPathParser(path)
         filelist = filelist + filelist_
     for filename in filelist:
-        main.mainloop(filename, outputmode='parse_tree')
+        main.mainloop(filename, outputMode='parseTree')
     toc = time.clock()
     print("%s files compiled. Compilation took %s seconds.\n" % (len(filelist), (toc - tic)))
     print('Diff results between our files and reference files:\n')

@@ -50,7 +50,7 @@ def main():
         # expect to fail, as lexical, parse, and semantic errors will halt
         # compilation. This makes sure execution halts gracefully, instead of
         # issuing a massive stack trace
-        compiler.mainloop(compilerInput, custom_out_dir=tmpDir, vmfinaloutput=args.verbose, \
+        compiler.mainloop(compilerInput, customOutDir=tmpDir, vmfinaloutput=args.verbose, \
                           warnings=not(args.mutewarn))
     except (CompilerError) as E:
         print('\n' + str(E)[1:-1])
