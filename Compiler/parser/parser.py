@@ -1,17 +1,18 @@
-###############################################################################
-# Parser for the Jack compiler, tECS
-#
-# I've treated this file as largely self-documenting (since the functions are
-# all named  according to function). Each parse function passes and accepts our
-# token generator and/or specific tokens.
-#
-# On the first parse, our parse functions call the `backEnd' to construct our
-# varTable and functionInfo table (including our listOfExtendedTypes -- i.e.
-# the user-defined types we find while parsing).
-#
-# On the second parse, we call `backEnd', and use this information to check
-# semantics and output code.
-# -DR, August 2016
+"""
+Parser for the Jack compiler, tECS
+
+I've treated this file as largely self-documenting (since the functions are all
+named according to function). Each parse function passes and accepts our token
+generator and/or specific tokens.
+
+On the first parse, our parse functions populate our varTable and functionInfo
+table (including our listOfExtendedTypes -- i.e. the user-defined types we find
+while parsing).
+
+On the second parse, we use the above information and call `backEnd' to check
+semantics and output code.
+-DR, October 2017
+"""
 
 from CompilerError import CompilerError
 from . import parserErrors as PErrorMsg
