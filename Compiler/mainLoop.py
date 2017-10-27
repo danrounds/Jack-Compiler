@@ -95,7 +95,7 @@ def outputCode(fileList, stronglinking, customOutDir, vmfinaloutput):
     # Stub out our output (as in I/O) to do nothing on initial parse
     output = backEnd.SetupOutput('initial')
     backEnd.processCode.defineOutput(output)
-    parser.initializeTagOutput(output)
+    parser.initializeGlobals(output, classAndFns, vars_)
     print('Doing initial parse of:')
 
     # Initial parse; fleshes out hash-tables, so that we have relevant
@@ -144,7 +144,8 @@ def outputParseTree(fileList):
     # Set up the `o` part of I/O
     output = backEnd.SetupOutput('test')
     backEnd.processCode.defineOutput(output)
-    parser.initializeTagOutput(output)
+    parser.initializeGlobals(output, classAndFns, vars_)
+
 
     # ...now for the `i`
     for fileName in fileList:
@@ -152,7 +153,6 @@ def outputParseTree(fileList):
         outFileName = fileName[:-5] + '_.xml'
         globalVars.defineGlobalInputFile(fileName)
         output.defineOutputValues('test', outFileName)
-        parser.initializeTagOutput(output)
 
         # Outputs parse tree in XML
         tokenGenerator = lexer(fileName)
@@ -172,7 +172,8 @@ def outputTokens(fileList):
     # Set up the `o` part of I/O
     output = backEnd.SetupOutput('test')
     backEnd.processCode.defineOutput(output)
-    parser.initializeTagOutput(output)
+    parser.initializeGlobals(output, classAndFns, vars_)
+
 
     # ...now for the `i`
     for fileName in fileList:
