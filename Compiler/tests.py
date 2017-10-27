@@ -201,7 +201,7 @@ def extendedTestParse():
     # print('Check shell window to see if the the files match the tests.')
 #    batch = './tests/parsetestscriptextended.bat'  # Windows test script
     subprocess.call(batch)
-    print('\nCheck `diff\' results, above. TicJackToe will have some disparities, but nothing else ought to.')
+    print('\nCheck `diff\' results, above. Files should be identical.')
 
 #     if log == False:
 #         print('Check shell window to see if the the files match the tests.')
