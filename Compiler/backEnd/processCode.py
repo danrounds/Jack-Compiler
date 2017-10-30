@@ -46,8 +46,8 @@ def SubroutineDeclaration(token):
         # and put the reference to our new object in the right memory location
         if currentFnType == 'constructor':
             if currentClass == shouldReturnType:
-                memtoalloc = functionsInfo.getFieldN()
-                output.code('push constant '+str(memtoalloc))
+                memToAlloc = functionsInfo.getFieldN()
+                output.code('push constant '+str(memToAlloc))
                 output.code('call Memory.alloc 1')
                 # ^ Leaves the address of our allocated object @ top of stack
                 output.code('pop pointer 0')
@@ -247,7 +247,7 @@ def SubroutineCall_NoDot_B(subroutineToken, numberOfParams):
 
 
 def SubroutineCall_WithDot_A(subroutineToken, classOrObject):
-    '''`object.method()` or `class.subroutine()`'''
+    """`object.method()` or `Class.subroutine()`"""
 
     methodCall = function = None
     if parseNum == 2:

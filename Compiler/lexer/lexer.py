@@ -13,9 +13,11 @@ Token = collections.namedtuple('Token', ['typ', 'value', 'line'])
 # - value : The actual token, as it appeared in the file we're parsing
 # - line  : The line number we found the token on. We use this for error-checks
 def lexer(filename):  
-    '''Modified version of the tokenizer in Python documentation
+    """
+    Modified version of the tokenizer in Python documentation
 
-You can think of this as a data structure that yields tagged Jack tokens.'''
+    You can think of this as a data structure that yields tagged Jack tokens.
+    """
     import re
     keywords = {'class', 'constructor', 'function', 'method', 'field',
                 'static', 'var', 'int', 'char', 'boolean', 'void', 'true',
@@ -91,8 +93,3 @@ You can think of this as a data structure that yields tagged Jack tokens.'''
         if opencomment == True:
         # triggered if EOF is reached but a comment is still open
             raise CompilerError(TErrorMsg.open_cmnt() % (startcommentline, filename))
-
-
-
-
-

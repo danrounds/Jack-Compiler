@@ -1,5 +1,5 @@
-JackCC -- Jack Complete Compiler -- A production-ready compiler for a toy
-                                    language™
+JackCC -- Jack Complete Compiler
+ -- A production-ready compiler for a toy language™
 ---------------------
 
 Jack is a C-esque, weakly-typed structured programming language. This is a spec-

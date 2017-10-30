@@ -212,7 +212,7 @@ class variableTable():
         if parseNum == 1:
 
             variableName = token.value
-            classkey = currentClass+'^'+variableName
+            classKey = currentClass+'^'+variableName
 
             # Checks whether our local variable has already been declared as
             # class-level variables or function parameters. Issues appropriate
@@ -220,8 +220,8 @@ class variableTable():
             # and position (variable number) to our function scope hash table.
             if scope == 'function':
                 key = currentClass+'^'+currentFn+'^'+variableName
-                if classkey in self.classScope:
-                    kind1 = self.classScope[classkey].kind
+                if classKey in self.classScope:
+                    kind1 = self.classScope[classKey].kind
                     kind2 = kind
                     line = token.line
                     if kind2 == 'var': kind2 = 'local'
@@ -275,7 +275,6 @@ class variableTable():
                 type_ = base.type_
 
             except:
-                # raise ValueError("Variable `%s' not found. Line %s, %s" % (variableName, variableToken.line, globalVars.inputFileName))
                 raise CompilerError('Variable `%s` not found. Line %s, %s' %
                                     (variableName, variableToken.line,
                                      globalVars.inputFileName))

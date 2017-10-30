@@ -28,6 +28,6 @@ Files here:
   `currentFnType`.
 
 * SymbolTable
-  Two Classes, defining two objects that we use to get info on variables and
+  Two classes, defining two objects that we use to get info on variables and
   functions. The function table relies on the variable one. They could be
   split into multiple modules, but for now they're together.

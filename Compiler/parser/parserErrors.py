@@ -1,59 +1,102 @@
 import globalVars
 
-'''Parse error messages'''
-def no_class_declr(self):
-    return "Syntax Error: Jack language files begin with a `class` declaration. %s"\
+
+"""Parse error messages"""
+def noClassName(token):
+    return 'Line %s: Expected class name, got `%s`. %s' % \
+        (token.line, token.value, globalVars.inputFileName)
+
+
+def noClassDeclr(token):
+    return 'Syntax Error: Jack language files begin with a `class` declaration. %s'\
         % globalVars.inputFileName
-def no_class_name(self):
-    return "Line %s: Expected class name, got '%s'. %s" % \
-        (self.line, self.value, globalVars.inputFileName)
-def no_type(self):
-    return "Line %s: Expected type, got '%s'. %s" % \
-        (self.line, self.value, globalVars.inputFileName)
-def no_semivar(self):
-    return "Line %s. Expected more variable names or a semicolon, got '%s'. %s"\
-        % (self.line, self.value, globalVars.inputFileName)
-def no_varname(self):
-    return "Line %s. Expected varName, got semicolon. %s" % \
-        (self.line, globalVars.inputFileName)
-def no_voidtype(self):
-    return "Syntax Error, line %s. Expected `void` or a type, got '%s'. %s" % \
-        (self.line, self.value, globalVars.inputFileName)
-def badstatement(self):
-    return "Invalid statement type, Line %s. %s" % (self.line, globalVars.inputFileName)
-def badexpression(self):
-    return "Line %s: Expected expression, got '%s'. %s" % \
-        (self.line, self.value, self.value)
-def badidentifier(self):
-    return "Line %s: Bad Identifier, '%s'. %s" % \
-        (self.line, self.value, globalVars.inputFileName)
-def addlarguments(self):
-    return "Line %s: Comma without add'l arguments. %s" % \
-        (self.line, globalVars.inputFileName)
-def endofstatement(self):
-    return "Expected end of statement,`;`, Line %s. %s" % \
-        (self.line, globalVars.inputFileName)
-def leftparen(self):
-    return "Line %s: Expected '(', got '%s'. %s" % \
-        (self.line, self.value, globalVars.inputFileName)
-def rightparen(self):
-    return "Line %s: Expected ')', got '%s'. %s" % \
-        (self.line, self.value, globalVars.inputFileName)
-def leftcurly(self):
-    return "Line %s: Expected '}', got '%s'. %s" % \
-        (self.line, self.value, globalVars.inputFileName)
-def rightcurly(self):
-    return "Line %s: Expected '{', got '%s'. %s" % \
-        (self.line, self.value, globalVars.inputFileName)
-def semicolon(self):
-    return "Line %s: Expected semicolon, got '%s'. %s" % \
-        (self.line, self.value, globalVars.inputFileName)
-def period(self):
-    return "Line %s: Expected period, got '%s'. %s" % \
-        (self.line, self.value, globalVars.inputFileName)
-def equals(self):
-    return "Line %s: Expected '=', got '%s'. %s" % \
-        (self.line, self.value, globalVars.inputFileName)
-def closingsquare(self):
-    return "Line %s: Expected closing ']', got '%s'. %s" % \
-        (self.line, self.value, globalVars.inputFileName)
+
+
+def expectedType(token):
+    return 'Line %s: Expected type, got `%s`. %s' % \
+        (token.line, token.value, globalVars.inputFileName)
+
+
+def expectedSemiOrVariable(token):
+    return 'Line %s. Expected more variable names or a semicolon, got `%s`. %s'\
+        % (token.line, token.value, globalVars.inputFileName)
+
+
+def expectedVarName(token):
+    return 'Line %s. Expected varName, got semicolon. %s' % \
+        (token.line, globalVars.inputFileName)
+
+
+def expectedVoidOrType(token):
+    return 'Syntax Error, line %s. Expected `void` or a type, got `%s`. %s' % \
+        (token.line, token.value, globalVars.inputFileName)
+
+
+def badStatement(token):
+    return 'Invalid statement type, Line %s. %s' % \
+        (token.line, globalVars.inputFileName)
+
+
+def badExpression(token):
+    return 'Line %s: Expected expression, got `%s`. %s' % \
+        (token.line, token.value, token.value)
+
+
+def badIdentifier(token):
+    return 'Line %s: Bad Identifier, `%s`. %s' % \
+        (token.line, token.value, globalVars.inputFileName)
+
+
+def expectedAddlArguments(token):
+    return 'Line %s: Comma without add\'l arguments. %s' % \
+        (token.line, globalVars.inputFileName)
+
+
+def expectedEndOfStatement(token):
+    return 'Expected end of statement,`;`, Line %s. %s' % \
+        (token.line, globalVars.inputFileName)
+
+
+def expectedLeftParen(token):
+    return 'Line %s: Expected `(`, got `%s`. %s' % \
+        (token.line, token.value, globalVars.inputFileName)
+
+
+def expectedRightParen(token):
+    return 'Line %s: Expected `)`, got `%s`. %s' % \
+        (token.line, token.value, globalVars.inputFileName)
+
+
+def expectedLeftCurly(token):
+    return 'Line %s: Expected `}`, got `%s`. %s' % \
+        (token.line, token.value, globalVars.inputFileName)
+
+
+def expectedRightCurly(token):
+    return 'Line %s: Expected `{`, got `%s`. %s' % \
+        (token.line, token.value, globalVars.inputFileName)
+
+
+def expectedSemicolon(token):
+    return 'Line %s: Expected semicolon, got `%s`. %s' % \
+        (token.line, token.value, globalVars.inputFileName)
+
+
+def expectedPeriod(token):
+    return 'Line %s: Expected period, got `%s`. %s' % \
+        (token.line, token.value, globalVars.inputFileName)
+
+
+def expectedEquals(token):
+    return 'Line %s: Expected `=`, got `%s`. %s' % \
+        (token.line, token.value, globalVars.inputFileName)
+
+
+def expectedClosingSquare(token):
+    return 'Line %s: Expected closing `]`, got `%s`. %s' % \
+        (token.line, token.value, globalVars.inputFileName)
+
+
+def expectedEndOfFile(token):
+    return 'Expected end of file. Line %s, %s' % \
+        (token.line, globalVars.inputFileName)
