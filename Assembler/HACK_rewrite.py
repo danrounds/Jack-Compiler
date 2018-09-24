@@ -268,7 +268,7 @@ def parseLabels(file_, symbolTable):
                 print('Output will continue, but cannot be relied upon.\n' ,file=sys.stderr)
                 size_limit_reached = True
 
-        in_line_no +=1
+        in_line_no += 1
 
 if __name__ == '__main__':
     assembler('Example.asm', 'Example.hack')
