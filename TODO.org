@@ -1,10 +1,5 @@
 Requisite AND possible improvements for JackCC
-
-* STARTED Build CLI front-end for compiler
-*** MAYBE Options:
-***** MAYBE Keep intermediary files?
-***** TODO Enable muted warnings
-      
+   
 * MAYBE Optimizations
 *** Implement INC and DEC VM commands
 *** ...combined with a specialty parse stage that converts increments and decrements into INC and DEC
@@ -16,9 +11,6 @@ Requisite AND possible improvements for JackCC
 
 * Tests
 *** Automate the error tests in the compiler stage
-
-* Clean-ups
-*** TODO Fix error output in compiler, so that an entire stack trace doesn't happen
 
 
 * TODO SCAN
