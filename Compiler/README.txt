@@ -39,6 +39,7 @@ TEST material:
 
 /tests/testcode0/Extras_(Non_Project) ::
                      Classroom projects -- the bulk of the files we test
+                     Repo at: https://github.com/ybakos/n2t-games-2011
 
 /tests/errors/    :: A bunch of Jack files designed to crash the compiler or
                      evoke warnings
