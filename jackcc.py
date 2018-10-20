@@ -112,16 +112,12 @@ def setOutputVaribles(args):
     # Here, we set out final output directory, which'll mean different things,
     # depending on the type of output we want:
     if compilerInput.endswith('.jack'):
-        contingentFinalDir = os.path.dirname(compilerInput)
-        if not contingentFinalDir:
-            contingentFinalDir = './'
+        contingentFinalDir = os.path.dirname(compilerInput) or './'
     else:
         contingentFinalDir = compilerInput
 
     if finalOutputFile:
-        finalOutputDir = os.path.dirname(finalOutputFile)
-        if not finalOutputDir:
-            finalOutputDir = './'
+        finalOutputDir = os.path.dirname(finalOutputFile) or './'
     else:
         finalOutputDir = contingentFinalDir
 
@@ -203,9 +199,7 @@ def UNMUTE(args):
 
 def cleanUp(tmpDirectory):
     """Gets rid of all the temp files we use during compilation"""
-    if not tmpDirectory:
-        pass
-    else:
+    if tmpDirectory:
         print('Cleaning up tmp files: ', end='')
         for f in glob.glob(os.path.join(tmpDirectory, '*')):
             print('{} '.format(f), end='')
